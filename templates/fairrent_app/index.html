@@ -1,0 +1,1824 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FairRent Connect - Empowering UK Renters</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb; /* Lighter background */
+            color: #111827; /* Darker text */
+            overflow-x: hidden; /* Prevent horizontal scroll on animations */
+        }
+
+        /* Modern glass card effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(90deg, #4f46e5 0%, #9333ea 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Floating animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Service grid layout */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Service card */
+        .service-card {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .service-card:hover {
+            transform: rotateY(5deg) rotateX(2deg); /* Subtle 3D tilt on hover */
+        }
+
+        .service-icon {
+            transition: all 0.4s ease;
+        }
+
+        .service-card:hover .service-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Wave divider */
+        .wave-divider {
+            position: relative;
+            height: 100px;
+            overflow: hidden;
+        }
+
+        .wave-divider svg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+        }
+
+        /* Button hover effect */
+        .btn-hover-effect {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-hover-effect::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #4f46e5, #9333ea, #ec4899);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-hover-effect:hover::before {
+            opacity: 1;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0; /* Ensure initial state is hidden */
+        }
+
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        .delay-500 { animation-delay: 0.5s; }
+
+        /* Specific backgrounds for service icons */
+        .bg-blue-gradient-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+        .bg-green-gradient-icon { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+        .bg-purple-gradient-icon { background: linear-gradient(135deg, #a855f7, #9333ea); color: white; }
+        .bg-red-gradient-icon { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+        .bg-yellow-gradient-icon { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        .bg-indigo-gradient-icon { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; }
+        .bg-teal-gradient-icon { background: linear-gradient(135deg, #14b8a6, #0d9488); color: white; }
+        .bg-orange-gradient-icon { background: linear-gradient(135deg, #f97316, #ea580c); color: white; } /* New gradient for Rent Declaration Check */
+
+
+        /* Modal specific sizing for responsive full-screen feel */
+        .modal-content-lg {
+            width: 95%; /* Occupy more width on small screens */
+            max-width: 768px; /* Max width for larger screens */
+            padding: 2rem; /* Default padding */
+        }
+        @media (min-width: 768px) {
+            .modal-content-lg {
+                max-width: 960px; /* Even wider on medium screens */
+                padding: 3rem; /* More padding on larger modals */
+            }
+        }
+        @media (min-width: 1024px) {
+            .modal-content-lg {
+                max-width: 1100px; /* Even wider on large screens */
+                padding: 4rem; /* Even more padding */
+            }
+        }
+
+        /* Added blur to modal backdrop */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(12px); /* Apply blur effect */
+            -webkit-backdrop-filter: blur(12px); /* For Safari support */
+            transition: backdrop-filter 0.3s ease-out; /* Smooth transition for blur */
+        }
+
+        /* New styles for rent checker insights (modal-rent-results) */
+        .rent-insight-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            text-align: left;
+        }
+        @media (min-width: 768px) {
+            .rent-insight-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .insight-card {
+            background-color: white; /* Changed from f0f4f8 to white for consistency with glass-card */
+            border-radius: 1rem; /* Slightly more rounded */
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .insight-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .insight-card h5 {
+            font-weight: 700; /* Bolder heading */
+            color: #2d3748; /* Darker text */
+            margin-bottom: 0.75rem; /* More space */
+            display: flex;
+            align-items: center;
+        }
+        .insight-card h5 i {
+            margin-right: 0.75rem;
+            color: #6366f1; /* Primary color for icons */
+            font-size: 1.25rem; /* Slightly larger icon */
+        }
+        .insight-card p {
+            font-size: 1rem; /* Slightly larger text */
+            color: #4a5568; /* Darker gray for readability */
+            line-height: 1.5;
+        }
+        .rent-prediction-output {
+            font-weight: 900; /* Extra bold for impact */
+            font-size: 4.5rem; /* Larger font size */
+            background: linear-gradient(90deg, #3b82f6, #6366f1); /* Blue to Indigo gradient */
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+        .rent-prediction-message {
+            font-size: 1.5rem; /* Larger message */
+            color: #4a5568;
+            font-weight: 500;
+        }
+        .cost-breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0; /* More padding */
+            border-bottom: 1px dashed #cbd5e1;
+            font-size: 1rem; /* Consistent font size */
+        }
+        .cost-breakdown-item:last-child {
+            border-bottom: none;
+        }
+        .cost-breakdown-item span:first-child {
+            font-weight: 600; /* Bolder labels */
+            color: #2d3748;
+        }
+        .cost-breakdown-item span:last-child {
+            font-weight: 700; /* Even bolder values */
+            color: #111827;
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <!-- Header -->
+    <header class="fixed w-full z-50 bg-white/90 backdrop-blur-md shadow-sm">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="#" class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-xl">FR</div>
+                    <span class="text-xl font-bold">FairRent Connect</span>
+                </a>
+                
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#services" class="text-gray-600 hover:text-indigo-600 transition-colors duration-200 font-medium">Services</a>
+                    <a href="#about" class="text-gray-600 hover:text-indigo-600 transition-colors duration-200 font-medium">About</a>
+                    <a href="#contact" class="text-gray-600 hover:text-indigo-600 transition-colors duration-200 font-medium">Contact</a>
+                </nav>
+                
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'fairrent_app:profile' %}" class="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                            Dashboard
+                        </a>
+                        <a href="{% url 'fairrent_app:logout' %}" class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors duration-200">
+                            Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'fairrent_app:login' %}" class="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                            Login
+                        </a>
+                        <a href="{% url 'fairrent_app:signup' %}" class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors duration-200">
+                            Sign Up
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="pt-32 pb-20 md:pt-40 md:pb-28 relative overflow-hidden bg-fuchsia-50">
+            <div class="absolute inset-0 -z-10">
+                <div class="absolute inset-0 bg-gradient-to-br from-indigo-50 to-purple-50 opacity-90"></div>
+                <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')] bg-cover bg-center mix-blend-overlay opacity-20"></div>
+            </div>
+            
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto text-center">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight animate-fade-in">
+                        <span class="gradient-text">Renting Made Fair</span> <br>For Everyone
+                    </h1>
+                    <p class="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto animate-fade-in delay-200">
+                        Your all-in-one platform for fair rent, transparent reviews, and finding the perfect roommate across the UK.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in delay-300">
+                        <a href="#services" class="px-8 py-3 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors duration-200 shadow-lg hover:shadow-xl btn-hover-effect">
+                            Explore Services
+                        </a>
+                        <a href="{% url 'fairrent_app:signup' %}" class="px-8 py-3 rounded-lg bg-white text-indigo-600 font-medium border border-indigo-200 hover:bg-indigo-50 transition-colors duration-200 shadow-md hover:shadow-lg btn-hover-effect">
+                            Join Now
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="mt-16 md:mt-24 flex justify-center animate-fade-in delay-400">
+                    <div class="glass-card p-6 max-w-4xl w-full">
+                        <div class="flex flex-col md:flex-row items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-xl font-semibold mb-3">Check Your Rent</h3>
+                                <p class="text-gray-600 mb-4">See if you're paying a fair price based on your location and property details.</p>
+                                <form id="hero-rent-checker-form" class="space-y-3">
+                                    <div>
+                                        <label for="hero_modal_postcode" class="sr-only">Postcode</label>
+                                        <input type="text" id="hero_modal_postcode" name="postcode" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter Postcode">
+                                    </div>
+                                    <div>
+                                        <label for="hero_modal_bedrooms" class="sr-only">Select Bedrooms</label>
+                                        <select id="hero_modal_bedrooms" name="bedrooms" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                            <option value="">Select Bedrooms</option>
+                                            <option value="studio">Studio</option>
+                                            <option value="1">1 Bedroom</option>
+                                            <option value="2">2 Bedrooms</option>
+                                            <option value="3">3 Bedrooms</option>
+                                            <option value="4+">4+ Bedrooms</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="w-full px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors duration-200 btn-hover-effect">
+                                        Check Now
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="hidden md:block flex-1">
+                                <div class="relative">
+                                    <div class="absolute -inset-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-25"></div>
+                                    <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Modern apartment" class="relative rounded-xl shadow-lg w-full h-64 object-cover">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                    <div class="animate-fade-in delay-100">
+                        <div class="text-4xl font-bold text-indigo-600 mb-2">10K+</div>
+                        <div class="text-gray-600">Properties Listed</div>
+                    </div>
+                    <div class="animate-fade-in delay-200">
+                        <div class="text-4xl font-bold text-indigo-600 mb-2">5K+</div>
+                        <div class="text-gray-600">Landlord Reviews</div>
+                    </div>
+                    <div class="animate-fade-in delay-300">
+                        <div class="text-4xl font-bold text-indigo-600 mb-2">95%</div>
+                        <div class="text-gray-600">User Satisfaction</div>
+                    </div>
+                    <div class="animate-fade-in delay-400">
+                        <div class="text-4xl font-bold text-indigo-600 mb-2">24/7</div>
+                        <div class="text-gray-600">Support Available</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services" class="py-20 bg-gray-50 relative">
+            <div class="wave-divider text-gray-50">
+                <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                    <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25"></path>
+                    <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5"></path>
+                    <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z"></path>
+                </svg>
+            </div>
+            
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4 animate-fade-in">Our Comprehensive Services</h2>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto animate-fade-in delay-100">Everything you need for a better renting experience in one place</p>
+                </div>
+                
+                <div class="services-grid">
+                    <!-- Rent Checker -->
+                    <div class="service-card glass-card p-8 animate-fade-in delay-200" data-service-target="rent-checker-modal">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-blue-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-pound-sign"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Rent Checker</h3>
+                        <p class="text-gray-600 mb-4">Check average rent prices in your area to ensure you're paying a fair amount.</p>
+                        <button class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Landlord Reviews -->
+                    <div class="service-card glass-card p-8 animate-fade-in delay-300" data-service-target="landlord-reviews-modal">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-green-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Landlord Reviews</h3>
+                        <p class="text-gray-600 mb-4">Read and write anonymous reviews about landlords and properties.</p>
+                        <button class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Roommate Finder -->
+                    <a href="{% url 'fairrent_app:profile' %}" class="service-card glass-card p-8 animate-fade-in delay-400">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-purple-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">AI Roommate Finder</h3>
+                        <p class="text-gray-600 mb-4">Our smart algorithm helps you find compatible roommates based on lifestyle.</p>
+                        <span class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </span>
+                    </a>
+                    
+                    <!-- Complaint Submission -->
+                    <div class="service-card glass-card p-8 animate-fade-in delay-100" data-service-target="complaint-submission-modal">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-red-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Complaint Submission</h3>
+                        <p class="text-gray-600 mb-4">Submit complaints to local councils with AI-assisted refinement.</p>
+                        <button class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Community Forums -->
+                    <div class="service-card glass-card p-8 animate-fade-in delay-200" data-service-target="community-forums-modal">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-yellow-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Community Forums</h3>
+                        <p class="text-gray-600 mb-4">Connect with other renters, share experiences, and get advice.</p>
+                        <button class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Legal & Contract Support -->
+                    <div class="service-card glass-card p-8 animate-fade-in delay-300" data-service-target="legal-support-modal">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-indigo-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Legal & Contract Support</h3>
+                        <p class="text-gray-600 mb-4">Access tools and guidance for your rental contracts and legal queries.</p>
+                        <button class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+
+                    <!-- Contract Analyzer (AI) -->
+                    <div class="service-card glass-card p-8 animate-fade-in delay-400" data-service-target="rental-contract-modal">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-teal-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Contract Analyzer (AI)</h3>
+                        <p class="text-gray-600 mb-4">Upload or paste your rental contract for AI-powered analysis of terms, rights, and potential issues.</p>
+                        <button class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+
+                    <!-- NEW: Rent Declaration Check Card -->
+                    <div class="service-card glass-card p-8 animate-fade-in delay-500" data-service-target="rent-declaration-modal">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-orange-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Rent Declaration Check</h3>
+                        <p class="text-gray-600 mb-4">Check for discrepancies between your paid rent and landlord's council tax declarations.</p>
+                        <button class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4 animate-fade-in">How It Works</h2>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto animate-fade-in delay-100">Simple steps to improve your renting experience</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="glass-card p-8 text-center animate-fade-in delay-200">
+                        <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-2xl mb-6 mx-auto">
+                            <span class="font-bold">1</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Sign Up</h3>
+                        <p class="text-gray-600">Create your free account in just a few seconds.</p>
+                    </div>
+                    
+                    <div class="glass-card p-8 text-center animate-fade-in delay-300">
+                        <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-2xl mb-6 mx-auto">
+                            <span class="font-bold">2</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Explore Services</h3>
+                        <p class="text-gray-600">Choose from our range of rental tools and resources.</p>
+                    </div>
+                    
+                    <div class="glass-card p-8 text-center animate-fade-in delay-400">
+                        <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-2xl mb-6 mx-auto">
+                            <span class="font-bold">3</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Take Control</h3>
+                        <p class="text-gray-600">Make informed decisions about your rental situation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials -->
+        <section class="py-20 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4 animate-fade-in">What Our Users Say</h2>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto animate-fade-in delay-100">Trusted by thousands of renters across the UK</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="glass-card p-8 animate-fade-in delay-200">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 mr-4">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold">Sarah K.</h4>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600">"The rent checker saved me £200 a month! I was able to negotiate a fairer price thanks to the data provided."</p>
+                    </div>
+                    
+                    <div class="glass-card p-8 animate-fade-in delay-300">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 mr-4">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold">James L.</h4>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600">"Found my perfect roommate through the AI matching system. We've been living together for 6 months now!"</p>
+                    </div>
+                    
+                    <div class="glass-card p-8 animate-fade-in delay-400">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 mr-4">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold">Emma T.</h4>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600">"The contract analyzer helped me spot several unfair clauses before I signed. Essential tool for renters!"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-col md:flex-row items-center gap-12">
+                    <div class="md:w-1/2 animate-fade-in">
+                        <h2 class="text-3xl md:text-4xl font-bold mb-6">About FairRent Connect</h2>
+                        <p class="text-gray-600 mb-6">We're on a mission to create a fairer, more transparent rental market in the UK. Our platform empowers renters with the tools and information they need to make better decisions.</p>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-bold text-gray-900">Data-Driven</h4>
+                                    <p class="text-gray-600">Our insights are powered by real market data and AI analysis.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-bold text-gray-900">Community Focused</h4>
+                                    <p class="text-gray-600">Built by renters, for renters. We listen to our community.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-bold text-gray-900">Always Improving</h4>
+                                    <p class="text-gray-600">We continuously add new features based on user feedback.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2 relative animate-fade-in delay-200">
+                        <div class="relative">
+                            <div class="absolute -inset-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-25"></div>
+                            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Team working" class="relative rounded-xl shadow-lg w-full">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-20 bg-gradient-to-r from-indigo-600 to-purple-700 text-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 animate-fade-in">Ready to Take Control of Your Renting Experience?</h2>
+                <p class="text-xl text-indigo-100 mb-10 max-w-2xl mx-auto animate-fade-in delay-100">
+                    Join thousands of renters who are already benefiting from FairRent Connect.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in delay-200">
+                    <a href="{% url 'fairrent_app:signup' %}" class="px-8 py-3 rounded-lg bg-white text-indigo-600 font-medium hover:bg-indigo-50 transition-colors duration-200 shadow-lg hover:shadow-xl btn-hover-effect">
+                        Get Started for Free
+                    </a>
+                    <a href="#services" class="px-8 py-3 rounded-lg border border-indigo-300 text-white font-medium hover:bg-indigo-700 transition-colors duration-200 shadow-md hover:shadow-lg btn-hover-effect">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section (New) -->
+        <section id="contact" class="py-20 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 animate-fade-in">Get in Touch</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-12 animate-fade-in delay-100">
+                    Have questions or need support? Reach out to us through the following channels.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="glass-card p-8 animate-fade-in delay-200">
+                        <i class="fas fa-envelope text-5xl text-indigo-500 mb-4"></i>
+                        <h3 class="text-xl font-bold mb-3">Email Us</h3>
+                        <p class="text-gray-600">Send us an email and we'll get back to you as soon as possible.</p>
+                        <a href="mailto:support@fairrentconnect.com" class="mt-4 inline-flex items-center text-indigo-600 font-medium hover:underline">
+                            support@fairrentconnect.com
+                        </a>
+                    </div>
+                    <div class="glass-card p-8 animate-fade-in delay-300">
+                        <i class="fas fa-phone-alt text-5xl text-indigo-500 mb-4"></i>
+                        <h3 class="text-xl font-bold mb-3">Call Us</h3>
+                        <p class="text-gray-600">Speak directly with our support team during business hours.</p>
+                        <a href="tel:+442012345678" class="mt-4 inline-flex items-center text-indigo-600 font-medium hover:underline">
+                            +44 20 1234 5678
+                        </a>
+                    </div>
+                    <div class="glass-card p-8 animate-fade-in delay-400">
+                        <i class="fas fa-map-marker-alt text-5xl text-indigo-500 mb-4"></i>
+                        <h3 class="text-xl font-bold mb-3">Visit Us</h3>
+                        <p class="text-gray-600">Our office is located in the heart of London.</p>
+                        <p class="mt-4 text-indigo-600 font-medium">85 Portland Street, London, UK</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-xl">FR</div>
+                        <span class="text-xl font-bold">FairRent Connect</span>
+                    </div>
+                    <p class="text-gray-400">Empowering renters across the UK with fair, transparent housing solutions.</p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Services</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Rent Checker</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Landlord Reviews</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Roommate Finder</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Legal Support</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Complaint Submission</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Community Forums</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Contract Analyzer</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Rent Declaration Check</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#about" class="text-gray-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Press</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
+                    <ul class="space-y-2">
+                        <li class="text-gray-400">hello@fairrentconnect.com</li>
+                        <li class="text-gray-400">+44 20 1234 5678</li>
+                        <li class="text-gray-400">85 Portland Street, London, UK</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 mb-4 md:mb-0">&copy; {% now "Y" %} FairRent Connect. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Modals for Interactive Services -->
+
+    <!-- Rent Checker Modal -->
+    <div id="rent-checker-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="rent-checker-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+            <h3 id="rent-checker-modal-title" class="text-3xl font-bold text-center mb-8 text-gray-900">Check Your Rent Instantly</h3>
+            <form id="rent-checker-form" class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                <div>
+                    <label for="modal_postcode" class="block text-sm font-medium text-gray-700 mb-1">Postcode</label>
+                    <input type="text" id="modal_postcode" name="postcode" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., SW1A 0AA" required>
+                </div>
+                <div>
+                    <label for="modal_bedrooms" class="block text-sm font-medium text-gray-700 mb-1">Bedrooms</label>
+                    <select id="modal_bedrooms" name="bedrooms" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <option value="studio">Studio</option>
+                        <option value="1">1 Bedroom</option>
+                        <option value="2" selected>2 Bedrooms</option>
+                        <option value="3">3 Bedrooms</option>
+                        <option value="4+">4+ Bedrooms</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold text-lg">Check Price <i class="fas fa-arrow-right ml-2"></i></button>
+                </div>
+            </form>
+            <div id="modal-rent-results" class="hidden mt-8 text-center">
+                <div id="modal-rent-prediction-loader" class="hidden">
+                    <div class="spinner w-10 h-10 border-4 border-gray-200 rounded-full mx-auto"></div>
+                    <p class="mt-3 text-gray-600 text-lg">Calculating your estimated rent...</p>
+                </div>
+                <!-- New structure for OpenAI insights -->
+                <div id="modal-rent-prediction-output" class="rent-prediction-output"></div>
+                <p id="modal-rent-prediction-message" class="rent-prediction-message"></p>
+
+                <div class="rent-insight-grid">
+                    <div class="insight-card">
+                        <h5><i class="fas fa-map-marker-alt"></i> Amenity Impact</h5>
+                        <p id="amenity-impact-output"></p>
+                    </div>
+                    <div class="insight-card">
+                        <h5><i class="fas fa-chart-line"></i> Market Trend</h5>
+                        <p id="market-trend-output"></p>
+                    </div>
+                    <div class="insight-card">
+                        <h5><i class="fas fa-dollar-sign"></i> Estimated Utilities</h5>
+                        <p id="utilities-cost-output"></p>
+                    </div>
+                    <div class="insight-card">
+                        <h5><i class="fas fa-city"></i> Estimated Council Tax</h5>
+                        <p id="council-tax-output"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Landlord Reviews Modal -->
+    <div id="landlord-reviews-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="landlord-reviews-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+            <h3 id="landlord-reviews-modal-title" class="text-3xl font-bold text-center mb-8 text-gray-900">Submit a Landlord Review</h3>
+            <form id="review-form" class="space-y-6">
+                <div>
+                    <label for="review_landlord_name" class="block text-sm font-medium text-gray-700 mb-1">Landlord Name</label>
+                    <input type="text" id="review_landlord_name" name="landlord_name" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., John Smith" required>
+                </div>
+                <div>
+                    <label for="review_property_address" class="block text-sm font-medium text-gray-700 mb-1">Property Address</label>
+                    <input type="text" id="review_property_address" name="property_address" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., 10 Downing St, London" required>
+                </div>
+                <div>
+                    <label for="review_rating" class="block text-sm font-medium text-gray-700 mb-1">Rating (1-5 Stars)</label>
+                    <select id="review_rating" name="rating" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <option value="">Select Rating</option>
+                        <option value="1">1 Star - Very Poor</option>
+                        <option value="2">2 Stars - Poor</option>
+                        <option value="3">3 Stars - Average</option>
+                        <option value="4">4 Stars - Good</option>
+                        <option value="5">5 Stars - Excellent</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="review_comments" class="block text-sm font-medium text-gray-700 mb-1">Comments</label>
+                    <textarea id="review_comments" name="comments" rows="5" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="Share your experience..." required></textarea>
+                </div>
+                <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold text-lg">Submit Review <i class="fas fa-paper-plane ml-2"></i></button>
+            </form>
+            <div class="mt-10">
+                <h4 class="text-2xl font-bold mb-5 text-gray-900">Recent Reviews</h4>
+                <div id="recent-reviews-list" class="space-y-4">
+                    <!-- Reviews will be loaded here -->
+                    <p class="text-center text-gray-500 py-4">Loading recent reviews...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaint Submission Modal -->
+    <div id="complaint-submission-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="complaint-submission-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+            <h3 id="complaint-submission-modal-title" class="text-3xl font-bold text-center mb-8 text-gray-900">Submit a Complaint</h3>
+            <form id="complaint-form" class="space-y-6">
+                <div>
+                    <label for="complaint_issue_type" class="block text-sm font-medium text-gray-700 mb-1">Issue Type</label>
+                    <select id="complaint_issue_type" name="issue_type" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <option value="">Select Issue Type</option>
+                        <option value="unpaid_repairs">Unpaid Repairs</option>
+                        <option value="deposit_dispute">Deposit Dispute</option>
+                        <option value="poor_conditions">Poor Living Conditions</option>
+                        <option value="harassment">Harassment</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="complaint_property_address" class="block text-sm font-medium text-gray-700 mb-1">Property Address</label>
+                    <input type="text" id="complaint_property_address" name="property_address" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., 10 Downing St, London" required>
+                </div>
+                <div>
+                    <label for="complaint_landlord_name" class="block text-sm font-medium text-gray-700 mb-1">Landlord Name (Optional)</label>
+                    <input type="text" id="complaint_landlord_name" name="landlord_name" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., Jane Doe">
+                </div>
+                <div>
+                    <label for="complaint_description" class="block text-sm font-medium text-gray-700 mb-1">Description of Issue</label>
+                    <textarea id="complaint_description" name="description" rows="7" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="Describe your complaint in detail..." required></textarea>
+                </div>
+                <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button type="button" id="refine-complaint-btn" class="btn-secondary w-full sm:w-auto flex-1 py-3 rounded-lg font-medium">
+                        <i class="fas fa-magic mr-2"></i>Refine Text (AI)
+                    </button>
+                    <button type="submit" class="btn-primary w-full sm:w-auto flex-1 py-3 rounded-lg font-semibold">Submit Complaint <i class="fas fa-paper-plane ml-2"></i></button>
+                </div>
+            </form>
+            <div id="refined-text-loader" class="hidden text-center py-6">
+                <div class="spinner w-8 h-8 border-4 border-gray-200 rounded-full mx-auto"></div>
+                <p class="mt-3 text-gray-600 text-md">Refining with AI...</p>
+            </div>
+            <div id="refined-text-output" class="mt-6 p-6 bg-blue-50 rounded-lg border border-blue-200 hidden">
+                <h5 class="font-semibold text-gray-700 mb-3 text-lg">AI Refined Text:</h5>
+                <p id="refined-text-content" class="text-gray-800 leading-relaxed"></p>
+                <button id="use-refined-text-btn" class="mt-5 btn-primary px-4 py-2 rounded-lg text-md">Use This Text</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Community Forums Modal -->
+    <div id="community-forums-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="community-forums-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+            <h3 id="community-forums-modal-title" class="text-3xl font-bold text-center mb-8 text-gray-900">Community Forums</h3>
+            <div class="flex justify-center mb-8">
+                <button id="create-post-btn" class="btn-primary px-6 py-3 rounded-lg font-medium text-lg">
+                    <i class="fas fa-plus mr-2"></i>Create New Post
+                </button>
+            </div>
+
+            <div id="forum-post-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="forum-post-modal-title">
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative p-8">
+                    <button type="button" id="close-forum-post-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-times fa-lg"></i>
+                    </button>
+                    <form id="forum-post-form" class="space-y-6">
+                        <h3 id="forum-post-modal-title" class="text-3xl font-bold mb-6 text-gray-900">Create New Forum Post</h3>
+                        <div>
+                            <label for="post_category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <select id="post_category" name="category" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                                <option value="">Select Category</option>
+                                <option value="general">General Advice</option>
+                                <option value="legal">Legal Questions</option>
+                                <option value="roommates">Roommate Tips</option>
+                                <option value="landlords">Landlord Issues</option>
+                                <option value="housing_market">Housing Market</option>
+                            </select>
+                        </div>
+                        <div class="mt-4">
+                            <label for="post_title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                            <input type="text" id="post_title" name="title" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., Tips for dealing with noisy neighbours" required>
+                        </div>
+                        <div class="mt-4">
+                            <label for="post_content" class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                            <textarea id="post_content" name="content" rows="10" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="Write your post content here..." required></textarea>
+                        </div>
+                        <div class="mt-8 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                            <button type="button" id="generate-forum-idea-btn" class="btn-secondary w-full sm:w-auto flex-1 py-3 rounded-lg font-medium">
+                                <i class="fas fa-lightbulb mr-2"></i>Generate Idea (AI)
+                            </button>
+                            <button type="submit" class="btn-primary w-full sm:w-auto flex-1 py-3 rounded-lg font-semibold">Submit Post <i class="fas fa-paper-plane ml-2"></i></button>
+                        </div>
+                    </form>
+                    <div id="forum-idea-loader" class="hidden text-center py-6">
+                        <div class="spinner w-8 h-8 border-4 border-gray-200 rounded-full mx-auto"></div>
+                        <p class="mt-3 text-gray-600 text-md">Generating idea with AI...</p>
+                    </div>
+                    <div id="forum-idea-output" class="mt-6 p-6 bg-blue-50 rounded-lg border border-blue-200 hidden">
+                        <h5 class="font-semibold text-gray-700 mb-3 text-lg">AI Generated Idea:</h5>
+                        <p id="forum-idea-content" class="text-gray-800 leading-relaxed"></p>
+                        <button id="use-forum-idea-btn" class="mt-5 btn-primary px-4 py-2 rounded-lg text-md">Use This Idea</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10">
+                <h4 class="text-2xl font-bold mb-5 text-gray-900">Recent Forum Posts</h4>
+                <div id="recent-forum-posts-list" class="space-y-4">
+                    <!-- Forum posts will be loaded here -->
+                    <p class="text-center text-gray-500 py-4">Loading recent forum posts...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Support Modal -->
+    <div id="legal-support-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="legal-support-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+            <h3 id="legal-support-modal-title" class="text-3xl font-bold text-center mb-8 text-gray-900">Legal & Contract Support</h3>
+            <p class="text-gray-600 text-center mb-8 text-lg max-w-2xl mx-auto">
+                This section provides guidance on common legal and contract-related issues for renters.
+                While we don't offer legal advice, our tools can help you understand your rights.
+            </p>
+            <div class="grid grid-cols-1 gap-8">
+                <div class="bg-blue-50 p-8 rounded-lg text-center border border-blue-200 shadow-md">
+                    <i class="fas fa-info-circle text-blue-600 text-4xl mb-4"></i>
+                    <h4 class="text-xl font-semibold text-gray-800 mb-3">Understanding Your Tenancy Agreement</h4>
+                    <p class="text-gray-700 leading-relaxed">Learn about common clauses, your responsibilities, and landlord obligations with our comprehensive guides.</p>
+                    <button class="btn-primary mt-6 px-8 py-3 rounded-lg font-medium text-lg">
+                        <i class="fas fa-book-open mr-2"></i>Read Our Guides
+                    </button>
+                </div>
+                <div class="bg-green-50 p-8 rounded-lg text-center border border-green-200 shadow-md">
+                    <i class="fas fa-question-circle text-green-600 text-4xl mb-4"></i>
+                    <h4 class="text-xl font-semibold text-gray-800 mb-3">Ask a Quick Question (AI Powered)</h4>
+                    <p class="text-gray-700 leading-relaxed">Get instant, general information on UK rental laws and common issues. (Disclaimer: Not legal advice)</p>
+                    <button id="ask-legal-ai-btn" class="btn-primary mt-6 px-8 py-3 rounded-lg font-medium">
+                        <i class="fas fa-robot mr-2"></i>Ask AI
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Legal Question Modal -->
+            <div id="legal-ai-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="legal-ai-modal-title">
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative p-8">
+                    <button type="button" id="close-legal-ai-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-times fa-lg"></i>
+                    </button>
+                    <div class="space-y-6">
+                        <h3 id="legal-ai-modal-title" class="text-3xl font-bold mb-6 text-center text-gray-900">Ask Our AI Legal Assistant</h3>
+                        <p class="text-md text-gray-600 mb-4 text-center leading-relaxed">
+                            Please note: This AI provides general information based on UK rental laws and is not a substitute for professional legal advice.
+                        </p>
+                        <div class="mb-4">
+                            <label for="legal-query-input" class="block text-sm font-medium text-gray-700 mb-1">Your Question:</label>
+                            <textarea id="legal-query-input" rows="6" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., What are my rights regarding a broken boiler?"></textarea>
+                        </div>
+                        <button id="submit-legal-query-btn" class="btn-primary w-full py-3 rounded-lg font-semibold text-lg">Get AI Answer <i class="fas fa-robot ml-2"></i></button>
+                        
+                        <div id="legal-ai-loader" class="hidden text-center py-6">
+                            <div class="spinner w-8 h-8 border-4 border-gray-200 rounded-full mx-auto"></div>
+                            <p class="mt-3 text-gray-600 text-md">Generating answer...</p>
+                        </div>
+                        <div id="legal-ai-output" class="mt-6 p-6 bg-gray-50 rounded-lg border border-gray-200 hidden">
+                            <h5 class="font-semibold text-gray-700 mb-3 text-lg">AI Response:</h5>
+                            <p id="legal-ai-content" class="text-gray-800 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- NEW: Rental Contract Analyzer Modal -->
+    <div id="rental-contract-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="rental-contract-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+            <h3 id="rental-contract-modal-title" class="text-3xl font-bold text-center mb-8 text-gray-900">AI Rental Contract Analyzer</h3>
+            <p class="text-gray-600 text-center mb-6 text-lg max-w-2xl mx-auto">
+                Paste your rental contract text below for an AI-powered analysis of key terms, obligations, and potential issues under UK law.
+            </p>
+            <form id="rental-contract-form" class="space-y-6">
+                <div>
+                    <label for="contract_text" class="block text-sm font-medium text-gray-700 mb-1">Paste Contract Text Here</label>
+                    <textarea id="contract_text" name="contract_text" rows="15" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., 'This Tenancy Agreement is made on...'"></textarea>
+                </div>
+                <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold text-lg">Analyze Contract <i class="fas fa-robot ml-2"></i></button>
+            </form>
+            <div id="contract-analysis-loader" class="hidden text-center py-6">
+                <div class="spinner w-10 h-10 border-4 border-gray-200 rounded-full mx-auto"></div>
+                <p class="mt-3 text-gray-600 text-lg">Analyzing your contract with AI...</p>
+            </div>
+            <div id="contract-analysis-output" class="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200 hidden">
+                <h4 class="font-semibold text-gray-800 mb-4 text-xl">AI Analysis Result:</h4>
+                <div id="analysis-content" class="text-gray-800 leading-relaxed prose max-w-none">
+                    <!-- AI analysis will be injected here -->
+                </div>
+                <p class="text-sm text-red-600 mt-4 font-medium">
+                    Disclaimer: This analysis is for informational purposes only and does not constitute legal advice. For specific legal guidance, consult a qualified solicitor or housing expert.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Rent Declaration Check Modal -->
+    <div id="rent-declaration-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="rent-declaration-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+            <h3 id="rent-declaration-modal-title" class="text-3xl font-bold text-center mb-8 text-gray-900">Rent Declaration Check</h3>
+            <p class="text-gray-600 text-center mb-6 text-lg max-w-2xl mx-auto">
+                Enter your rent and council tax details to check for potential discrepancies.
+            </p>
+            <form id="rent-declaration-form" class="space-y-6">
+                <div>
+                    <label for="declaration_postcode" class="block text-sm font-medium text-gray-700 mb-1">Property Postcode</label>
+                    <input type="text" id="declaration_postcode" name="postcode" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., SW1A 0AA" required>
+                </div>
+                <div>
+                    <label for="declaration_bedrooms" class="block text-sm font-medium text-gray-700 mb-1">Number of Bedrooms</label>
+                    <select id="declaration_bedrooms" name="bedrooms" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <option value="">Select Bedrooms</option>
+                        <option value="studio">Studio</option>
+                        <option value="1">1 Bedroom</option>
+                        <option value="2">2 Bedrooms</option>
+                        <option value="3">3 Bedrooms</option>
+                        <option value="4+">4+ Bedrooms</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="actual_rent_paid" class="block text-sm font-medium text-gray-700 mb-1">Actual Rent Paid (£/month)</label>
+                    <input type="number" id="actual_rent_paid" name="actual_rent_paid" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., 1200" required step="0.01">
+                </div>
+                <div>
+                    <label for="council_tax_band" class="block text-sm font-medium text-gray-700 mb-1">Council Tax Band</label>
+                    <select id="council_tax_band" name="council_tax_band" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <option value="">Select Band</option>
+                        <option value="A">Band A</option>
+                        <option value="B">Band B</option>
+                        <option value="C">Band C</option>
+                        <option value="D">Band D</option>
+                        <option value="E">Band E</option>
+                        <option value="F">Band F</option>
+                        <option value="G">Band G</option>
+                        <option value="H">Band H</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold text-lg">Check for Discrepancy <i class="fas fa-magnifying-glass-dollar ml-2"></i></button>
+            </form>
+            <div id="declaration-analysis-loader" class="hidden text-center py-6">
+                <div class="spinner w-10 h-10 border-4 border-gray-200 rounded-full mx-auto"></div>
+                <p class="mt-3 text-gray-600 text-lg">Analyzing for discrepancies...</p>
+            </div>
+            <div id="declaration-analysis-output" class="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200 hidden">
+                <h4 class="font-semibold text-gray-800 mb-4 text-xl">Analysis Result:</h4>
+                <div id="declaration-analysis-content" class="text-gray-800 leading-relaxed prose max-w-none">
+                    <!-- AI analysis will be injected here -->
+                </div>
+                <p class="text-sm text-red-600 mt-4 font-medium">
+                    Disclaimer: This analysis is for informational purposes only and does not constitute legal advice. For specific legal guidance, consult a qualified solicitor or housing expert.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert/Toast Notification -->
+    <div id="alert-toast" class="fixed bottom-5 right-5 z-50 hidden p-4 rounded-lg text-white transition-transform transform translate-y-20">
+        <p id="alert-message"></p>
+    </div>
+
+    <script>
+        // Helper function to show toast notifications
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('alert-toast');
+            const msgElement = document.getElementById('alert-message');
+            msgElement.textContent = message;
+            
+            toast.className = 'fixed bottom-5 right-5 z-50 p-4 rounded-lg text-white transition-transform transform';
+            if (type === 'success') {
+                toast.classList.add('bg-green-500');
+            } else if (type === 'error') {
+                toast.classList.add('bg-red-500');
+            } else {
+                toast.classList.add('bg-gray-700');
+            }
+            
+            toast.classList.remove('translate-y-20'); // Show toast
+            setTimeout(() => {
+                toast.classList.add('translate-y-20'); // Hide toast
+            }, 3000);
+        }
+
+        // --- Service Modals Logic ---
+        const serviceCards = document.querySelectorAll('.service-card[data-service-target]');
+        const closeModalsBtns = document.querySelectorAll('.close-modal-btn');
+
+        serviceCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const targetModalId = card.dataset.serviceTarget;
+                const targetModal = document.getElementById(targetModalId);
+                if (targetModal) {
+                    targetModal.classList.remove('hidden');
+                    targetModal.classList.add('flex');
+                }
+            });
+        });
+
+        closeModalsBtns.forEach(button => {
+            button.addEventListener('click', () => {
+                const modal = button.closest('.fixed.inset-0');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        });
+
+        // --- Rent Checker Form Logic ---
+        const rentCheckerForm = document.getElementById('rent-checker-form');
+        const modalRentResults = document.getElementById('modal-rent-results');
+        const modalRentPredictionLoader = document.getElementById('modal-rent-prediction-loader');
+        const modalRentPredictionOutput = document.getElementById('modal-rent-prediction-output');
+        const modalRentPredictionMessage = document.getElementById('modal-rent-prediction-message');
+        const amenityImpactOutput = document.getElementById('amenity-impact-output');
+        const marketTrendOutput = document.getElementById('market-trend-output');
+        const utilitiesCostOutput = document.getElementById('utilities-cost-output');
+        const councilTaxOutput = document.getElementById('council-tax-output');
+        const heroRentCheckerForm = document.getElementById('hero-rent-checker-form');
+        const heroModalPostcode = document.getElementById('hero_modal_postcode');
+        const heroModalBedrooms = document.getElementById('hero_modal_bedrooms');
+
+
+        if (heroRentCheckerForm) {
+            heroRentCheckerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const heroPostcode = heroModalPostcode.value;
+                const heroBedrooms = heroModalBedrooms.value;
+
+                // Open the main rent checker modal
+                const rentCheckerModal = document.getElementById('rent-checker-modal');
+                if (rentCheckerModal) {
+                    rentCheckerModal.classList.remove('hidden');
+                    rentCheckerModal.classList.add('flex');
+
+                    // Pre-fill modal form fields
+                    if (document.getElementById('modal_postcode')) document.getElementById('modal_postcode').value = heroPostcode;
+                    if (document.getElementById('modal_bedrooms')) document.getElementById('modal_bedrooms').value = heroBedrooms;
+                }
+            });
+        }
+        // Assuming setupAddressSuggestions is defined somewhere accessible (e.g., in main.js)
+        // setupAddressSuggestions(heroModalPostcode);
+
+
+        if (rentCheckerForm) {
+            rentCheckerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                modalRentResults.classList.add('hidden');
+                modalRentPredictionLoader.classList.remove('hidden');
+                modalRentPredictionOutput.textContent = '';
+                modalRentPredictionMessage.textContent = '';
+                amenityImpactOutput.textContent = '';
+                marketTrendOutput.textContent = '';
+                utilitiesCostOutput.textContent = '';
+                councilTaxOutput.textContent = '';
+
+
+                const formData = new FormData(rentCheckerForm);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch('/api/predict_rent/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+
+                    modalRentPredictionLoader.classList.add('hidden');
+                    modalRentResults.classList.remove('hidden');
+
+                    if (result.status === 'success') {
+                        modalRentPredictionOutput.textContent = result.data.predicted_rent;
+                        modalRentPredictionMessage.textContent = result.data.range; // Range is now a separate field
+
+                        // Populate new insight fields
+                        amenityImpactOutput.textContent = result.data.amenity_impact;
+                        marketTrendOutput.textContent = result.data.market_trend;
+                        utilitiesCostOutput.textContent = `£${result.data.cost_breakdown.utilities || 'N/A'}`;
+                        councilTaxOutput.textContent = `£${result.data.cost_breakdown.council_tax || 'N/A'}`;
+
+                    } else {
+                        modalRentPredictionOutput.textContent = 'Error';
+                        modalRentPredictionMessage.textContent = result.message || 'Failed to predict rent.';
+                        showToast(result.message || 'Failed to predict rent.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    modalRentPredictionLoader.classList.add('hidden');
+                    modalRentResults.classList.remove('hidden');
+                    modalRentPredictionOutput.textContent = 'Error';
+                    modalRentPredictionMessage.textContent = 'Network error. Please try again.';
+                    showToast('Network error. Please try again.', 'error');
+                }
+            });
+        }
+
+        // --- Landlord Review Form Logic ---
+        const reviewForm = document.getElementById('review-form');
+        const recentReviewsList = document.getElementById('recent-reviews-list');
+
+        async function fetchRecentReviews() {
+            try {
+                const response = await fetch('/api/reviews/');
+                const result = await response.json();
+                if (result.status === 'success') {
+                    recentReviewsList.innerHTML = ''; // Clear existing
+                    if (result.data.reviews.length > 0) {
+                        result.data.reviews.forEach(review => {
+                            const reviewItem = document.createElement('div');
+                            reviewItem.className = 'bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100';
+                            reviewItem.innerHTML = `
+                                <p class="font-semibold text-gray-800">${review.landlord_name} - <span class="text-yellow-500">${'★'.repeat(review.rating)}</span></p>
+                                <p class="text-sm text-gray-600 mt-1">"${review.comments}"</p>
+                                <p class="text-xs text-gray-400 mt-2">Reviewed by ${review.user__username} on ${new Date(review.reviewed_at).toLocaleDateString()}</p>
+                            `;
+                            recentReviewsList.appendChild(reviewItem);
+                        });
+                    } else {
+                        recentReviewsList.innerHTML = '<p class="text-center text-gray-500 py-4">No reviews yet.</p>';
+                    }
+                } else {
+                    recentReviewsList.innerHTML = `<p class="text-center text-red-500 py-4">Failed to load reviews: ${result.message || 'Unknown error'}</p>`;
+                }
+            } catch (error) {
+                console.error('Error fetching reviews:', error);
+                recentReviewsList.innerHTML = '<p class="text-center text-red-500 py-4">Network error loading reviews.</p>';
+            }
+        }
+
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(reviewForm);
+                const data = Object.fromEntries(formData.entries());
+                data.rating = parseInt(data.rating); // Ensure rating is an integer
+
+                try {
+                    const response = await fetch('/api/submit_review/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showToast(result.message, 'success');
+                        reviewForm.reset(); // Clear form
+                        fetchRecentReviews(); // Reload reviews
+                    } else {
+                        showToast(result.message || 'Failed to submit review.', 'error');
+                        console.error('Error submitting review:', result.errors);
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    showToast('Network error. Please try again.', 'error');
+                }
+            });
+            fetchRecentReviews(); // Load reviews on modal open
+        }
+
+        // --- Complaint Form Logic ---
+        const complaintForm = document.getElementById('complaint-form');
+        const refineComplaintBtn = document.getElementById('refine-complaint-btn');
+        const refinedTextLoader = document.getElementById('refined-text-loader');
+        const refinedTextOutput = document.getElementById('refined-text-output');
+        const refinedTextContent = document.getElementById('refined-text-content');
+        const useRefinedTextBtn = document.getElementById('use-refined-text-btn');
+        const complaintDescription = document.getElementById('complaint_description');
+
+        if (complaintForm) {
+            refineComplaintBtn.addEventListener('click', async () => {
+                const originalText = complaintDescription.value;
+                if (!originalText.trim()) {
+                    showToast('Please enter text to refine.', 'error');
+                    return;
+                }
+
+                refinedTextOutput.classList.add('hidden');
+                refinedTextLoader.classList.remove('hidden');
+
+                try {
+                    const response = await fetch('/api/refine_text/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ text: originalText })
+                    });
+                    const result = await response.json();
+
+                    refinedTextLoader.classList.add('hidden');
+                    refinedTextOutput.classList.remove('hidden');
+
+                    if (result.status === 'success') {
+                        refinedTextContent.textContent = result.data.refined_text;
+                    } else {
+                        refinedTextContent.textContent = result.message || 'Failed to refine text.';
+                        showToast(result.message || 'Failed to refine text.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    refinedTextLoader.classList.add('hidden');
+                    refinedTextOutput.classList.remove('hidden');
+                    if (refinedTextContent) refinedTextContent.textContent = 'Network error. Please try again.';
+                    showToast('Network error. Please try again.', 'error');
+                }
+            });
+        }
+
+        if (useRefinedTextBtn) {
+            useRefinedTextBtn.addEventListener('click', () => {
+                if (complaintDescription && refinedTextContent) complaintDescription.value = refinedTextContent.textContent;
+                if (refinedTextOutput) refinedTextOutput.classList.add('hidden');
+            });
+        }
+
+        if (complaintForm) {
+            complaintForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(complaintForm);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch('/api/submit_complaint/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showToast(result.message, 'success');
+                        complaintForm.reset(); // Clear form
+                        if (refinedTextOutput) refinedTextOutput.classList.add('hidden'); // Hide refined text
+                    } else {
+                        showToast(result.message || 'Failed to submit complaint.', 'error');
+                        console.error('Error submitting complaint:', result.errors);
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    showToast('Network error. Please try again.', 'error');
+                }
+            });
+        }
+
+        // --- Community Forums Modal Logic ---
+        const createPostBtn = document.getElementById('create-post-btn');
+        const forumPostModal = document.getElementById('forum-post-modal');
+        const closeForumPostModalBtn = document.getElementById('close-forum-post-modal-btn');
+        const forumPostForm = document.getElementById('forum-post-form');
+        const generateForumIdeaBtn = document.getElementById('generate-forum-idea-btn');
+        const forumIdeaLoader = document.getElementById('forum-idea-loader');
+        const forumIdeaOutput = document.getElementById('forum-idea-output');
+        const forumIdeaContent = document.getElementById('forum-idea-content');
+        const useForumIdeaBtn = document.getElementById('use-forum-idea-btn');
+        const postTitle = document.getElementById('post_title');
+        const postContent = document.getElementById('post_content');
+        const recentForumPostsList = document.getElementById('recent-forum-posts-list');
+
+        async function fetchRecentForumPosts() {
+            try {
+                const response = await fetch('/api/forum_posts/');
+                const result = await response.json();
+                if (result.status === 'success') {
+                    recentForumPostsList.innerHTML = ''; // Clear existing
+                    if (result.data.posts.length > 0) {
+                        result.data.posts.forEach(post => {
+                            const postItem = document.createElement('div');
+                            postItem.className = 'bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100';
+                            postItem.innerHTML = `
+                                <p class="font-semibold text-gray-800">${post.title} - <span class="text-indigo-600">${post.category}</span></p>
+                                <p class="text-sm text-gray-600 mt-1">"${post.content.substring(0, 100)}..."</p>
+                                <p class="text-xs text-gray-400 mt-2">By ${post.user__username} on ${new Date(post.created_at).toLocaleDateString()}</p>
+                            `;
+                            recentForumPostsList.appendChild(postItem);
+                        });
+                    } else {
+                        recentForumPostsList.innerHTML = '<p class="text-center text-gray-500 py-4">No posts yet.</p>';
+                    }
+                } else {
+                    recentForumPostsList.innerHTML = `<p class="text-center text-red-500 py-4">Failed to load posts: ${result.message || 'Unknown error'}</p>`;
+                }
+            } catch (error) {
+                console.error('Error fetching forum posts:', error);
+                recentForumPostsList.innerHTML = '<p class="text-center text-red-500 py-4">Network error loading posts.</p>';
+            }
+        }
+
+        if (createPostBtn) {
+            createPostBtn.addEventListener('click', () => {
+                if (forumPostModal) {
+                    forumPostModal.classList.remove('hidden');
+                    forumPostModal.classList.add('flex');
+                }
+            });
+        }
+
+        if (closeForumPostModalBtn) {
+            closeForumPostModalBtn.addEventListener('click', () => {
+                if (forumPostModal) {
+                    forumPostModal.classList.add('hidden');
+                    forumPostModal.classList.remove('flex');
+                }
+            });
+        }
+
+        if (generateForumIdeaBtn) {
+            generateForumIdeaBtn.addEventListener('click', async () => {
+                const topic = document.getElementById('post_category').value;
+                if (forumIdeaOutput) forumIdeaOutput.classList.add('hidden');
+                if (forumIdeaLoader) forumIdeaLoader.classList.remove('hidden');
+
+                try {
+                    const response = await fetch('/api/generate_forum_idea/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ topic: topic })
+                    });
+                    const result = await response.json();
+
+                    if (forumIdeaLoader) forumIdeaLoader.classList.add('hidden');
+                    if (forumIdeaOutput) forumIdeaOutput.classList.remove('hidden');
+
+                    if (result.status === 'success') {
+                        if (forumIdeaContent) forumIdeaContent.textContent = result.data.idea_text;
+                    } else {
+                        if (forumIdeaContent) forumIdeaContent.textContent = result.message || 'Failed to generate idea.';
+                        showToast(result.message || 'Failed to generate idea.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    if (forumIdeaLoader) forumIdeaLoader.classList.add('hidden');
+                    if (forumIdeaOutput) forumIdeaOutput.classList.remove('hidden');
+                    if (forumIdeaContent) forumIdeaContent.textContent = 'Network error. Please try again.';
+                    showToast('Network error. Please try again.', 'error');
+                }
+            });
+        }
+
+        if (useForumIdeaBtn) {
+            useForumIdeaBtn.addEventListener('click', () => {
+                const ideaText = forumIdeaContent.textContent;
+                // Assuming ideaText might contain title and content separated, e.g., "Title: ...\nContent: ..."
+                const titleMatch = ideaText.match(/Title:\s*(.*?)[\n\r]/i);
+                const contentMatch = ideaText.match(/Content:\s*([\s\S]*)/i);
+
+                if (titleMatch && postTitle) {
+                    postTitle.value = titleMatch[1].trim();
+                }
+                if (contentMatch && postContent) {
+                    postContent.value = contentMatch[1].trim();
+                } else if (postContent) {
+                    // Fallback if no explicit "Content:" found, put whole idea in content
+                    postContent.value = ideaText;
+                }
+                if (forumIdeaOutput) forumIdeaOutput.classList.add('hidden');
+            });
+        }
+
+        if (forumPostForm) {
+            forumPostForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(forumPostForm);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch('/api/submit_forum_post/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showToast(result.message, 'success');
+                        forumPostForm.reset(); // Clear form
+                        if (forumIdeaOutput) forumIdeaOutput.classList.add('hidden'); // Hide idea
+                        if (forumPostModal) {
+                            forumPostModal.classList.add('hidden'); // Close modal
+                            forumPostModal.classList.remove('flex');
+                        }
+                        fetchRecentForumPosts(); // Reload posts
+                    } else {
+                        showToast(result.message || 'Failed to submit post.', 'error');
+                        console.error('Error submitting post:', result.errors);
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    showToast('Network error. Please try again.', 'error');
+                }
+            });
+            fetchRecentForumPosts(); // Load posts on modal open
+        }
+
+        // --- Legal AI Logic ---
+        const askLegalAiBtn = document.getElementById('ask-legal-ai-btn');
+        const legalAiModal = document.getElementById('legal-ai-modal');
+        const closeLegalAiModalBtn = document.getElementById('close-legal-ai-modal-btn');
+        const submitLegalQueryBtn = document.getElementById('submit-legal-query-btn');
+        const legalQueryInput = document.getElementById('legal-query-input');
+        const legalAiLoader = document.getElementById('legal-ai-loader');
+        const legalAiOutput = document.getElementById('legal-ai-output');
+        const legalAiContent = document.getElementById('legal-ai-content');
+
+        if (askLegalAiBtn) {
+            askLegalAiBtn.addEventListener('click', () => {
+                if (legalAiModal) {
+                    legalAiModal.classList.remove('hidden');
+                    legalAiModal.classList.add('flex');
+                }
+                if (legalAiOutput) legalAiOutput.classList.add('hidden'); // Hide previous output
+                if (legalQueryInput) legalQueryInput.value = ''; // Clear previous query
+            });
+        }
+
+        if (closeLegalAiModalBtn) {
+            closeLegalAiModalBtn.addEventListener('click', () => {
+                if (legalAiModal) {
+                    legalAiModal.classList.add('hidden');
+                    legalAiModal.classList.remove('flex');
+                }
+            });
+        }
+
+        if (submitLegalQueryBtn) {
+            submitLegalQueryBtn.addEventListener('click', async () => {
+                const query = legalQueryInput.value;
+                if (!query.trim()) {
+                    showToast('Please enter your question.', 'error');
+                    return;
+                }
+
+                if (legalAiOutput) legalAiOutput.classList.add('hidden');
+                if (legalAiLoader) legalAiLoader.classList.remove('hidden');
+
+                try {
+                    // Using a placeholder API endpoint for legal AI, replace with your actual endpoint
+                    const response = await fetch('/api/refine_text/', { /* Reusing refine_text for demo */
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ text: `Answer this UK rental law question: "${query}". Keep it concise and state it's not legal advice.` })
+                    });
+                    const result = await response.json();
+
+                    if (legalAiLoader) legalAiLoader.classList.add('hidden');
+                    if (legalAiOutput) legalAiOutput.classList.remove('hidden');
+
+                    if (result.status === 'success') {
+                        if (legalAiContent) legalAiContent.textContent = result.data.refined_text;
+                    } else {
+                        if (legalAiContent) legalAiContent.textContent = result.message || 'Failed to get answer.';
+                        showToast(result.message || 'Failed to get answer.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    if (legalAiLoader) legalAiLoader.classList.add('hidden');
+                    if (legalAiOutput) legalAiOutput.classList.remove('hidden');
+                    if (legalAiContent) legalAiContent.textContent = 'Network error. Please try again.';
+                    showToast('Network error. Please try again.', 'error');
+                }
+            });
+        }
+
+        // --- NEW: Rental Contract Analyzer Logic ---
+        const rentalContractModal = document.getElementById('rental-contract-modal');
+        const rentalContractForm = document.getElementById('rental-contract-form');
+        const contractTextarea = document.getElementById('contract_text');
+        const contractAnalysisLoader = document.getElementById('contract-analysis-loader');
+        const contractAnalysisOutput = document.getElementById('contract-analysis-output');
+        const analysisContent = document.getElementById('analysis-content');
+
+        if (rentalContractForm) {
+            rentalContractForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const contractText = contractTextarea.value.trim();
+
+                if (!contractText) {
+                    showToast('Please paste your contract text to analyze.', 'error');
+                    return;
+                }
+                if (contractText.length < 100) { // Minimum length for meaningful analysis
+                    showToast('Please provide more text for a meaningful analysis (min 100 characters).', 'error');
+                    return;
+                }
+
+                if (contractAnalysisOutput) contractAnalysisOutput.classList.add('hidden');
+                if (contractAnalysisLoader) contractAnalysisLoader.classList.remove('hidden');
+                const submitBtn = rentalContractForm.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Analyzing...';
+
+
+                try {
+                    const response = await fetch('/api/analyze_contract/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ contract_text: contractText })
+                    });
+                    const result = await response.json();
+
+                    if (contractAnalysisLoader) contractAnalysisLoader.classList.add('hidden');
+                    if (contractAnalysisOutput) contractAnalysisOutput.classList.remove('hidden');
+
+                    if (result.status === 'success' && result.data && result.data.analysis_result) {
+                        // Replace newlines with <br> for proper display of markdown-like output
+                        if (analysisContent) analysisContent.innerHTML = result.data.analysis_result.replace(/\n/g, '<br>');
+                        showToast(result.message, 'success');
+                    } else {
+                        if (analysisContent) analysisContent.innerHTML = `<p class="text-red-500">${result.message || 'Failed to analyze contract.'}</p>`;
+                        showToast(result.message || 'Failed to analyze contract.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    if (contractAnalysisLoader) contractAnalysisLoader.classList.add('hidden');
+                    if (contractAnalysisOutput) contractAnalysisOutput.classList.remove('hidden');
+                    if (analysisContent) analysisContent.innerHTML = '<p class="text-red-500">Network error. Please try again.</p>';
+                    showToast('Network error. Please try again.', 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Analyze Contract <i class="fas fa-robot ml-2"></i>';
+                }
+            });
+        }
+
+        // --- NEW: Rent Declaration Check Logic ---
+        const rentDeclarationModal = document.getElementById('rent-declaration-modal');
+        const rentDeclarationForm = document.getElementById('rent-declaration-form');
+        const declarationAnalysisLoader = document.getElementById('declaration-analysis-loader');
+        const declarationAnalysisOutput = document.getElementById('declaration-analysis-output');
+        const declarationAnalysisContent = document.getElementById('declaration-analysis-content'); // Renamed for clarity
+
+        if (rentDeclarationForm) {
+            rentDeclarationForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(rentDeclarationForm);
+                const data = Object.fromEntries(formData.entries());
+
+                // Basic validation for required fields
+                if (!data.postcode || !data.bedrooms || !data.actual_rent_paid || !data.council_tax_band) {
+                    showToast('Please fill in all required fields for the Rent Declaration Check.', 'error');
+                    return;
+                }
+
+                declarationAnalysisOutput.classList.add('hidden');
+                declarationAnalysisLoader.classList.remove('hidden');
+                const submitBtn = rentDeclarationForm.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Checking...';
+
+                try {
+                    const response = await fetch('/api/check_rent_declaration/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+
+                    declarationAnalysisLoader.classList.add('hidden');
+                    declarationAnalysisOutput.classList.remove('hidden');
+
+                    if (result.status === 'success' && result.data) {
+                        let analysisHtml = `
+                            <p class="mb-2"><span class="font-semibold">Estimated Council Tax:</span> £${result.data.estimated_council_tax || 'N/A'}</p>
+                            <p class="mb-2"><span class="font-semibold">Common Rent for this Band/Area:</span> £${result.data.common_rent_for_band_area || 'N/A'}</p>
+                            <p class="mb-4"><span class="font-semibold">Discrepancy Found:</span> <span class="${result.data.discrepancy_found ? 'text-red-600 font-bold' : 'text-green-600 font-bold'}">${result.data.discrepancy_found ? 'Yes' : 'No'}</span></p>
+                            <p class="font-semibold">AI Analysis:</p>
+                            <p>${result.data.analysis_result || 'No detailed analysis available.'}</p>
+                        `;
+                        declarationAnalysisContent.innerHTML = analysisHtml;
+                        showToast(result.message, 'success');
+                    } else {
+                        declarationAnalysisContent.innerHTML = `<p class="text-red-500">${result.message || 'Failed to perform rent declaration check.'}</p>`;
+                        showToast(result.message || 'Failed to perform rent declaration check.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    declarationAnalysisLoader.classList.add('hidden');
+                    declarationAnalysisOutput.classList.remove('hidden');
+                    declarationAnalysisContent.innerHTML = '<p class="text-red-500">Network error. Please try again.</p>';
+                    showToast('Network error. Please try again.', 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Check for Discrepancy <i class="fas fa-magnifying-glass-dollar ml-2"></i>';
+                }
+            });
+        }
+
+    </script>
+    <script src="{% static 'fairrent_app/js/main.js' %}"></script>
+</body>
+</html>

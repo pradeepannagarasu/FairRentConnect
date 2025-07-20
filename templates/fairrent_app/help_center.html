@@ -1,0 +1,264 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Center - FairRent Connect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb; /* Blue-600 */
+            --primary-hover: #1d4ed8; /* Blue-700 */
+            --secondary: #e5e7eb; /* Gray-200 */
+            --secondary-hover: #d1d5db; /* Gray-300 */
+            --accent: #7c3aed; /* Violet-600 */
+            --success: #10b981; /* Green-500 */
+            --warning: #f59e0b; /* Yellow-500 */
+            --info: #3b82f6; /* Blue-500 */
+            --danger: #ef4444; /* Red-500 */
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f7f8fa; /* Light Gray Background */
+            color: #1f2937; /* Dark Gray Text */
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #e5e7eb; /* Light Gray Border */
+        }
+        .btn {
+            padding-left: 1rem; /* px-4 */
+            padding-right: 1rem; /* px-4 */
+            padding-top: 0.5rem; /* py-2 */
+            padding-bottom: 0.5rem; /* py-2 */
+            border-radius: 0.5rem; /* rounded-lg */
+            font-weight: 500; /* font-medium */
+            transition-property: all; /* transition-all */
+            transition-duration: 200ms; /* duration-200 */
+            display: flex; /* flex */
+            align-items: center; /* items-center */
+            justify-content: center; /* justify-center */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .spinner { 
+            border-top-color: var(--primary); 
+            border-right-color: transparent;
+            border-bottom-color: transparent;
+            border-left-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 
+            to { transform: rotate(360deg); } 
+        }
+        .chat-message {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 1.25rem;
+            margin-bottom: 0.75rem;
+            word-wrap: break-word;
+        }
+        .chat-message.user {
+            background-color: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 0.25rem; /* Pointed corner */
+        }
+        .chat-message.bot {
+            background-color: #e5e7eb; /* Gray-200 */
+            color: #1f2937; /* Dark Gray Text */
+            align-self: flex-start;
+            border-bottom-left-radius: 0.25rem; /* Pointed corner */
+        }
+    </style>
+    <meta name="csrf_token" content="{{ csrf_token }}">
+</head>
+<body class="text-gray-800 bg-gray-50">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="{% url 'fairrent_app:index' %}" class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">FR</div>
+                <h1 class="text-xl font-bold text-gray-800">FairRent Connect</h1>
+            </a>
+            <div class="flex items-center space-x-4">
+                <a href="{% url 'fairrent_app:profile' %}" class="text-gray-600 hover:text-blue-600 font-medium hidden md:block">Dashboard</a>
+                <div class="relative group">
+                    <button class="flex items-center space-x-1 text-gray-600 hover:text-blue-600 focus:outline-none">
+                        <span>Hello, {{ user.username }}!</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden group-hover:block animate-fadeIn">
+                        <a href="{% url 'fairrent_app:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Account Settings</a>
+                        <a href="{% url 'fairrent_app:help_center' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Help Center</a>
+                        <a href="{% url 'fairrent_app:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
+                    </div>
+                </div>
+                <a href="{% url 'fairrent_app:logout' %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors md:hidden">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-3xl mx-auto card p-8">
+            <h2 class="text-3xl font-bold text-gray-900 text-center mb-6">FairRent Connect Help Center</h2>
+            <p class="text-gray-600 text-center mb-8">
+                Welcome to our help center! You can use our AI Chatbot to get quick answers to your questions, or browse our FAQs.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Chatbot Section -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-robot text-blue-600 mr-2"></i> AI Chatbot
+                    </h3>
+                    <div class="border rounded-lg h-96 flex flex-col bg-gray-50 overflow-hidden">
+                        <div id="chat-window" class="flex-1 p-4 overflow-y-auto flex flex-col space-y-3">
+                            <!-- Chat messages will appear here -->
+                            <div class="chat-message bot self-start">
+                                Hi there! I'm your FairRent Connect AI assistant. How can I help you today?
+                            </div>
+                        </div>
+                        <div class="p-4 border-t bg-white flex items-center">
+                            <input type="text" id="user-input" class="form-input flex-1 mr-3" placeholder="Ask me anything...">
+                            <button id="send-btn" class="btn btn-primary px-5 py-2.5">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                            <div id="chatbot-spinner" class="spinner w-6 h-6 ml-3 hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Section (Placeholder) -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-question-circle text-purple-600 mr-2"></i> Frequently Asked Questions
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="card p-4">
+                            <h4 class="font-medium text-lg mb-1">How do I submit a new complaint?</h4>
+                            <p class="text-gray-700 text-sm">
+                                You can submit a new complaint directly from your dashboard. Look for the "New Complaint" button in the "Quick Actions" section or at the top of "Your Complaints & Requests" table.
+                            </p>
+                        </div>
+                        <div class="card p-4">
+                            <h4 class="font-medium text-lg mb-1">How does the AI Roommate Finder work?</h4>
+                            <p class="text-gray-700 text-sm">
+                                Our AI Roommate Finder uses your profile preferences (age, budget, location, lifestyle, etc.) to match you with compatible roommates from our database. Just ensure your profile is up-to-date and click "Find Matches"!
+                            </p>
+                        </div>
+                        <div class="card p-4">
+                            <h4 class="font-medium text-lg mb-1">Can I review my landlord?</h4>
+                            <p class="text-gray-700 text-sm">
+                                Yes, you can! Our platform allows you to submit anonymous (or public, if you choose) reviews for your landlord to help other tenants. This feature will be available soon.
+                            </p>
+                        </div>
+                        <div class="card p-4">
+                            <h4 class="font-medium text-lg mb-1">What if I have an urgent issue?</h4>
+                            <p class="text-gray-700 text-sm">
+                                For urgent issues, please contact emergency services or your landlord directly. Our platform is for non-emergency complaints and information.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            const csrfToken = getCookie('csrftoken');
+
+            const chatWindow = document.getElementById('chat-window');
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const chatbotSpinner = document.getElementById('chatbot-spinner');
+
+            function addMessageToChat(message, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('chat-message', sender === 'user' ? 'user' : 'bot');
+                messageDiv.textContent = message;
+                chatWindow.appendChild(messageDiv);
+                chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll to latest message
+            }
+
+            sendBtn.addEventListener('click', async function() {
+                const message = userInput.value.trim();
+                if (message) {
+                    addMessageToChat(message, 'user');
+                    userInput.value = ''; // Clear input
+
+                    chatbotSpinner.classList.remove('hidden'); // Show spinner
+                    sendBtn.disabled = true; // Disable send button
+
+                    try {
+                        const response = await fetch('/api/chatbot/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': csrfToken
+                            },
+                            body: JSON.stringify({ message: message }),
+                            credentials: 'same-origin' // Important for sending cookies/CSRF
+                        });
+                        const result = await response.json();
+
+                        if (response.ok) { // Check if response status is 2xx
+                            addMessageToChat(result.data.reply, 'bot');
+                        } else {
+                            addMessageToChat('Sorry, I am having trouble understanding that right now. Please try again or contact human support. (Error: ' + (result.message || 'Unknown API error') + ')', 'bot');
+                            console.error('Chatbot API error:', result.message);
+                        }
+                    } catch (error) {
+                        console.error('Error communicating with chatbot API:', error);
+                        addMessageToChat('It seems I\'m offline or there\'s a network issue. Please check your internet connection or try again later.', 'bot');
+                    } finally {
+                        chatbotSpinner.classList.add('hidden'); // Hide spinner
+                        sendBtn.disabled = false; // Enable send button
+                        userInput.focus(); // Focus input for next message
+                    }
+                }
+            });
+
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

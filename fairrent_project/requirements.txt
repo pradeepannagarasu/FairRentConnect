@@ -1,0 +1,8 @@
+Django==5.0.4
+django-crispy-forms==2.1
+whitenoise==6.6.0 # Using a slightly older, stable version to avoid potential new issues
+python-dotenv==1.0.1
+requests==2.32.3
+# Add any other packages your project explicitly uses here, e.g.:
+# Pillow
+# djangorestframework

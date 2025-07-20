@@ -1,0 +1,175 @@
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+class Complaint(models.Model):
+    ISSUE_CHOICES = [
+        ('deposit', 'Unfair Deposit Deduction'),
+        ('maintenance', 'Poor Maintenance / Repairs'),
+        ('harassment', 'Harassment / Unlawful Entry'),
+        ('rent', 'Unregulated Rent / Charges'),
+        ('conditions', 'Poor Living Conditions'),
+        ('other', 'Other'),
+    ]
+    STATUS_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('in_progress', 'In Progress'),
+        ('resolved', 'Resolved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='complaints')
+    issue_type = models.CharField(max_length=50, choices=ISSUE_CHOICES)
+    property_address = models.CharField(max_length=255)
+    landlord_name = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Complaint by {self.user.username} - {self.get_issue_type_display()}"
+
+    def get_status_display(self):
+        return dict(self.STATUS_CHOICES).get(self.status, self.status)
+
+
+class LandlordReview(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
+    landlord_name = models.CharField(max_length=255)
+    rating = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])
+    comments = models.TextField()
+    property_address = models.CharField(max_length=255)
+    reviewed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for {self.landlord_name} by {self.user.username}"
+
+class RoommateProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='roommate_profile')
+    age = models.IntegerField(null=True, blank=True)
+
+    GENDER_CHOICES = [
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+    ]
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
+
+    SLEEP_SCHEDULE_CHOICES = [
+        ('early_bird', 'Early Bird'),
+        ('night_owl', 'Night Owl'),
+        ('flexible', 'Flexible'),
+    ]
+    sleep_schedule = models.CharField(max_length=20, choices=SLEEP_SCHEDULE_CHOICES, blank=True, null=True)
+
+    CLEANLINESS_CHOICES = [
+        ('very_tidy', 'Very Tidy'),
+        ('average', 'Average'),
+        ('relaxed', 'Relaxed'),
+    ]
+    cleanliness = models.CharField(max_length=20, choices=CLEANLINESS_CHOICES, blank=True, null=True)
+
+    lifestyle_preferences = models.CharField(max_length=500, blank=True, default='')
+
+    budget = models.IntegerField(null=True, blank=True)
+    location = models.CharField(max_length=255, blank=True)
+    bio = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Profile of {self.user.username}"
+
+    def get_gender_display(self):
+        return dict(self.GENDER_CHOICES).get(self.gender, self.gender)
+
+    def get_sleep_schedule_display(self):
+        return dict(self.SLEEP_SCHEDULE_CHOICES).get(self.sleep_schedule, self.sleep_schedule)
+
+    def get_cleanliness_display(self):
+        return dict(self.CLEANLINESS_CHOICES).get(self.cleanliness, self.cleanliness)
+
+class ForumPost(models.Model):
+    CATEGORY_CHOICES = [
+        ('legal', 'Legal Advice'),
+        ('accommodation', 'Finding Accommodation'),
+        ('maintenance', 'Maintenance Tips'),
+        ('local', 'Local Area Guides'),
+        ('other', 'Other'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='forum_posts')
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='other')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
+
+    def get_category_display(self):
+        return dict(self.CATEGORY_CHOICES).get(self.category, self.category)
+
+class ForumReply(models.Model):
+    post = models.ForeignKey(ForumPost, on_delete=models.CASCADE, related_name='replies')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Reply by {self.user.username} to '{self.post.title}'"
+
+class RentCheck(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) # Nullable if public users can check
+    postcode = models.CharField(max_length=10)
+    bedrooms = models.CharField(max_length=10) # e.g., 'studio', '1', '2', '3', '4+'
+    estimated_rent = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    checked_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Rent Check for {self.postcode} ({self.bedrooms} bed) by {self.user.username if self.user else 'Anonymous'}"
+
+class LikedProfile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='liked_profiles')
+    liked_user_name = models.CharField(max_length=255)
+    liked_user_age = models.IntegerField(null=True, blank=True)
+    liked_user_gender = models.CharField(max_length=100, blank=True)
+    liked_user_location = models.CharField(max_length=255, blank=True)
+    liked_user_budget = models.IntegerField(null=True, blank=True)
+    liked_user_bio = models.TextField(blank=True)
+    liked_user_compatibility_score = models.IntegerField(null=True, blank=True)
+    liked_user_avatar_url = models.URLField(max_length=500, blank=True)
+    liked_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Liked: {self.liked_user_name} by {self.user.username}"
+
+class RentalContract(models.Model):
+    """
+    Model to store rental contract analysis results.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rental_contracts')
+    original_text = models.TextField()
+    analysis_result = models.TextField(blank=True, null=True) # Stores the AI's analysis
+    analyzed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Contract analysis by {self.user.username} on {self.analyzed_at.strftime('%Y-%m-%d')}"
+
+class RentDeclarationCheck(models.Model):
+    """
+    Model to store results of rent vs. council tax declaration checks.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rent_declaration_checks')
+    postcode = models.CharField(max_length=10)
+    bedrooms = models.CharField(max_length=10) # e.g., 'studio', '1', '2', '3', '4+'
+    actual_rent_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    council_tax_band = models.CharField(max_length=50, blank=True, null=True) # e.g., 'A', 'B', 'C'
+    estimated_council_tax = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    discrepancy_found = models.BooleanField(default=False)
+    analysis_result = models.TextField(blank=True, null=True) # AI's analysis of discrepancy
+    checked_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Rent Declaration Check for {self.postcode} by {self.user.username}"
+
