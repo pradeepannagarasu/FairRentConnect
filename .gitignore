@@ -420,3 +420,7 @@ FodyWeavers.xsd
 # .gitignore
 .env
 filter_secrets.py
+
+# .gitignore
+.env
+strip_blob_list.txt
