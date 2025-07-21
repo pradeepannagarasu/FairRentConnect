@@ -16,7 +16,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load SECRET_KEY from environment variable for production
 # DO NOT hardcode your SECRET_KEY in production.
 # Render will provide DJANGO_SECRET_KEY as an environment variable.
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-olceoist6=kf+8t20==uiw9=mx7k)&%$y3wgobd10hx3l&)@2*') # Fallback for local dev, but MUST be set in Render
+# FOR THIS PUSH, WE ARE REMOVING THE DEFAULT VALUE TO AVOID ANY SECRET SCANNING ISSUES.
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True' # Load DEBUG from env, default to False
