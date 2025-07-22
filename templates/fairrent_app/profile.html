@@ -206,6 +206,7 @@
                 left: 0;
                 transform: translateX(-100%); /* Hidden by default on mobile */
                 box-shadow: 5px 0 15px rgba(0,0,0,0.3); /* Stronger shadow when open */
+                z-index: 50; /* Ensure it's above overlay and content */
             }
             .sidebar.open {
                 transform: translateX(0); /* Slide in when open */
@@ -569,7 +570,7 @@
                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                     </svg>
-                    <span>Roomto.Live</span>
+                    <span style="color: white;">Roomto.Live</span> <!-- Changed text color to white for visibility -->
                 </div>
                 <nav>
                     <ul class="space-y-4">
@@ -1308,7 +1309,7 @@
                 const matchCard = document.createElement('div');
                 matchCard.className = 'roommate-match-card glass-card'; /* Apply glass-card here */
                 matchCard.innerHTML = `
-                    <img src="${match.avatar_url}" alt="${match.name}" onerror="this.onerror=null;this.src='https://placehold.co/160x160/cccccc/ffffff?text=User'">
+                    <img src="${match.avatar_url}" alt="${match.name}" class="mx-auto mb-4 w-24 h-24 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/96x96/cccccc/ffffff?text=User'">
                     <h4 class="text-3xl font-bold text-gray-900">${match.name}, ${match.age || 'N/A'}</h4>
                     <p class="text-lg text-gray-600 mb-2">${match.location || 'N/A'}</p>
                     <div class="compatibility-score">${match.compatibility_score || 'N/A'}% Match</div>
