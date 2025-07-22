@@ -428,7 +428,7 @@
         }
         .roommate-match-card {
             position: absolute;
-            width: 90%;
+            width: 90%; /* Adjusted for better mobile fit */
             max-width: 450px;
             height: auto;
             padding: 2rem;
@@ -655,8 +655,12 @@
             .roommate-match-card .compatibility-score {
                 font-size: 2rem; /* Adjust score size */
             }
-            .roommate-match-card .text-lg {
-                font-size: 1rem; /* Adjust text size */
+            /* Removed fixed text-sm/text-base from bio to allow wrapping */
+            .roommate-match-card p.text-gray-700 { /* Target the bio paragraph specifically */
+                font-size: 0.9rem; /* Slightly smaller for mobile */
+                white-space: normal; /* Allow text to wrap */
+                overflow: visible; /* Ensure content is not hidden */
+                text-overflow: clip; /* Prevent ellipsis */
             }
             .swipe-buttons {
                 gap: 1rem; /* Reduce gap between buttons */

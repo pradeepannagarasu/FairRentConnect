@@ -26,7 +26,13 @@ logger = logging.getLogger(__name__)
 # --- Page Rendering Views ---
 
 def index(request):
-    """Renders the main application homepage."""
+    """
+    Renders the main application homepage.
+    If the user is authenticated, redirects them to their profile dashboard.
+    """
+    # This is the crucial change: Redirect authenticated users to their dashboard
+    if request.user.is_authenticated:
+        return redirect('fairrent_app:profile')
     return render(request, 'fairrent_app/index.html')
 
 @login_required
@@ -34,10 +40,19 @@ def profile_view(request):
     """
     Renders the user's profile dashboard with real-time data for
     complaints, reviews, roommate profile, rent checks, forum posts, and liked profiles.
+    Handles cases where a RoommateProfile might not yet exist for the user.
     """
     user_complaints = Complaint.objects.filter(user=request.user).order_by('-submitted_at')[:5]
     user_reviews = LandlordReview.objects.filter(user=request.user).order_by('-reviewed_at')[:5]
+    
+    # --- IMPORTANT CHANGE HERE: Fetch the roommate profile, and handle if it doesn't exist ---
     user_roommate_profile = RoommateProfile.objects.filter(user=request.user).first()
+    
+    # Add a message if the profile is missing, guiding the user to create it
+    if not user_roommate_profile:
+        messages.info(request, "Welcome! Please create your roommate profile to unlock all features and find matches.")
+    # --- END IMPORTANT CHANGE ---
+
     user_rent_checks = RentCheck.objects.filter(user=request.user).order_by('-checked_at')[:5] # Fetch user's rent checks
     user_forum_posts = ForumPost.objects.filter(user=request.user).order_by('-created_at')[:5]
     user_liked_profiles = LikedProfile.objects.filter(user=request.user).order_by('-liked_at')[:5] # Fetch user's liked profiles
@@ -165,13 +180,13 @@ def profile_view(request):
     context = {
         'user_complaints': user_complaints,
         'user_reviews': user_reviews,
-        'user_roommate_profile': RoommateProfile.objects.filter(user=request.user).first(), # Corrected this line
-        'user_rent_checks': user_rent_checks, # Pass rent checks to context
-        'user_forum_posts': user_forum_posts, # Pass forum posts to context
-        'user_liked_profiles': user_liked_profiles, # Pass liked profiles separately for service results section
-        'user_rental_contracts': user_rental_contracts, # Pass rental contracts to context
-        'user_rent_declaration_checks': user_rent_declaration_checks, # Pass new checks to context
-        'recent_activities': all_activities[:5], # Limit to top 5 recent activities
+        'user_roommate_profile': user_roommate_profile, # Pass the fetched profile (could be None)
+        'user_rent_checks': user_rent_checks,
+        'user_forum_posts': user_forum_posts,
+        'user_liked_profiles': user_liked_profiles,
+        'user_rental_contracts': user_rental_contracts,
+        'user_rent_declaration_checks': user_rent_declaration_checks,
+        'recent_activities': all_activities[:5],
         'current_date': timezone.now()
     }
     return render(request, 'fairrent_app/profile.html', context)
