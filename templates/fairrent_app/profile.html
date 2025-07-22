@@ -7,43 +7,48 @@
     <title>Dashboard - Roomto.Live</title>
     <!-- Tailwind CSS from existing code -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font from new template -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <!-- Inter font from profile.html, including all weights -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Font Awesome from both, keeping the latest version -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Consolidated CSS Variables */
+        /* Consolidated CSS Variables to match profile.html's aesthetic */
         :root {
-            --bg: #f4f7fa; /* From new template */
-            --nav-bg: #232946; /* Dark blue from new template */
-            --accent: #66ccff; /* Changed: Vibrant light blue for neon effect */
-            --accent2: #006699; /* Blue from new template (kept) */
+            --bg: #f9fafb; /* Lighter background from profile.html */
+            --nav-bg: #232946; /* Dark blue from new template (kept for sidebar) */
+            --accent: #ec4899; /* Pink/Rose from profile.html's gradient-text */
+            --accent2: #6366f1; /* Primary Indigo from profile.html */
             --sidebar-highlight: #fffffe; /* From new template */
             --card-bg: #ffffffcc; /* From new template */
             --transition: 0.3s cubic-bezier(.39,.6,.58,1); /* From new template */
-            --shadow: 0 4px 20px 0 rgba(26, 26, 36, 0.07); /* From new template */
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); /* From profile.html's glass-card shadow */
 
-            /* Custom colors from existing code, kept for specific components */
-            --primary: #6366f1; /* Indigo 500 (strong blue) */
+            /* Primary colors from profile.html for consistency */
+            --primary: #6366f1; /* Indigo 500 */
             --primary-dark: #4f46e5; /* Indigo 600 */
-            --secondary: #10b981; /* Teal 500 */
+            --secondary: #10b981; /* Teal 500 (not used extensively in profile.html, but kept) */
             --dark: #1e293b; /* Slate 800 */
             --light: #f8fafc; /* Gray 50 */
+
+            /* Neon effect colors for specific elements */
+            --neon-blue-light: #66ccff; /* Vibrant light blue */
+            --neon-blue-dark: #006699; /* Darker blue */
+            --neon-purple: #9333ea;
         }
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg);
             min-height: 100vh;
             margin: 0; padding: 0;
-            color: #232946;
-            overflow-x: hidden; /* Prevent horizontal scroll on animations, from existing code */
+            color: #111827; /* Darker text from profile.html */
+            overflow-x: hidden; /* Prevent horizontal scroll on animations */
         }
 
-        /* Sidebar Styles - Primarily from new template, adapted */
+        /* Sidebar Styles - Primarily from new template, adapted for profile.html colors */
         .sidebar {
             background: var(--nav-bg);
             color: var(--sidebar-highlight);
-            width: 250px; /* Adjusted from 280px in old to 250px in new template */
+            width: 250px;
             height: 100vh;
             position: fixed; top: 0; left: 0;
             z-index: 100;
@@ -52,15 +57,17 @@
             transition: transform var(--transition);
             will-change: transform;
         }
-        /* Renamed from 'hidden' to 'hidden-mobile' to avoid conflict with Tailwind's 'hidden' utility */
         .sidebar.hidden-mobile {
             transform: translateX(-100%);
         }
         .sidebar-logo {
-            font-size: 2rem; font-weight: bold; margin: 2rem 0 1rem 2rem; color: var(--accent); /* Uses new accent */
+            font-size: 2rem; font-weight: bold; margin: 2rem 0 1rem 2rem;
+            color: #a855f7; /* Purple-300 equivalent from profile.html's SVG */
             letter-spacing: 1px;
             display: flex; align-items: center;
             gap: 8px;
+            /* Added vertical alignment to center items */
+            align-items: center;
         }
         .sidebar nav { flex: 1; }
         .sidebar ul {
@@ -79,9 +86,9 @@
             position: relative;
         }
         .sidebar a.active, .sidebar a:focus, .sidebar a:hover {
-            background: var(--accent); /* Uses new accent */
-            color: var(--nav-bg) !important;
-            box-shadow: 0 4px 16px 0 rgba(102, 204, 255, 0.15); /* Changed: Blue shadow */
+            background: var(--primary); /* Use primary blue for active/hover */
+            color: var(--sidebar-highlight) !important; /* Keep text white */
+            box-shadow: 0 4px 16px 0 rgba(99, 102, 241, 0.25); /* Blue shadow */
             outline: none;
         }
         .sidebar-footer {
@@ -90,36 +97,36 @@
             font-size: 1rem; opacity: 0.95;
         }
 
-        /* Sidebar Toggle (Hamburger) - From new template */
+        /* Sidebar Toggle (Hamburger) */
         .sidebar-toggle {
             display: none; position: fixed; top: 1.5rem; left: 1.5rem; z-index: 200;
-            background: var(--nav-bg); color: var(--accent); /* Uses new accent */
+            background: var(--nav-bg); color: var(--neon-blue-light); /* Neon blue for toggle */
             border: none; font-size: 2rem; padding: .5rem .7rem; border-radius: 7px;
             cursor: pointer; box-shadow: var(--shadow);
             transition: background .2s;
         }
-        .sidebar-toggle:focus { outline: 2px solid var(--accent2);}
+        .sidebar-toggle:focus { outline: 2px solid var(--neon-blue-light);}
 
-        /* Main Content Styles - From new template, adapted */
+        /* Main Content Styles */
         .main-content {
-            margin-left: 250px; /* Adjusted for new sidebar width */
+            margin-left: 250px;
             padding: 2.5rem 1.5rem 1.5rem 1.5rem;
             min-height: 100vh; transition: margin-left var(--transition);
         }
-        .dashboard-header { /* From new template */
+        .dashboard-header {
             font-size: 2.3rem;
             font-weight: 900;
             margin-bottom: 1.2rem;
             letter-spacing: 0.5px;
-            color: var(--accent2);
+            color: var(--accent2); /* Uses primary indigo */
             animation: slide-in 1s cubic-bezier(.45,1.6,.8,1.2) .2s both;
         }
-        .cards-grid { /* From new template */
+        .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit,minmax(230px,1fr));
             gap: 2rem;
         }
-        .dashboard-card { /* From new template */
+        .dashboard-card {
             background: var(--card-bg);
             border-radius: 1.2rem;
             box-shadow: var(--shadow);
@@ -129,26 +136,26 @@
             overflow: hidden;
             animation: fade-up .7s cubic-bezier(.45,1.6,.8,1.2) both;
         }
-        .dashboard-card:hover { /* Updated shadow color */
-            box-shadow: 0 8px 40px 0 rgba(102, 204, 255, 0.15); /* Changed: Blue shadow */
+        .dashboard-card:hover {
+            box-shadow: 0 8px 40px 0 rgba(99, 102, 241, 0.15); /* Blue shadow on hover */
             transform: translateY(-6px) scale(1.025);
         }
-        .dashboard-card .card-title { /* From new template */
+        .dashboard-card .card-title {
             font-size: 1.3rem;
             font-weight: 700;
             margin-bottom: 0.8rem;
-            color: var(--accent2);
+            color: var(--accent2); /* Uses primary indigo */
         }
-        .dashboard-card .card-value { /* From new template */
+        .dashboard-card .card-value {
             font-size: 2.2rem;
             font-weight: bold;
             margin-bottom: .2rem;
-            color: var(--nav-bg);
+            color: var(--nav-bg); /* Dark blue */
             letter-spacing: .5px;
         }
-        .dashboard-card .card-desc { color: #444; opacity: 0.8; } /* From new template */
+        .dashboard-card .card-desc { color: #444; opacity: 0.8; }
 
-        /* Animations - From new template */
+        /* Animations */
         @keyframes fade-up {
             0% { opacity:0; transform:translateY(30px) scale(1.01);}
             100% { opacity:1; transform:translateY(0) scale(1);}
@@ -158,37 +165,36 @@
             100%{ opacity:1; transform: translateX(0);}
         }
 
-        /* Responsive Styles - Combined from both, prioritizing new template's breakpoints */
+        /* Responsive Styles */
         @media (max-width: 1200px) {
             .main-content { margin-left: 220px; padding-top:2rem; }
             .sidebar { width: 220px;}
         }
-        @media (max-width: 900px) { /* Changed from 1023px in old code to 900px from new template */
+        @media (max-width: 900px) {
             .main-content { margin-left: 0; padding-top:4rem;}
             .sidebar { position: fixed; left: 0; top: 0; height: 100vh; z-index: 1001;}
-            .sidebar.hidden-mobile { /* Ensure this class still hides it on mobile */
+            .sidebar.hidden-mobile {
                 transform: translateX(-100%);
             }
             .sidebar-toggle { display: block; }
-            .overlay { /* From new template */
+            .overlay {
                 display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.1); z-index: 100;
                 transition: opacity .2s;
             }
             .overlay.hidden { display: none;}
-            /* Old mobile-specific styles, adjusted for new template structure */
             .content-area {
-                margin-left: 0 !important; /* No margin when sidebar is hidden on mobile */
-                width: 100%; /* Take full width on mobile */
+                margin-left: 0 !important;
+                width: 100%;
             }
-            #sidebar-overlay { /* Specific ID for the overlay from old code, adjusted to new template's overlay class */
+            #sidebar-overlay {
                 position: fixed;
                 inset: 0;
                 background-color: rgba(0, 0, 0, 0.5);
-                z-index: 40; /* Below sidebar, above content */
-                display: none; /* Hidden by default */
+                z-index: 40;
+                display: none;
             }
             #sidebar-overlay.active {
-                display: block; /* Show when sidebar is open */
+                display: block;
             }
         }
         @media (max-width: 700px) {
@@ -203,29 +209,30 @@
             .dashboard-card{ padding:1rem;}
         }
 
-        /* Existing custom styles from original code, preserved */
+        /* Custom styles from profile.html, adapted for consistency */
         .glass-card {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-radius: 1.5rem;
             border: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            box-shadow: var(--shadow); /* Use consolidated shadow variable */
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
         .glass-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-5px); /* Slightly less lift than profile.html's -8px for dashboard cards */
             box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.15);
         }
         .gradient-text {
-            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%); /* Uses new accent */
+            /* Matching profile.html's vibrant gradient */
+            background: linear-gradient(90deg, var(--primary-dark) 0%, var(--neon-purple) 50%, var(--accent) 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
         @keyframes float {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-10px); } /* Slightly less float than profile.html's -12px */
         }
         .floating {
             animation: float 6s ease-in-out infinite;
@@ -258,7 +265,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, var(--primary), #9333ea, var(--accent)); /* Uses new accent */
+            /* Matching profile.html's button gradient */
+            background: linear-gradient(45deg, var(--primary-dark), var(--neon-purple), var(--accent));
             z-index: -1;
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -272,7 +280,7 @@
         }
         .animate-fade-in {
             animation: fadeIn 0.8s ease-out forwards;
-            opacity: 0; /* Ensure initial state is hidden */
+            opacity: 0;
         }
         .delay-100 { animation-delay: 0.1s; }
         .delay-200 { animation-delay: 0.2s; }
@@ -280,7 +288,7 @@
         .delay-400 { animation-delay: 0.4s; }
         .delay-500 { animation-delay: 0.5s; }
         .btn-primary {
-            background-color: var(--primary);
+            background-color: var(--primary); /* Uses primary indigo */
             color: white;
             padding: 0.9rem 2rem;
             border-radius: 0.75rem;
@@ -328,48 +336,14 @@
             background-size: 1.5em 1.5em;
             padding-right: 3rem;
         }
-        .dashboard-container { /* This will be the body itself now, but keeping for clarity */
+        .dashboard-container {
             display: flex;
             flex: 1;
         }
-        /* No longer needed as sidebar is fixed and main-content has margin-left */
-        /* .sidebar {
-            width: 280px;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: white;
-            padding: 2rem 1.5rem;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(0);
-            z-index: 50;
-            position: fixed;
-            height: 100vh;
-        } */
-        /* Mobile sidebar specific styles from old code, adapted to new template's classes */
-        @media (max-width: 900px) { /* Adjusted breakpoint */
-            .sidebar.open-mobile { /* New class for open state on mobile */
-                transform: translateX(0);
-            }
-            /* .content-area styles are handled by .main-content now */
-            /* Overlay is handled by .overlay from new template */
-        }
-        .content-area { /* This class is now effectively .main-content */
-            flex: 1;
-            padding: 2rem;
-            margin-left: 0; /* Reset for mobile */
-            transition: margin-left 0.3s ease-in-out;
-        }
-        @media (min-width: 901px) { /* Adjusted breakpoint to match new template's 900px */
+        @media (min-width: 901px) {
             .content-area {
-                margin-left: 250px; /* Space for fixed sidebar */
+                margin-left: 250px;
             }
-        }
-        .dashboard-card-custom { /* Custom class to apply glass-card effect to template's dashboard-card */
-            /* Inherits most styles from .glass-card */
-            padding: 2rem;
         }
         .stat-card {
             position: relative;
@@ -453,11 +427,10 @@
             justify-content: center;
         }
         .roommate-match-card {
-            /* Inherits glass-card for base styling */
-            position: absolute; /* Stack cards */
-            width: 90%; /* Max width for responsiveness */
-            max-width: 450px; /* Max width for desktop */
-            height: auto; /* Adjust height based on content */
+            position: absolute;
+            width: 90%;
+            max-width: 450px;
+            height: auto;
             padding: 2rem;
             text-align: center;
             transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2), opacity 0.5s ease-out, box-shadow 0.4s ease;
@@ -484,7 +457,8 @@
         .compatibility-score {
             font-size: 2.5rem;
             font-weight: 900;
-            background: linear-gradient(45deg, var(--accent2), var(--accent), var(--sidebar-highlight)); /* Changed: Blue/white neon gradient */
+            /* Neon blue/purple/pink gradient for compatibility score */
+            background: linear-gradient(45deg, var(--neon-blue-light), var(--neon-purple), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.05em;
@@ -525,17 +499,13 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             border: 2px solid transparent;
         }
-        .swipe-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
-        }
         .swipe-button.skip {
-            background-color: #64748b; /* Changed: Slate gray for neutral skip */
+            background-color: #64748b; /* Neutral gray for skip */
             color: white;
             border-color: #4a5568;
         }
         .swipe-button.like {
-            background-color: var(--primary); /* Changed: Uses primary indigo blue */
+            background-color: var(--primary); /* Primary indigo for like */
             color: white;
             border-color: var(--primary-dark);
         }
@@ -668,22 +638,52 @@
             color: #6b7280;
             margin-top: 0.5rem;
         }
+
+        /* Mobile specific adjustments for roommate card for better comfort */
+        @media (max-width: 640px) { /* Tailwind's 'sm' breakpoint */
+            .roommate-match-card {
+                padding: 1.5rem; /* Reduce padding on small screens */
+                width: 95%; /* Make it slightly wider on very small screens */
+            }
+            .roommate-match-card img {
+                width: 100px;
+                height: 100px;
+            }
+            .roommate-match-card h4 {
+                font-size: 2rem; /* Adjust heading size */
+            }
+            .roommate-match-card .compatibility-score {
+                font-size: 2rem; /* Adjust score size */
+            }
+            .roommate-match-card .text-lg {
+                font-size: 1rem; /* Adjust text size */
+            }
+            .swipe-buttons {
+                gap: 1rem; /* Reduce gap between buttons */
+                margin-top: 1.5rem;
+            }
+            .swipe-button {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Sidebar Toggle Button (Mobile) - From new template -->
+    <!-- Sidebar Toggle Button (Mobile) -->
     <button class="sidebar-toggle" id="sidebarToggle" aria-label="Open sidebar" aria-controls="sidebar" aria-expanded="false">
         <i class="fas fa-bars"></i>
     </button>
-    <!-- Dimmed Overlay (Mobile) - From new template, adjusted ID for consistency -->
+    <!-- Dimmed Overlay (Mobile) -->
     <div class="overlay hidden" id="sidebarOverlay"></div>
 
-    <!-- Sidebar - Adapted from new template, content from existing code -->
+    <!-- Sidebar -->
     <aside class="sidebar hidden-mobile" id="sidebar" tabindex="0" aria-label="Main Navigation">
         <div>
             <div class="sidebar-logo">
-                <!-- Original SVG Logo from existing code -->
-                <svg class="w-8 h-8 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <!-- Original SVG Logo from existing code, color adjusted by CSS variable -->
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--neon-purple);">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                 </svg>
                 <span>Roomto.Live</span>
@@ -709,8 +709,8 @@
             </nav>
         </div>
         <div class="sidebar-footer">
-            <!-- Footer links from existing code -->
-            <a href="{% url 'fairrent_app:index' %}" class="flex items-center text-indigo-300 hover:text-white transition-colors duration-200 mb-2">
+            <!-- Homepage link: Changed to absolute URL to avoid admin path issues -->
+            <a href="/" class="flex items-center text-indigo-300 hover:text-white transition-colors duration-200 mb-2">
                 <i class="fas fa-arrow-circle-left mr-2"></i> Homepage
             </a>
             <a href="{% url 'fairrent_app:logout' %}" class="flex items-center text-red-400 hover:text-white transition-colors duration-200">
@@ -719,11 +719,10 @@
         </div>
     </aside>
 
-    <!-- Main Content - Adapted from new template, content from existing code -->
+    <!-- Main Content -->
     <main class="main-content" id="mainContent">
-        <!-- Mobile Header for Sidebar Toggle - Kept for mobile view, but styled by new template's .sidebar-toggle -->
+        <!-- Mobile Header for Sidebar Toggle -->
         <div class="lg:hidden flex justify-between items-center mb-6">
-            <!-- The sidebar-toggle button from the template handles this now, this div might be redundant or needs to be styled differently -->
             <h1 class="text-3xl font-extrabold text-gray-900">Dashboard</h1>
             <div class="w-8"></div> <!-- Spacer -->
         </div>
@@ -731,7 +730,7 @@
         <!-- Dashboard Header from new template -->
         <div class="dashboard-header">Welcome back! 🚀</div>
 
-        <!-- Content Sections (Dynamically Swapped) - Existing sections within the new main-content -->
+        <!-- Content Sections (Dynamically Swapped) -->
         <section id="dashboard-home" class="content-section active space-y-8">
             <div class="mb-8">
                 <h2 class="text-4xl font-extrabold text-gray-900 leading-tight">Welcome, <span class="gradient-text">{{ user.username }}</span>!</h2>
@@ -739,7 +738,7 @@
             </div>
 
             <div class="cards-grid">
-                <!-- User Info Card (Compact) - Applied dashboard-card and glass-card -->
+                <!-- User Info Card (Compact) -->
                 <div class="dashboard-card glass-card animate-fade-in delay-100">
                     <h3 class="card-title">Your Profile Overview</h3>
                     <div class="flex items-center mb-5">
@@ -764,7 +763,7 @@
                     </button>
                 </div>
 
-                <!-- Quick Stats Card - Applied dashboard-card and glass-card -->
+                <!-- Quick Stats Card -->
                 <div class="dashboard-card glass-card animate-fade-in delay-200 col-span-1 md:col-span-1 lg:col-span-2">
                     <h3 class="card-title">Quick Stats</h3>
                     <div class="grid grid-cols-2 gap-4 text-center">
@@ -793,7 +792,7 @@
                 </div>
             </div>
 
-            <!-- Recent Activity Card (Full Width) - Applied dashboard-card and glass-card -->
+            <!-- Recent Activity Card (Full Width) -->
             <div class="dashboard-card glass-card animate-fade-in delay-300">
                 <h3 class="card-title">Recent Activity</h3>
                 <div id="recent-activity-list" class="space-y-3">
@@ -820,7 +819,7 @@
             </div>
         </section>
 
-        <!-- Roommate Finder Section (Full Page View) - Kept existing structure, applied glass-card -->
+        <!-- Roommate Finder Section (Full Page View) -->
         <section id="roommate-finder-section" class="content-section hidden space-y-8 animate-fade-in">
             <div class="glass-card p-8">
                 <div class="flex justify-between items-center mb-8">
@@ -864,7 +863,7 @@
             </div>
         </section>
 
-        <!-- My Services & Activity Tabs - Kept existing structure, applied glass-card -->
+        <!-- My Services & Activity Tabs -->
         <section id="my-services-section" class="content-section hidden space-y-8 animate-fade-in">
             <div class="glass-card p-6">
                 <h3 class="card-title">My Services & Activity</h3>
@@ -1021,7 +1020,7 @@
                                 </div>
                                 <div>
                                     <p class="font-semibold text-gray-800">Contract Analysis</p>
-                                    <p class="text-gray-700">Analyzed on <span class="font-bold">{{ contract.analyzed_at|date:"M d, Y" }}</span></p>
+                                    <p class="text-700">Analyzed on <span class="font-bold">{{ contract.analyzed_at|date:"M d, Y" }}</span></p>
                                     <p class="text-sm text-gray-500">Preview: "{{ contract.original_text|truncatechars:100 }}"</p>
                                 </div>
                             </div>
@@ -1059,7 +1058,7 @@
         </section>
     </main>
 
-    <!-- Roommate Profile Edit Modal - Kept as is -->
+    <!-- Roommate Profile Edit Modal -->
     <div id="profile-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full p-8">
             <button type="button" id="close-profile-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
@@ -1138,7 +1137,7 @@
         </div>
     </div>
 
-    <!-- Generic Activity/Service Details Modal - Kept as is -->
+    <!-- Generic Activity/Service Details Modal -->
     <div id="activity-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="activity-modal-title">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 relative transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
             <button type="button" id="close-activity-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
@@ -1150,7 +1149,7 @@
         </div>
     </div>
 
-    <!-- Alert/Toast Notification - Kept as is -->
+    <!-- Alert/Toast Notification -->
     <div id="alert-toast" class="fixed bottom-5 right-5 z-50 hidden p-4 rounded-lg text-white transition-transform transform translate-y-20">
         <p id="alert-message"></p>
     </div>
@@ -1178,93 +1177,84 @@
         }
 
         // --- Dashboard Navigation Logic ---
-        // Using new template's sidebar toggle button and overlay
         const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle'); // From new template
-        const sidebarOverlay = document.getElementById('sidebarOverlay'); // From new template
-        const navLinks = document.querySelectorAll('.sidebar nav a'); // From new template
-        const contentSections = document.querySelectorAll('.content-section'); // From existing code
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const navLinks = document.querySelectorAll('.sidebar nav a');
+        const contentSections = document.querySelectorAll('.content-section');
 
-        // Open sidebar on mobile (from new template)
+        // Open sidebar on mobile
         sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.remove('hidden-mobile'); // Use 'hidden-mobile'
-            sidebar.classList.add('open-mobile'); // Add 'open-mobile' for clarity
+            sidebar.classList.remove('hidden-mobile');
+            sidebar.classList.add('open-mobile');
             sidebarOverlay.classList.remove('hidden');
             sidebarToggle.setAttribute('aria-expanded', 'true');
             sidebar.focus();
         });
 
-        // Close sidebar when clicking overlay or pressing Escape (from new template)
+        // Close sidebar when clicking overlay or pressing Escape
         sidebarOverlay.addEventListener('click', closeSidebar);
         sidebar.addEventListener('keydown', e => {
             if (e.key === "Escape") closeSidebar();
         });
 
         function closeSidebar() {
-            sidebar.classList.add('hidden-mobile'); // Use 'hidden-mobile'
-            sidebar.classList.remove('open-mobile'); // Remove 'open-mobile'
+            sidebar.classList.add('hidden-mobile');
+            sidebar.classList.remove('open-mobile');
             sidebarOverlay.classList.add('hidden');
             sidebarToggle.setAttribute('aria-expanded', 'false');
         }
 
-        // Responsive behavior (from new template, adapted)
+        // Responsive behavior
         function handleResize() {
-            // If screen is wider than 900px, ensure sidebar is visible and overlay is hidden
             if (window.innerWidth > 900) {
-                sidebar.classList.remove('hidden-mobile'); // Ensure sidebar is visible
-                sidebar.classList.remove('open-mobile'); // Remove mobile open class
-                sidebarOverlay.classList.add('hidden'); // Hide overlay
-                sidebarToggle.setAttribute('aria-expanded', 'true'); // Assume sidebar is "open" on desktop
-                document.getElementById('mainContent').style.marginLeft = '250px'; // Set desktop margin
+                sidebar.classList.remove('hidden-mobile');
+                sidebar.classList.remove('open-mobile');
+                sidebarOverlay.classList.add('hidden');
+                sidebarToggle.setAttribute('aria-expanded', 'true');
+                document.getElementById('mainContent').style.marginLeft = '250px';
             } else {
-                // On smaller screens, ensure sidebar is hidden by default and toggle button is active
-                sidebar.classList.add('hidden-mobile'); // Hide sidebar
-                sidebar.classList.remove('open-mobile'); // Remove mobile open class
-                sidebarOverlay.classList.add('hidden'); // Hide overlay
-                sidebarToggle.setAttribute('aria-expanded', 'false'); // Assume sidebar is "closed" on mobile
-                document.getElementById('mainContent').style.marginLeft = '0'; // Reset mobile margin
+                sidebar.classList.add('hidden-mobile');
+                sidebar.classList.remove('open-mobile');
+                sidebarOverlay.classList.add('hidden');
+                sidebarToggle.setAttribute('aria-expanded', 'false');
+                document.getElementById('mainContent').style.marginLeft = '0';
             }
         }
         window.addEventListener('resize', handleResize);
-        window.addEventListener('DOMContentLoaded', handleResize); // Call on initial load
+        window.addEventListener('DOMContentLoaded', handleResize);
 
 
-        // Switch content sections based on sidebar navigation (adapted from existing code)
+        // Switch content sections based on sidebar navigation
         navLinks.forEach(item => {
             item.addEventListener('click', (e) => {
                 const targetId = item.dataset.contentTarget;
-                // ONLY prevent default for internal navigation links (those with data-content-target)
                 if (targetId) {
                     e.preventDefault();
-                    // Remove active from all nav items
-                    navLinks.forEach(nav => nav.classList.remove('active')); // Removed 'bg-slate-700' as new template uses 'active' for styling
-                    // Add active to clicked nav item
+                    navLinks.forEach(nav => nav.classList.remove('active'));
                     item.classList.add('active');
 
-                    // Hide all content sections
                     contentSections.forEach(section => section.classList.add('hidden'));
-                    // Show target content section
                     const targetSection = document.getElementById(targetId);
                     if (targetSection) {
                         targetSection.classList.remove('hidden');
                     }
 
-                    // Close sidebar on mobile after selection
-                    if (window.innerWidth <= 900) { // Adjusted breakpoint
-                        closeSidebar(); // Use the new template's closeSidebar function
+                    if (window.innerWidth <= 900) {
+                        closeSidebar();
                     }
                 }
             });
         });
 
-        // Initialize active sidebar item and content section on load (adapted from existing code)
+        // Initialize active sidebar item and content section on load
         document.addEventListener('DOMContentLoaded', () => {
             const initialSectionId = window.location.hash ? window.location.hash.substring(1) : 'dashboard-home';
             const initialNavItem = document.querySelector(`.sidebar-nav-item[data-content-target="${initialSectionId}"]`);
             const initialContentSection = document.getElementById(initialSectionId);
 
             if (initialNavItem) {
-                initialNavItem.classList.add('active'); // Use 'active' class from new template
+                initialNavItem.classList.add('active');
             } else {
                 document.querySelector('.sidebar-nav-item[data-content-target="dashboard-home"]').classList.add('active');
             }
@@ -1277,7 +1267,7 @@
         });
 
 
-        // --- Roommate Profile Modal Logic --- (Kept as is)
+        // --- Roommate Profile Modal Logic ---
         const profileModal = document.getElementById('profile-modal');
         const editProfileBtnDashboardHome = document.getElementById('edit-profile-btn-dashboard-home');
         const editProfileBtnRoommateSection = document.getElementById('edit-profile-btn-roommate-section');
@@ -1401,12 +1391,10 @@
                 }
             });
         }
-        // Assuming setupAddressSuggestions is defined in main.js or globally
-        // setupAddressSuggestions(profileLocationInput); // This needs to be called after the element is guaranteed to exist
 
 
-        // --- Roommate Match Finder Logic (Swipe UI) --- (Kept as is)
-        const findMatchesBtn = document.getElementById('find-matches-btn'); // This ID doesn't exist in the new structure, but keeping for reference
+        // --- Roommate Match Finder Logic (Swipe UI) ---
+        const findMatchesBtn = document.getElementById('find-matches-btn');
         const roommateMatchesLoader = document.getElementById('roommate-matches-loader');
         const roommateMatchCardDisplay = document.getElementById('roommate-match-card-display');
         const roommatePrompt = document.getElementById('roommate-prompt');
@@ -1415,7 +1403,7 @@
         const swipeButtonsContainer = document.getElementById('swipe-buttons-container');
         const skipMatchBtn = document.getElementById('skip-match-btn');
         const likeMatchBtn = document.getElementById('like-match-btn');
-        const findMatchesBtnInner = document.getElementById('find-matches-btn-inner'); // Get the inner button
+        const findMatchesBtnInner = document.getElementById('find-matches-btn-inner');
 
         let currentMatches = [];
         let currentMatchIndex = 0;
@@ -1423,14 +1411,14 @@
         function displayCurrentMatch() {
             if (!roommateMatchCardDisplay || !roommatePrompt || !noMoreMatchesPrompt || !swipeButtonsContainer) return;
 
-            roommateMatchCardDisplay.innerHTML = ''; // Clear current card
-            roommatePrompt.classList.add('hidden'); // Ensure prompt is hidden when displaying matches
-            noMoreMatchesPrompt.classList.add('hidden'); // Ensure no more matches prompt is hidden
+            roommateMatchCardDisplay.innerHTML = '';
+            roommatePrompt.classList.add('hidden');
+            noMoreMatchesPrompt.classList.add('hidden');
 
             if (currentMatchIndex < currentMatches.length) {
                 const match = currentMatches[currentMatchIndex];
                 const matchCard = document.createElement('div');
-                matchCard.className = 'roommate-match-card glass-card'; /* Apply glass-card here */
+                matchCard.className = 'roommate-match-card glass-card';
                 matchCard.innerHTML = `
                     <img src="${match.avatar_url}" alt="${match.name}" class="mx-auto mb-4 w-24 h-24 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/96x96/cccccc/ffffff?text=User'">
                     <h4 class="text-3xl font-bold text-gray-900">${match.name}, ${match.age || 'N/A'}</h4>
@@ -1445,7 +1433,6 @@
                 swipeButtonsContainer.classList.remove('hidden');
 
                 matchCard.querySelector('.match-details-btn').addEventListener('click', (e) => {
-                    // Parse the data from the data-match attribute
                     const matchData = JSON.parse(e.target.dataset.match);
                     displayActivityDetails('Liked Profile', matchData);
                 });
@@ -1463,7 +1450,7 @@
             roommatePrompt.classList.add('hidden');
             noMoreMatchesPrompt.classList.add('hidden');
             roommateMatchesLoader.classList.remove('hidden');
-            roommateMatchCardDisplay.innerHTML = ''; // Clear any previous cards
+            roommateMatchCardDisplay.innerHTML = '';
             swipeButtonsContainer.classList.add('hidden');
 
             try {
@@ -1531,7 +1518,6 @@
                             currentCard.addEventListener('transitionend', () => {
                                 currentMatchIndex++;
                                 displayCurrentMatch();
-                                // No explicit redirect here, as per original logic, it just moves to next card
                             }, { once: true });
                         } else {
                             showToast(saveResult.message || 'Failed to save liked profile.', 'error');
@@ -1551,11 +1537,11 @@
             }
         }
 
-        if (findMatchesBtn) { // This button might not exist in the new structure
+        if (findMatchesBtn) {
             findMatchesBtn.addEventListener('click', fetchRoommateMatches);
         }
 
-        if (findMatchesBtnInner) { // For the inner button in roommate-prompt
+        if (findMatchesBtnInner) {
             findMatchesBtnInner.addEventListener('click', fetchRoommateMatches);
         }
 
@@ -1571,7 +1557,7 @@
             likeMatchBtn.addEventListener('click', () => animateAndAdvance('like'));
         }
 
-        // --- Generic Activity/Service Details Modal Logic --- (Kept as is)
+        // --- Generic Activity/Service Details Modal Logic ---
         const activityDetailsModal = document.getElementById('activity-details-modal');
         const closeActivityModalBtn = document.getElementById('close-activity-modal-btn');
         const activityModalContent = document.getElementById('activity-modal-content');
@@ -1592,7 +1578,6 @@
                         <div class="detail-item"><i class="fas fa-user-friends"></i><span class="font-semibold">Compatibility:</span> <span class="compatibility-score-modal">${details.compatibility_score || 'N/A'}%</span></div>
                         <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> ${details.bio || 'No bio provided.'}</div>
                     </div>
-                    <!-- <button class="btn-primary mt-6 w-full">Connect with ${details.name}</button> -->
                 `;
             } else if (activityType === 'Rent Check') {
                 contentHtml += `
@@ -1674,7 +1659,7 @@
         }
 
 
-        // --- Event listener for clicking on Activity/Service items --- (Kept as is)
+        // --- Event listener for clicking on Activity/Service items ---
         document.addEventListener('click', (event) => {
             const activityItem = event.target.closest('.activity-item[data-activity-details]');
             const serviceResultCard = event.target.closest('.service-result-card[data-activity-details]');
@@ -1708,10 +1693,10 @@
             }
         });
 
-        // Tab switching logic for My Services section (Kept as is)
+        // Tab switching logic for My Services section
         document.addEventListener('DOMContentLoaded', () => {
             const mainContentTabButtons = document.querySelectorAll('#my-services-section .main-content-tab-button');
-            const mainContentTabContents = document.querySelectorAll('.main-content-tab-content'); // Select all tab content sections
+            const mainContentTabContents = document.querySelectorAll('.main-content-tab-content');
 
             mainContentTabButtons.forEach(button => {
                 button.addEventListener('click', () => {
@@ -1731,7 +1716,6 @@
             });
         });
     </script>
-    <!-- Assuming fairrent_app/js/main.js exists and contains necessary functions like setupAddressSuggestions -->
     <script src="{% static 'fairrent_app/js/main.js' %}"></script>
 </body>
 </html>
