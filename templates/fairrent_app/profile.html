@@ -9,77 +9,120 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* CSS Variables for consistent theming */
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --accent: #ec4899;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+        
+        /* Base styles */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8; /* Softer, light blue-gray background */
-            color: #2d3748; /* Darker default text for better contrast */
+            background-color: #f9fafb; /* Lighter background */
+            color: #111827; /* Darker text */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-        }
-        #dashboard-container {
-            display: flex;
-            flex: 1; /* Allows main content to grow */
-        }
-        #sidebar {
-            width: 250px; /* Fixed width sidebar */
-            background-color: #1e293b; /* Dark slate blue */
-            color: #e2e8f0;
-            padding: 2rem 1.5rem;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(0); /* Default visible */
-            z-index: 50;
-        }
-        #sidebar.hidden-sidebar {
-            transform: translateX(-100%);
-            position: absolute; /* Take out of flow when hidden */
-        }
-        @media (max-width: 1023px) { /* Adjust for smaller screens */
-            #sidebar {
-                position: fixed; /* Fixed position for mobile sidebar */
-                height: 100%;
-                top: 0;
-                left: 0;
-                transform: translateX(-100%); /* Hidden by default on mobile */
-            }
-            #sidebar.open {
-                transform: translateX(0);
-            }
-            #content-area {
-                margin-left: 0 !important; /* No margin when sidebar is hidden on mobile */
-            }
+            overflow-x: hidden; /* Prevent horizontal scroll on animations */
         }
 
-        #content-area {
-            flex: 1;
-            padding: 2rem;
-            margin-left: 0; /* Default no margin for mobile, adjusted by JS/media query for desktop */
-            transition: margin-left 0.3s ease-in-out;
-        }
-        @media (min-width: 1024px) { /* Desktop */
-            #content-area {
-                margin-left: 250px; /* Space for fixed sidebar */
-            }
+        /* Modern glass card effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        .card {
-            background-color: white;
-            border-radius: 1.25rem;
-            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.1), 0 6px 15px -6px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid #e2e8f0;
+        .glass-card:hover {
+            transform: translateY(-5px); /* Slightly less lift on hover */
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Floating animation (not directly used in this HTML, but kept for consistency) */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Button hover effect */
+        .btn-hover-effect {
+            position: relative;
             overflow: hidden;
+            z-index: 1;
         }
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15), 0 10px 20px -8px rgba(0,0,0,0.1);
+        .btn-hover-effect::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary), #9333ea, var(--accent));
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
+        .btn-hover-effect:hover::before {
+            opacity: 1;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0; /* Ensure initial state is hidden */
+        }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        .delay-500 { animation-delay: 0.5s; }
+
+        /* General button styles */
         .btn-primary {
-            background-color: #6366f1;
+            background-color: var(--primary);
             color: white;
             padding: 0.9rem 2rem;
             border-radius: 0.75rem;
@@ -88,13 +131,13 @@
             box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.4);
         }
         .btn-primary:hover {
-            background-color: #4f46e5;
+            background-color: var(--primary-dark);
             transform: translateY(-2px);
             box-shadow: 0 6px 16px -3px rgba(99, 102, 241, 0.5);
         }
         .btn-secondary {
-            background-color: #e0e7ff;
-            color: #6366f1;
+            background-color: #e0e7ff; /* Light indigo */
+            color: var(--primary);
             padding: 0.9rem 2rem;
             border-radius: 0.75rem;
             font-weight: 600;
@@ -103,16 +146,20 @@
         }
         .btn-secondary:hover {
             background-color: #c7d2fe;
-            color: #4f46e5;
+            color: var(--primary-dark);
             transform: translateY(-2px);
         }
+
+        /* Modal specific sizing for responsive full-screen feel */
         .modal-backdrop {
             background-color: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px); /* Apply blur effect */
+            -webkit-backdrop-filter: blur(12px); /* For Safari support */
+            transition: backdrop-filter 0.3s ease-out; /* Smooth transition for blur */
         }
         .spinner {
-            border-top-color: #6366f1;
-            animation: spin 1s ease-in-out infinite;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         select {
@@ -126,56 +173,174 @@
             padding-right: 3rem;
         }
 
-        /* Activity and Service Cards within their sections */
-        .activity-item, .service-result-card {
-            background-color: #ffffff;
-            border-radius: 0.85rem; /* Slightly more rounded than before */
-            padding: 1.25rem;
-            border: 1px solid #eef2f6;
-            transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        /* Dashboard Layout */
+        .dashboard-container {
             display: flex;
-            align-items: center;
+            flex: 1;
         }
-        .activity-item:hover, .service-result-card:hover {
-            background-color: #f8fafc;
-            border-color: #dbeafe;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05); /* Lighter shadow on hover */
-        }
-        .activity-icon, .service-result-icon-wrapper {
-            width: 3rem; /* Slightly smaller for tighter list */
-            height: 3rem;
-            min-width: 3rem;
-            min-height: 3rem;
-            border-radius: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6rem;
-            margin-right: 1rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .service-result-card .service-result-icon {
-            font-size: 2rem;
-        }
-
-        /* Roommate Match Cards (Swipe UI) */
-        .roommate-match-card {
-            background-color: white;
-            border-radius: 1.75rem;
-            box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.25), 0 10px 25px -10px rgba(0, 0, 0, 0.15);
-            padding: 3rem;
-            text-align: center;
-            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2), opacity 0.5s ease-out, box-shadow 0.4s ease;
-            position: absolute;
-            width: 100%;
-            height: 100%;
+        .sidebar {
+            width: 280px; /* Wider sidebar */
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); /* Darker gradient */
+            color: white;
+            padding: 2rem 1.5rem;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(0);
+            z-index: 50;
+        }
+        /* Mobile sidebar specific styles */
+        @media (max-width: 1023px) {
+            .dashboard-container {
+                flex-direction: column; /* Stack on mobile */
+            }
+            .sidebar {
+                position: fixed;
+                height: 100vh;
+                width: 280px; /* Fixed width for mobile sidebar */
+                top: 0;
+                left: 0;
+                transform: translateX(-100%); /* Hidden by default on mobile */
+                box-shadow: 5px 0 15px rgba(0,0,0,0.3); /* Stronger shadow when open */
+            }
+            .sidebar.open {
+                transform: translateX(0); /* Slide in when open */
+            }
+            .content-area {
+                margin-left: 0 !important; /* No margin when sidebar is hidden on mobile */
+                width: 100%; /* Take full width on mobile */
+            }
+            /* Overlay for mobile sidebar */
+            #sidebar-overlay {
+                position: fixed;
+                inset: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 40; /* Below sidebar, above content */
+                display: none; /* Hidden by default */
+            }
+            #sidebar-overlay.active {
+                display: block; /* Show when sidebar is open */
+            }
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 2rem;
+            margin-left: 0;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        @media (min-width: 1024px) {
+            .content-area {
+                margin-left: 280px; /* Space for fixed sidebar */
+            }
+        }
+
+        /* Card styles for dashboard (now using glass-card) */
+        .dashboard-card {
+            /* Inherits most styles from .glass-card */
+            padding: 2rem; /* Consistent padding */
+        }
+
+        /* Stats cards */
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            /* Inherits glass-card for base styling */
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+            transition: all 0.5s ease;
+        }
+        .stat-card:hover::before {
+            transform: rotate(45deg) translateY(-20px);
+        }
+        .stat-card .icon-wrapper-small {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            backface-visibility: hidden;
-            will-change: transform, opacity;
+            font-size: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Activity feed items */
+        .activity-item {
+            position: relative;
+            padding-left: 2.5rem; /* Space for timeline dot/line */
+            border-left: 2px solid #e2e8f0; /* Timeline line */
+            padding-bottom: 1.5rem; /* Space between items */
+            margin-bottom: 1.5rem; /* Space between items */
+            cursor: pointer;
+        }
+        .activity-item:last-child {
+            border-left: none; /* No line for the last item */
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+        .activity-item::before {
+            content: '';
+            position: absolute;
+            left: -0.5rem; /* Position the dot over the line */
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: var(--primary); /* Primary color dot */
+            border: 3px solid white; /* White border to stand out */
+            z-index: 1;
+        }
+        .activity-item .content {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+        .activity-item:hover .content {
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .activity-item .activity-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-right: 0.75rem;
+        }
+        
+        /* Roommate card */
+        .roommate-match-container {
+            position: relative;
+            min-height: 500px; /* Ensure enough space for cards */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .roommate-match-card {
+            /* Inherits glass-card for base styling */
+            position: absolute; /* Stack cards */
+            width: 90%; /* Max width for responsiveness */
+            max-width: 450px; /* Max width for desktop */
+            height: auto; /* Adjust height based on content */
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2), opacity 0.5s ease-out, box-shadow 0.4s ease;
             transform-origin: center bottom;
+            will-change: transform, opacity;
         }
         .roommate-match-card.swiping-right {
             transform: translateX(200%) rotate(45deg);
@@ -186,36 +351,35 @@
             opacity: 0;
         }
         .roommate-match-card img {
-            width: 160px;
-            height: 160px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 2rem;
-            border: 6px solid #6366f1;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+            margin-bottom: 1.5rem;
+            border: 4px solid var(--primary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
         .compatibility-score {
-            font-size: 3rem;
+            font-size: 2.5rem; /* Slightly smaller for card */
             font-weight: 900;
-            color: #6366f1;
-            margin-top: 1.5rem;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(45deg, #6366f1, #8b5cf6, #c084fc);
+            background: linear-gradient(45deg, var(--primary), #8b5cf6, #c084fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.05em;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
         }
         .match-detail-item {
             display: flex;
             align-items: center;
-            margin-bottom: 0.9rem;
-            font-size: 1.15rem;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
             color: #4a5568;
         }
         .match-detail-item i {
-            margin-right: 1.2rem;
+            margin-right: 1rem;
             color: #9ca3af;
-            width: 1.6rem;
+            width: 1.4rem;
             text-align: center;
         }
 
@@ -223,141 +387,77 @@
         .swipe-buttons {
             display: flex;
             justify-content: center;
-            gap: 3rem;
-            margin-top: 3rem;
+            gap: 2rem;
+            margin-top: 2rem;
             position: relative;
             z-index: 30;
         }
         .swipe-button {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 2rem;
             cursor: pointer;
             transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2), box-shadow 0.3s ease, background-color 0.2s ease;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            border: 3px solid transparent;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            border: 2px solid transparent;
         }
         .swipe-button:hover {
-            transform: scale(1.2);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
         }
         .swipe-button.skip {
             background-color: #ef4444;
             color: white;
             border-color: #dc2626;
         }
-        .swipe-button.skip:hover {
-            background-color: #dc2626;
-        }
         .swipe-button.like {
             background-color: #22c55e;
             color: white;
             border-color: #16a34a;
-        }
-        .swipe-button.like:hover {
-            background-color: #16a34a;
         }
 
         /* Lifestyle Preferences Tags */
         .tag-input-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.75rem;
-            padding: 1rem;
+            gap: 0.5rem;
+            padding: 0.75rem;
             border: 1px solid #cbd5e1;
-            border-radius: 1.25rem;
+            border-radius: 0.75rem;
             background-color: #f8fafc;
-            min-height: 56px;
+            min-height: 48px;
             align-items: center;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
         }
         .tag {
             background-color: #e0e7ff;
-            color: #6366f1;
-            padding: 0.7rem 1.4rem;
+            color: var(--primary);
+            padding: 0.5rem 1rem;
             border-radius: 9999px;
-            font-size: 1rem;
+            font-size: 0.875rem;
             font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            transition: all 0.2s ease;
             border: 1px solid #c7d2fe;
             user-select: none;
         }
         .tag:hover {
             background-color: #c7d2fe;
-            transform: translateY(-3px);
-            box-shadow: 0 4px 10px rgba(99,102,241,0.2);
+            transform: translateY(-1px);
         }
         .tag.selected {
-            background-color: #6366f1;
+            background-color: var(--primary);
             color: white;
-            border-color: #6366f1;
-            box-shadow: 0 5px 15px rgba(99,102,241,0.4);
+            border-color: var(--primary);
+            box-shadow: 0 2px 5px rgba(99,102,241,0.2);
         }
         .tag.selected:hover {
-            background-color: #4f46e5;
+            background-color: var(--primary-dark);
             transform: translateY(0);
-        }
-
-        /* Input and textarea focus styles */
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
-        }
-
-        /* Responsive Grid Layout for Main Content */
-        .dashboard-main-grid {
-            display: grid;
-            gap: 2.5rem; /* Generous spacing between main sections */
-            grid-template-columns: 1fr; /* Default to single column on small screens */
-        }
-        @media (min-width: 768px) { /* md breakpoint */
-            .dashboard-main-grid {
-                grid-template-columns: 2fr 1fr; /* Roommate Finder (2/3) on left, User Info/Activities (1/3) on right */
-            }
-        }
-        @media (min-width: 1024px) { /* lg breakpoint */
-            .dashboard-main-grid {
-                grid-template-columns: 3fr 2fr; /* Even more space for main content on large screens */
-            }
-        }
-
-        /* Responsive Adjustments for Sub-sections */
-        .sidebar-cards-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem; /* Spacing between cards in the sidebar */
-        }
-
-        /* Activity Details Modal Specific Styles */
-        .activity-detail-modal-content .detail-item {
-            display: flex;
-            align-items: flex-start; /* Align icon to top of text */
-            margin-bottom: 0.75rem;
-            font-size: 1.05rem;
-            color: #4a5568;
-        }
-        .activity-detail-modal-content .detail-item i {
-            margin-right: 1rem;
-            color: #94a3b8;
-            width: 1.5rem;
-            text-align: center;
-            flex-shrink: 0; /* Prevent icon from shrinking */
-            padding-top: 0.2rem; /* Adjust icon vertical alignment */
-        }
-        .activity-detail-modal-content .detail-item span {
-            font-weight: 500;
-            color: #2d3748;
-        }
-        .activity-detail-modal-content .detail-item p {
-            margin-top: 0.2rem; /* Space below label for multiline content */
-            font-size: 0.95rem;
-            color: #4a5568;
         }
 
         /* Tab buttons for main content areas */
@@ -376,11 +476,85 @@
             margin-bottom: -2px; /* Pulls button border up to align with parent border */
         }
         .main-content-tab-button:hover {
-            color: #4f46e5; /* Indigo 600 */
+            color: var(--primary-dark);
         }
         .main-content-tab-button.active {
-            color: #6366f1; /* Indigo 500 */
-            border-color: #6366f1;
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Activity/Service Details Modal */
+        .activity-detail-modal-content .detail-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+            color: #4a5568;
+        }
+        .activity-detail-modal-content .detail-item i {
+            margin-right: 0.75rem;
+            color: #94a3b8;
+            width: 1.2rem;
+            text-align: center;
+            flex-shrink: 0;
+            padding-top: 0.1rem;
+        }
+        .activity-detail-modal-content .detail-item span {
+            font-weight: 500;
+            color: #2d3748;
+        }
+        .activity-detail-modal-content .detail-item p {
+            margin-top: 0.1rem;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        /* Specific styles for Rent Checker results in dashboard */
+        .rent-checker-result-card {
+            background: linear-gradient(135deg, #e0f2fe, #bfdbfe); /* Light blue gradient */
+            border: 1px solid #93c5fd;
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .rent-checker-result-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        .rent-checker-result-card .icon-wrapper {
+            width: 3rem;
+            height: 3rem;
+            min-width: 3rem;
+            min-height: 3rem;
+            border-radius: 0.75rem;
+            background-color: #3b82f6; /* Blue-600 */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .rent-checker-result-card .details {
+            flex-grow: 1;
+        }
+        .rent-checker-result-card .details p {
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+            color: #374151; /* Darker gray for text */
+        }
+        .rent-checker-result-card .details .highlight {
+            font-weight: 600;
+            color: #1d4ed8; /* Blue-700 */
+        }
+        .rent-checker-result-card .details .timestamp {
+            font-size: 0.8rem;
+            color: #6b7280; /* Gray-500 */
+            margin-top: 0.5rem;
         }
     </style>
 </head>
@@ -394,17 +568,17 @@
                     <ul class="space-y-4">
                         <li>
                             <a href="#" class="sidebar-nav-item active flex items-center p-3 rounded-lg text-lg font-medium hover:bg-slate-700 transition-colors duration-200" data-content-target="dashboard-home">
-                                <i class="fas fa-home mr-4"></i> Dashboard
+                                <i class="fas fa-home mr-3"></i> Dashboard
                             </a>
                         </li>
                         <li>
                             <a href="#" class="sidebar-nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-slate-700 transition-colors duration-200" data-content-target="roommate-finder-section">
-                                <i class="fas fa-users mr-4"></i> Roommate Finder
+                                <i class="fas fa-users mr-3"></i> Roommate Finder
                             </a>
                         </li>
                         <li>
                             <a href="#" class="sidebar-nav-item flex items-center p-3 rounded-lg text-lg font-medium hover:bg-slate-700 transition-colors duration-200" data-content-target="my-services-section">
-                                <i class="fas fa-tools mr-4"></i> My Services
+                                <i class="fas fa-tools mr-3"></i> My Services
                             </a>
                         </li>
                     </ul>
@@ -413,7 +587,7 @@
             <div class="border-t border-slate-700 pt-6">
                 <!-- "Go to Homepage" is now a regular link, no data-content-target -->
                 <a href="{% url 'fairrent_app:index' %}" class="flex items-center p-3 rounded-lg text-lg font-medium text-indigo-300 hover:text-white hover:bg-indigo-700 transition-colors duration-200">
-                    <i class="fas fa-arrow-circle-left mr-4"></i> Go to Homepage
+                    <i class="fas fa-arrow-circle-left mr-4"></i> Homepage
                 </a>
                 <a href="{% url 'fairrent_app:logout' %}" class="flex items-center p-3 rounded-lg text-lg font-medium text-red-400 hover:bg-slate-700 transition-colors duration-200 mt-2">
                     <i class="fas fa-sign-out-alt mr-4"></i> Logout
@@ -435,13 +609,13 @@
             <!-- Content Sections (Dynamically Swapped) -->
             <section id="dashboard-home" class="content-section active space-y-8">
                 <div class="mb-8">
-                    <h2 class="text-4xl font-extrabold text-gray-900 leading-tight">Welcome, {{ user.username }}!</h2>
+                    <h2 class="text-4xl font-extrabold text-gray-900 leading-tight">Welcome, <span class="gradient-text">{{ user.username }}</span>!</h2>
                     <p class="text-gray-600 mt-2 text-xl">Here's a quick overview of your FairRent Connect activity.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- User Info Card (Compact) -->
-                    <div class="card p-6 col-span-1 md:col-span-1 lg:col-span-1">
+                    <div class="glass-card p-6 col-span-1 md:col-span-1 lg:col-span-1 animate-fade-in delay-100">
                         <h3 class="text-2xl font-bold text-gray-900 mb-5">Your Profile Overview</h3>
                         <div class="flex items-center mb-5">
                             <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mr-4 shadow-inner">
@@ -460,13 +634,13 @@
                                 <p class="flex items-center"><i class="fas fa-map-marker-alt w-5 mr-3 text-gray-400"></i>Location: {{ user_roommate_profile.location|default:'N/A' }}</p>
                             {% endif %}
                         </div>
-                        <button id="edit-profile-btn-dashboard-home" class="btn-secondary w-full mt-6 flex items-center justify-center">
+                        <button id="edit-profile-btn-dashboard-home" class="btn-secondary w-full mt-6 flex items-center justify-center btn-hover-effect">
                             <i class="fas fa-edit mr-2"></i>{% if user_roommate_profile %}Edit Profile{% else %}Create Profile{% endif %}
                         </button>
                     </div>
 
                     <!-- Quick Stats Card -->
-                    <div class="card p-6 col-span-1 md:col-span-1 lg:col-span-2">
+                    <div class="glass-card p-6 col-span-1 md:col-span-1 lg:col-span-2 animate-fade-in delay-200">
                         <h3 class="text-2xl font-bold text-gray-900 mb-5">Quick Stats</h3>
                         <div class="grid grid-cols-2 gap-4 text-center">
                             <div class="p-4 bg-blue-50 rounded-lg shadow-sm">
@@ -495,7 +669,7 @@
                 </div>
 
                 <!-- Recent Activity Card (Full Width) -->
-                <div class="card p-6">
+                <div class="glass-card p-6 animate-fade-in delay-300">
                     <h3 class="text-2xl font-bold text-gray-900 mb-6">Recent Activity</h3>
                     <div id="recent-activity-list" class="space-y-3">
                         {% if recent_activities %}
@@ -503,12 +677,14 @@
                                 <div class="activity-item cursor-pointer"
                                     data-activity-type="{{ activity.type }}"
                                     data-activity-details='{% if activity.details %}{{ activity.details|json_script:"activity_details_data" }}{% endif %}'>
-                                    <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
-                                        <i class="fas fa-{{ activity.icon }}"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-800 font-medium">{{ activity.description }}</p>
-                                        <p class="text-sm text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</p>
+                                    <div class="content flex items-start">
+                                        <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
+                                            <i class="fas fa-{{ activity.icon }}"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-800 font-medium">{{ activity.description }}</p>
+                                            <p class="text-sm text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</p>
+                                        </div>
                                     </div>
                                 </div>
                             {% endfor %}
@@ -520,18 +696,18 @@
             </section>
 
             <!-- Roommate Finder Section (Full Page View) -->
-            <section id="roommate-finder-section" class="content-section hidden space-y-8">
-                <div class="card p-8">
+            <section id="roommate-finder-section" class="content-section hidden space-y-8 animate-fade-in">
+                <div class="glass-card p-8">
                     <div class="flex justify-between items-center mb-8">
                         <div>
                             <h3 class="text-3xl font-bold text-gray-900">AI Roommate Finder</h3>
                             <p class="text-gray-500 mt-1">Discover compatible roommates with our smart AI.</p>
                         </div>
-                        <button id="edit-profile-btn-roommate-section" class="btn-primary flex items-center">
+                        <button id="edit-profile-btn-roommate-section" class="btn-primary flex items-center btn-hover-effect">
                             <i class="fas fa-edit mr-2"></i>{% if user_roommate_profile %}Edit Profile{% else %}Create Profile{% endif %}
                         </button>
                     </div>
-                    <div id="roommate-match-container" class="relative min-h-[500px] flex items-center justify-center bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+                    <div id="roommate-match-container" class="relative min-h-[400px] bg-gray-50 rounded-xl border border-gray-200 overflow-hidden flex items-center justify-center">
                         <div id="roommate-matches-loader" class="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-90 rounded-xl hidden z-20">
                             <div class="spinner w-16 h-16 border-6 border-gray-200 rounded-full mb-4"></div>
                             <p class="text-gray-700 font-medium text-lg">Finding your perfect matches with AI...</p>
@@ -541,18 +717,18 @@
                             <!-- Dynamic match cards will be loaded here -->
                         </div>
 
-                        <div id="roommate-prompt" class="text-center py-10 w-full h-full flex flex-col items-center justify-center z-10">
+                        <div id="roommate-prompt" class="text-center p-6 w-full h-full flex flex-col items-center justify-center z-10">
                             <i class="fas fa-users text-6xl text-gray-400 mb-6"></i>
                             <p class="mt-4 font-semibold text-gray-700 text-xl">Your potential matches will appear here.</p>
                             <p class="text-gray-500 mt-2 text-lg">{% if user.is_authenticated and user_roommate_profile %}Click "Find Matches" to begin your search!{% else %}Create your profile to get started and find your ideal roommate.{% endif %}</p>
-                            {% if user.is_authenticated and user_roommate_profile %}<button id="find-matches-btn" class="mt-8 btn-primary text-lg"><i class="fas fa-search mr-3"></i>Find Matches</button>{% endif %}
+                            {% if user.is_authenticated and user_roommate_profile %}<button id="find-matches-btn-inner" class="mt-8 btn-primary text-lg btn-hover-effect"><i class="fas fa-search mr-3"></i>Find Matches</button>{% endif %}
                         </div>
 
-                        <div id="no-more-matches-prompt" class="hidden text-center py-10 w-full h-full flex flex-col items-center justify-content-center z-10">
+                        <div id="no-more-matches-prompt" class="hidden text-center p-6 w-full h-full flex flex-col items-center justify-content-center z-10">
                             <i class="fas fa-heart-broken text-6xl text-gray-400 mb-6"></i>
                             <p class="mt-4 font-semibold text-gray-700 text-xl">No more matches for now!</p>
                             <p class="text-gray-500 mt-2 text-lg">Check back later or refine your profile to discover new connections.</p>
-                            <button id="reset-matches-btn" class="mt-8 btn-secondary text-lg"><i class="fas fa-redo mr-3"></i>Restart Matches</button>
+                            <button id="reset-matches-btn" class="mt-8 btn-secondary text-lg btn-hover-effect"><i class="fas fa-redo mr-3"></i>Restart Matches</button>
                         </div>
                     </div>
                     
@@ -563,12 +739,12 @@
                 </div>
             </section>
 
-            <!-- My Services Section (Full Page View with Tabs) -->
-            <section id="my-services-section" class="content-section hidden space-y-8">
-                <div class="card p-8">
-                    <h3 class="text-3xl font-bold text-gray-900 mb-6">My Services & Activity</h3>
+            <!-- My Services & Activity Tabs -->
+            <section id="my-services-section" class="content-section hidden space-y-8 animate-fade-in">
+                <div class="glass-card p-6">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">My Services & Activity</h3>
                     
-                    <div class="main-content-tabs">
+                    <div class="main-content-tabs flex border-b-2 border-gray-200 mb-6">
                         <button class="main-content-tab-button active" data-tab-id="my-recent-activity-tab">Recent Activity</button>
                         <button class="main-content-tab-button" data-tab-id="my-service-results-tab">My Service Results</button>
                     </div>
@@ -579,12 +755,14 @@
                                 <div class="activity-item cursor-pointer"
                                     data-activity-type="{{ activity.type }}"
                                     data-activity-details='{% if activity.details %}{{ activity.details|json_script:"activity_details_data" }}{% endif %}'>
-                                    <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
-                                        <i class="fas fa-{{ activity.icon }}"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-800 font-medium">{{ activity.description }}</p>
-                                        <p class="text-sm text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</p>
+                                    <div class="content flex items-start">
+                                        <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
+                                            <i class="fas fa-{{ activity.icon }}"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-800 font-medium">{{ activity.description }}</p>
+                                            <p class="text-sm text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</p>
+                                        </div>
                                     </div>
                                 </div>
                             {% endfor %}
@@ -594,155 +772,167 @@
                     </div>
 
                     <div id="my-service-results-tab" class="main-content-tab-content hidden space-y-3">
-                        {% if user_rent_checks or user_reviews or user_complaints or user_forum_posts or user_liked_profiles or user_rental_contracts %}
-                            {% if user_rent_checks %}
-                                {% for rent_result in user_rent_checks %}
-                                    <div class="service-result-card cursor-pointer"
-                                        data-activity-type="Rent Check"
-                                        data-activity-details='{
-                                            "postcode": "{{ rent_result.postcode }}",
-                                            "bedrooms": "{{ rent_result.bedrooms }}",
-                                            "estimated_rent": "{{ rent_result.estimated_rent|floatformat:0 }}",
-                                            "checked_at": "{{ rent_result.checked_at|date:"Y-m-d H:i:s" }}"
-                                        }'>
-                                        <div class="service-result-icon-wrapper bg-blue-100 text-blue-600">
-                                            <i class="fas fa-gbp-sign service-result-icon"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-semibold text-gray-800">Rent Check for <span class="font-bold">{{ rent_result.postcode }}</span> ({{ rent_result.bedrooms }} bed)</p>
-                                            <p class="text-gray-700">Estimated Rent: <span class="font-bold text-blue-600">£{{ rent_result.estimated_rent|floatformat:0 }}</span></p>
-                                            <p class="text-sm text-gray-500">Checked on {{ rent_result.checked_at|date:"M d, Y" }}</p>
-                                        </div>
+                        {% if user_rent_checks or user_reviews or user_complaints or user_forum_posts or user_liked_profiles or user_rental_contracts or user_rent_declaration_checks %}
+                            {% for rent_result in user_rent_checks %}
+                                <div class="service-result-card cursor-pointer rent-checker-result-card"
+                                    data-activity-type="Rent Check"
+                                    data-activity-details='{
+                                        "postcode": "{{ rent_result.postcode }}",
+                                        "bedrooms": "{{ rent_result.bedrooms }}",
+                                        "estimated_rent": "{{ rent_result.estimated_rent|floatformat:0 }}",
+                                        "checked_at": "{{ rent_result.checked_at|date:"Y-m-d H:i:s" }}"
+                                    }'>
+                                    <div class="icon-wrapper bg-blue-100 text-blue-600">
+                                        <i class="fas fa-gbp-sign"></i>
                                     </div>
-                                {% endfor %}
-                            {% endif %}
-
-                            {% if user_reviews %}
-                                {% for review in user_reviews %}
-                                    <div class="service-result-card cursor-pointer"
-                                        data-activity-type="Review"
-                                        data-activity-details='{
-                                            "landlord_name": "{{ review.landlord_name }}",
-                                            "property_address": "{{ review.property_address }}",
-                                            "rating": {{ review.rating }},
-                                            "comments": "{{ review.comments|escapejs }}",
-                                            "reviewed_at": "{{ review.reviewed_at|date:"Y-m-d H:i:s" }}",
-                                            "reviewer": "{{ review.user.username }}"
-                                        }'>
-                                        <div class="service-result-icon-wrapper bg-green-100 text-green-600">
-                                            <i class="fas fa-star service-result-icon"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-semibold text-gray-800">Your Review for <span class="font-bold">{{ review.landlord_name }}</span> ({{ review.property_address }})</p>
-                                            <p class="text-gray-700">Rating: <span class="font-bold text-green-600">{{ review.rating }} Stars</span></p>
-                                            <p class="text-sm text-gray-500">"{{ review.comments|truncatechars:100 }}"</p>
-                                            <p class="text-sm text-gray-500">Submitted on {{ review.reviewed_at|date:"M d, Y" }}</p>
-                                        </div>
+                                    <div class="details">
+                                        <p>Rent Check for <span class="highlight">{{ rent_result.postcode }}</span> ({{ rent_result.bedrooms }} bed)</p>
+                                        <p>Estimated Rent: <span class="highlight">£{{ rent_result.estimated_rent|floatformat:0 }}</span></p>
+                                        <p class="timestamp">Checked on {{ rent_result.checked_at|date:"M d, Y" }}</p>
                                     </div>
-                                {% endfor %}
-                            {% endif %}
+                                </div>
+                            {% endfor %}
 
-                            {% if user_complaints %}
-                                {% for complaint in user_complaints %}
-                                    <div class="service-result-card cursor-pointer"
-                                        data-activity-type="Complaint"
-                                        data-activity-details='{
-                                            "issue_type": "{{ complaint.get_issue_type_display }}",
-                                            "property_address": "{{ complaint.property_address }}",
-                                            "landlord_name": "{{ complaint.landlord_name|default:'' }}",
-                                            "description": "{{ complaint.description|escapejs }}",
-                                            "status": "{{ complaint.get_status_display }}",
-                                            "submitted_at": "{{ complaint.submitted_at|date:"Y-m-d H:i:s" }}"
-                                        }'>
-                                        <div class="service-result-icon-wrapper bg-red-100 text-red-600">
-                                            <i class="fas fa-exclamation-triangle service-result-icon"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-semibold text-gray-800">Complaint: <span class="font-bold">{{ complaint.get_issue_type_display }}</span> (<span class="font-bold">{{ complaint.property_address }}</span>)</p>
-                                            <p class="text-gray-700">Status: <span class="text-orange-500 font-semibold">{{ complaint.get_status_display }}</span></p>
-                                            <p class="text-sm text-gray-500">Submitted on {{ complaint.submitted_at|date:"M d, Y" }}</p>
-                                        </div>
+                            {% for review in user_reviews %}
+                                <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
+                                    data-activity-type="Review"
+                                    data-activity-details='{
+                                        "landlord_name": "{{ review.landlord_name }}",
+                                        "property_address": "{{ review.property_address }}",
+                                        "rating": {{ review.rating }},
+                                        "comments": "{{ review.comments|escapejs }}",
+                                        "reviewed_at": "{{ review.reviewed_at|date:"Y-m-d H:i:s" }}",
+                                        "reviewer": "{{ review.user.username }}"
+                                    }'>
+                                    <div class="icon-wrapper-small bg-green-100 text-green-600 mr-4">
+                                        <i class="fas fa-star"></i>
                                     </div>
-                                {% endfor %}
-                            {% endif %}
-
-                            {% if user_forum_posts %}
-                                {% for post in user_forum_posts %}
-                                    <div class="service-result-card cursor-pointer"
-                                        data-activity-type="Forum Post"
-                                        data-activity-details='{
-                                            "title": "{{ post.title|escapejs }}",
-                                            "content": "{{ post.content|escapejs }}",
-                                            "category": "{{ post.get_category_display }}",
-                                            "created_at": "{{ post.created_at|date:"Y-m-d H:i:s" }}",
-                                            "author": "{{ post.user.username }}"
-                                        }'>
-                                        <div class="service-result-icon-wrapper bg-yellow-100 text-yellow-600">
-                                            <i class="fas fa-comments service-result-icon"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-semibold text-gray-800">Forum Post: <span class="font-bold">"{{ post.title }}"</span></p>
-                                            <p class="text-gray-700">Category: <span class="font-bold">{{ post.get_category_display }}</span></p>
-                                            <p class="text-sm text-gray-500">Posted on {{ post.created_at|date:"M d, Y" }}</p>
-                                        </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Your Review for <span class="font-bold">{{ review.landlord_name }}</span> ({{ review.property_address }})</p>
+                                        <p class="text-gray-700">Rating: <span class="font-bold text-green-600">{{ review.rating }} Stars</span></p>
+                                        <p class="text-sm text-gray-500">"{{ review.comments|truncatechars:100 }}"</p>
+                                        <p class="text-sm text-gray-500">Submitted on {{ review.reviewed_at|date:"M d, Y" }}</p>
                                     </div>
-                                {% endfor %}
-                            {% endif %}
+                                </div>
+                            {% endfor %}
 
-                            {% if user_liked_profiles %}
-                                {% for liked_profile in user_liked_profiles %}
-                                    <div class="service-result-card cursor-pointer"
-                                        data-activity-type="Liked Profile"
-                                        data-activity-details='{
-                                            "name": "{{ liked_profile.liked_user_name }}",
-                                            "age": {{ liked_profile.liked_user_age|default:"null" }},
-                                            "gender": "{{ liked_profile.liked_user_gender }}",
-                                            "location": "{{ liked_profile.liked_user_location }}",
-                                            "budget": {{ liked_profile.liked_user_budget|default:"null" }},
-                                            "bio": "{{ liked_profile.liked_user_bio|escapejs }}",
-                                            "compatibility_score": {{ liked_profile.liked_user_compatibility_score|default:"null" }},
-                                            "avatar_url": "{{ liked_profile.liked_user_avatar_url }}"
-                                        }'>
-                                        <div class="service-result-icon-wrapper bg-pink-100 text-pink-500">
-                                            <i class="fas fa-heart service-result-icon"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-semibold text-gray-800">Liked Profile: <span class="font-bold">{{ liked_profile.liked_user_name }}</span></p>
-                                            <p class="text-gray-700">Compatibility: <span class="font-bold text-blue-600">{{ liked_profile.liked_user_compatibility_score|default:'N/A' }}%</span></p>
-                                            <p class="text-sm text-gray-500">Liked on {{ liked_profile.liked_at|date:"M d, Y" }}</p>
-                                        </div>
+                            {% for complaint in user_complaints %}
+                                <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
+                                    data-activity-type="Complaint"
+                                    data-activity-details='{
+                                        "issue_type": "{{ complaint.get_issue_type_display }}",
+                                        "property_address": "{{ complaint.property_address }}",
+                                        "landlord_name": "{{ complaint.landlord_name|default:'' }}",
+                                        "description": "{{ complaint.description|escapejs }}",
+                                        "status": "{{ complaint.get_status_display }}",
+                                        "submitted_at": "{{ complaint.submitted_at|date:"Y-m-d H:i:s" }}"
+                                    }'>
+                                    <div class="icon-wrapper-small bg-red-100 text-red-600 mr-4">
+                                        <i class="fas fa-exclamation-triangle"></i>
                                     </div>
-                                {% endfor %}
-                            {% endif %}
-
-                            <!-- NEW: Rental Contract Analysis Results -->
-                            {% if user_rental_contracts %}
-                                {% for contract in user_rental_contracts %}
-                                    <div class="service-result-card cursor-pointer"
-                                        data-activity-type="Contract Analysis"
-                                        data-activity-details='{
-                                            "original_text": "{{ contract.original_text|escapejs }}",
-                                            "analysis_result": "{{ contract.analysis_result|escapejs }}",
-                                            "analyzed_at": "{{ contract.analyzed_at|date:"Y-m-d H:i:s" }}"
-                                        }'>
-                                        <div class="service-result-icon-wrapper bg-teal-100 text-teal-600">
-                                            <i class="fas fa-file-contract service-result-icon"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-semibold text-gray-800">Contract Analysis</p>
-                                            <p class="text-gray-700">Analyzed on <span class="font-bold">{{ contract.analyzed_at|date:"M d, Y" }}</span></p>
-                                            <p class="text-sm text-gray-500">Preview: "{{ contract.original_text|truncatechars:100 }}"</p>
-                                        </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Complaint: <span class="font-bold">{{ complaint.get_issue_type_display }}</span> (<span class="font-bold">{{ complaint.property_address }}</span>)</p>
+                                        <p class="text-gray-700">Status: <span class="text-orange-500 font-semibold">{{ complaint.get_status_display }}</span></p>
+                                        <p class="text-sm text-gray-500">Submitted on {{ complaint.submitted_at|date:"M d, Y" }}</p>
                                     </div>
-                                {% endfor %}
-                            {% endif %}
+                                </div>
+                            {% endfor %}
 
-                        {% else %}
-                            <p class="text-center text-gray-500 py-2">No service results to display yet.</p>
-                        {% endif %}
+                            {% for post in user_forum_posts %}
+                                <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
+                                    data-activity-type="Forum Post"
+                                    data-activity-details='{
+                                        "title": "{{ post.title|escapejs }}",
+                                        "content": "{{ post.content|escapejs }}",
+                                        "category": "{{ post.get_category_display }}",
+                                        "created_at": "{{ post.created_at|date:"Y-m-d H:i:s" }}",
+                                        "author": "{{ post.user.username }}"
+                                    }'>
+                                    <div class="icon-wrapper-small bg-yellow-100 text-yellow-600 mr-4">
+                                        <i class="fas fa-comments"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Forum Post: <span class="font-bold">"{{ post.title }}"</span></p>
+                                        <p class="text-gray-700">Category: <span class="font-bold">{{ post.get_category_display }}</span></p>
+                                        <p class="text-sm text-gray-500">Posted on {{ post.created_at|date:"M d, Y" }}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                            {% for liked_profile in user_liked_profiles %}
+                                <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
+                                    data-activity-type="Liked Profile"
+                                    data-activity-details='{
+                                        "name": "{{ liked_profile.liked_user_name }}",
+                                        "age": {{ liked_profile.liked_user_age|default:"null" }},
+                                        "gender": "{{ liked_profile.liked_user_gender }}",
+                                        "location": "{{ liked_profile.liked_user_location }}",
+                                        "budget": {{ liked_profile.liked_user_budget|default:"null" }},
+                                        "bio": "{{ liked_profile.liked_user_bio|escapejs }}",
+                                        "compatibility_score": {{ liked_profile.liked_user_compatibility_score|default:"null" }},
+                                        "avatar_url": "{{ liked_profile.liked_user_avatar_url }}"
+                                    }'>
+                                    <div class="icon-wrapper-small bg-pink-100 text-pink-500 mr-4">
+                                        <i class="fas fa-heart"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Liked Profile: <span class="font-bold">{{ liked_profile.liked_user_name }}</span></p>
+                                        <p class="text-gray-700">Compatibility: <span class="font-bold text-blue-600">{{ liked_profile.liked_user_compatibility_score|default:'N/A' }}%</span></p>
+                                        <p class="text-sm text-gray-500">Liked on {{ liked_profile.liked_at|date:"M d, Y" }}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                            {% for contract in user_rental_contracts %}
+                                <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
+                                    data-activity-type="Contract Analysis"
+                                    data-activity-details='{
+                                        "original_text": "{{ contract.original_text|escapejs }}",
+                                        "analysis_result": "{{ contract.analysis_result|escapejs }}",
+                                        "analyzed_at": "{{ contract.analyzed_at|date:"Y-m-d H:i:s" }}"
+                                    }'>
+                                    <div class="icon-wrapper-small bg-teal-100 text-teal-600 mr-4">
+                                        <i class="fas fa-file-contract"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Contract Analysis</p>
+                                        <p class="text-gray-700">Analyzed on <span class="font-bold">{{ contract.analyzed_at|date:"M d, Y" }}</span></p>
+                                        <p class="text-sm text-gray-500">Preview: "{{ contract.original_text|truncatechars:100 }}"</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                            {% for declaration_check in user_rent_declaration_checks %}
+                                <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
+                                    data-activity-type="Rent Declaration Check"
+                                    data-activity-details='{
+                                        "postcode": "{{ declaration_check.postcode }}",
+                                        "bedrooms": "{{ declaration_check.bedrooms }}",
+                                        "actual_rent_paid": "{{ declaration_check.actual_rent_paid }}",
+                                        "council_tax_band": "{{ declaration_check.council_tax_band }}",
+                                        "estimated_council_tax": "{{ declaration_check.estimated_council_tax|default:"null" }}",
+                                        "discrepancy_found": {{ declaration_check.discrepancy_found|lower }},
+                                        "analysis_result": "{{ declaration_check.analysis_result|escapejs }}",
+                                        "checked_at": "{{ declaration_check.checked_at|date:"Y-m-d H:i:s" }}"
+                                    }'>
+                                    <div class="icon-wrapper-small bg-orange-100 text-orange-600 mr-4">
+                                        <i class="fas fa-file-invoice-dollar"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Rent Declaration Check for <span class="font-bold">{{ declaration_check.postcode }}</span></p>
+                                        <p class="text-gray-700">Discrepancy: <span class="font-bold {% if declaration_check.discrepancy_found %}text-red-600{% else %}text-green-600{% endif %}">{{ declaration_check.discrepancy_found|yesno:"Found,None" }}</span></p>
+                                        <p class="text-sm text-gray-500">Checked on {{ declaration_check.checked_at|date:"M d, Y" }}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                            {% else %}
+                                <p class="text-center text-gray-500 py-2">No service results to display yet.</p>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-            </section>
+            </div>
         </main>
     </div>
 
@@ -818,8 +1008,8 @@
                                placeholder="Tell us about yourself and what you're looking for... (max 500 words)">{{ user_roommate_profile.bio|default:'' }}</textarea>
                 </div>
                 <div class="mt-8 flex justify-end space-x-4">
-                    <button type="button" id="profile-form-cancel-btn" class="btn-secondary">Cancel</button>
-                    <button type="submit" class="btn-primary">Save Profile</button>
+                    <button type="button" id="profile-form-cancel-btn" class="btn-secondary btn-hover-effect">Cancel</button>
+                    <button type="submit" class="btn-primary btn-hover-effect">Save Profile</button>
                 </div>
             </form>
         </div>
@@ -875,18 +1065,26 @@
         if (sidebarToggleBtn) {
             sidebarToggleBtn.addEventListener('click', () => {
                 sidebar.classList.toggle('open');
-                // Optional: Add overlay to content when sidebar is open on mobile
+                // Create/remove overlay for mobile
+                let overlay = document.getElementById('sidebar-overlay');
                 if (sidebar.classList.contains('open')) {
-                    const overlay = document.createElement('div');
-                    overlay.id = 'sidebar-overlay';
-                    overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden';
-                    document.body.appendChild(overlay);
-                    overlay.addEventListener('click', () => {
-                        sidebar.classList.remove('open');
-                        overlay.remove();
-                    });
+                    if (!overlay) {
+                        overlay = document.createElement('div');
+                        overlay.id = 'sidebar-overlay';
+                        overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden';
+                        document.body.appendChild(overlay);
+                        overlay.addEventListener('click', () => {
+                            sidebar.classList.remove('open');
+                            overlay.classList.remove('active');
+                            overlay.remove();
+                        });
+                    }
+                    overlay.classList.add('active');
                 } else {
-                    document.getElementById('sidebar-overlay')?.remove();
+                    if (overlay) {
+                        overlay.classList.remove('active');
+                        overlay.remove();
+                    }
                 }
             });
         }
@@ -898,7 +1096,7 @@
                 // ONLY prevent default for internal navigation links (those with data-content-target)
                 // This allows the "Back to Home" link (which doesn't have data-content-target) to function normally
                 if (targetId) {
-                    e.preventDefault(); 
+                    e.preventDefault();
                     // Remove active from all nav items
                     sidebarNavItems.forEach(nav => nav.classList.remove('active', 'bg-slate-700'));
                     // Add active to clicked nav item
@@ -956,16 +1154,18 @@
         const roommateProfileForm = document.getElementById('roommate-profile-form');
         const lifestylePreferencesTagsContainer = document.getElementById('lifestyle-preferences-tags');
         const lifestylePreferencesHiddenInput = document.getElementById('lifestyle_preferences_hidden');
+        const profileLocationInput = document.getElementById('location');
 
         // Pre-defined lifestyle preferences
         const ALL_LIFESTYLE_PREFERENCES = [
-            'Quiet', 'Social', 'Pet-Friendly', 'Clean', 'Messy', 'Early Bird', 
-            'Night Owl', 'Studious', 'Party-goer', 'Vegetarian', 'Vegan', 
+            'Quiet', 'Social', 'Pet-Friendly', 'Clean', 'Messy', 'Early Bird',
+            'Night Owl', 'Studious', 'Party-goer', 'Vegetarian', 'Vegan',
             'Cooks Often', 'Rarely Cooks', 'Non-Smoker', 'Smoker', 'Introvert', 'Extrovert'
         ];
 
         // Function to render lifestyle preference tags
         function renderLifestylePreferenceTags(selectedPreferences = []) {
+            if (!lifestylePreferencesTagsContainer) return;
             lifestylePreferencesTagsContainer.innerHTML = ''; // Clear existing tags
             ALL_LIFESTYLE_PREFERENCES.forEach(pref => {
                 const tag = document.createElement('span');
@@ -984,49 +1184,57 @@
 
         // Function to update the hidden input based on selected tags
         function updateLifestylePreferencesHiddenInput() {
+            if (!lifestylePreferencesTagsContainer || !lifestylePreferencesHiddenInput) return;
             const selectedTags = Array.from(lifestylePreferencesTagsContainer.querySelectorAll('.tag.selected')).map(tag => tag.textContent);
             lifestylePreferencesHiddenInput.value = selectedTags.join(', ');
         }
 
         // Event listeners for opening profile modal from different buttons
-        if (editProfileBtnDashboardHome) {
-            editProfileBtnDashboardHome.addEventListener('click', () => {
-                const currentPrefsString = lifestylePreferencesHiddenInput.value;
-                const currentPrefsArray = currentPrefsString.split(',').map(item => item.trim()).filter(item => item.length > 0);
-                renderLifestylePreferenceTags(currentPrefsArray);
+        const openProfileModal = () => {
+            const currentPrefsString = lifestylePreferencesHiddenInput ? lifestylePreferencesHiddenInput.value : '';
+            const currentPrefsArray = currentPrefsString.split(',').map(item => item.trim()).filter(item => item.length > 0);
+            renderLifestylePreferenceTags(currentPrefsArray);
+            if (profileModal) {
                 profileModal.classList.remove('hidden');
                 profileModal.classList.add('flex');
-            });
+            }
+        };
+        if (editProfileBtnDashboardHome) {
+            editProfileBtnDashboardHome.addEventListener('click', openProfileModal);
         }
         if (editProfileBtnRoommateSection) {
-            editProfileBtnRoommateSection.addEventListener('click', () => {
-                const currentPrefsString = lifestylePreferencesHiddenInput.value;
-                const currentPrefsArray = currentPrefsString.split(',').map(item => item.trim()).filter(item => item.length > 0);
-                renderLifestylePreferenceTags(currentPrefsArray);
-                profileModal.classList.remove('hidden');
-                profileModal.classList.add('flex');
-            });
+            editProfileBtnRoommateSection.addEventListener('click', openProfileModal);
         }
 
         if (closeProfileModalBtn) {
             closeProfileModalBtn.addEventListener('click', () => {
-                profileModal.classList.add('hidden');
-                profileModal.classList.remove('flex');
+                if (profileModal) {
+                    profileModal.classList.add('hidden');
+                    profileModal.classList.remove('flex');
+                }
             });
         }
 
         if (profileFormCancelBtn) {
             profileFormCancelBtn.addEventListener('click', () => {
-                profileModal.classList.add('hidden');
-                profileModal.classList.remove('flex');
+                if (profileModal) {
+                    profileModal.classList.add('hidden');
+                    profileModal.classList.remove('flex');
+                }
             });
         }
 
         if (roommateProfileForm) {
             roommateProfileForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const submitBtn = roommateProfileForm.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+
                 const formData = new FormData(roommateProfileForm);
                 const data = Object.fromEntries(formData.entries());
+                data.age = data.age ? parseInt(data.age) : null;
+                data.budget = data.budget ? parseInt(data.budget) : null;
 
                 try {
                     const response = await fetch('/api/save_roommate_profile/', {
@@ -1040,19 +1248,30 @@
                     const result = await response.json();
                     if (result.status === 'success') {
                         showToast(result.message, 'success');
-                        profileModal.classList.add('hidden');
-                        profileModal.classList.remove('flex');
-                        location.reload(); 
+                        if (profileModal) {
+                            profileModal.classList.add('hidden');
+                            profileModal.classList.remove('flex');
+                        }
+                        location.reload();
                     } else {
                         showToast(result.message || 'Failed to save profile.', 'error');
-                        console.error('Error saving profile:', result.errors);
+                        if (profileModal) {
+                            profileModal.classList.remove('hidden');
+                            profileModal.classList.add('flex');
+                        }
                     }
                 } catch (error) {
                     console.error('Network error:', error);
                     showToast('Network error. Please try again.', 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Save Profile';
                 }
             });
         }
+        // Assuming setupAddressSuggestions is defined in main.js or globally
+        // setupAddressSuggestions(profileLocationInput); // This needs to be called after the element is guaranteed to exist
+
 
         // --- Roommate Match Finder Logic (Swipe UI) ---
         const findMatchesBtn = document.getElementById('find-matches-btn');
@@ -1064,11 +1283,14 @@
         const swipeButtonsContainer = document.getElementById('swipe-buttons-container');
         const skipMatchBtn = document.getElementById('skip-match-btn');
         const likeMatchBtn = document.getElementById('like-match-btn');
+        const findMatchesBtnInner = document.getElementById('find-matches-btn-inner'); // Get the inner button
 
         let currentMatches = [];
         let currentMatchIndex = 0;
 
         function displayCurrentMatch() {
+            if (!roommateMatchCardDisplay || !roommatePrompt || !noMoreMatchesPrompt || !swipeButtonsContainer) return;
+
             roommateMatchCardDisplay.innerHTML = ''; // Clear current card
             roommatePrompt.classList.add('hidden'); // Ensure prompt is hidden when displaying matches
             noMoreMatchesPrompt.classList.add('hidden'); // Ensure no more matches prompt is hidden
@@ -1076,26 +1298,24 @@
             if (currentMatchIndex < currentMatches.length) {
                 const match = currentMatches[currentMatchIndex];
                 const matchCard = document.createElement('div');
-                matchCard.className = 'roommate-match-card';
+                matchCard.className = 'roommate-match-card glass-card'; /* Apply glass-card here */
                 matchCard.innerHTML = `
-                    <img src="${match.avatar_url}" alt="${match.name}">
-                    <h4 class="text-3xl font-bold text-gray-900">${match.name}, ${match.age}</h4>
-                    <p class="text-lg text-gray-600 mb-2">${match.location}</p>
-                    <div class="compatibility-score">${match.compatibility_score}% Match</div>
-                    <p class="text-gray-700 text-sm italic max-w-xs overflow-hidden text-ellipsis whitespace-nowrap">${match.bio}</p>
-                    <button class="match-details-btn btn-secondary mt-4" data-match='${JSON.stringify(match)}'>View Details</button>
+                    <img src="${match.avatar_url}" alt="${match.name}" onerror="this.onerror=null;this.src='https://placehold.co/160x160/cccccc/ffffff?text=User'">
+                    <h4 class="text-3xl font-bold text-gray-900">${match.name}, ${match.age || 'N/A'}</h4>
+                    <p class="text-lg text-gray-600 mb-2">${match.location || 'N/A'}</p>
+                    <div class="compatibility-score">${match.compatibility_score || 'N/A'}% Match</div>
+                    <p class="text-gray-700 text-sm italic max-w-xs overflow-hidden text-ellipsis whitespace-nowrap">${match.bio || 'No bio provided.'}</p>
+                    <button class="match-details-btn btn-secondary mt-4 btn-hover-effect">View Details</button>
                 `;
                 roommateMatchCardDisplay.appendChild(matchCard);
                 swipeButtonsContainer.classList.remove('hidden');
 
-                // Add event listener for "View Details" on the new card
                 matchCard.querySelector('.match-details-btn').addEventListener('click', (e) => {
                     const matchData = JSON.parse(e.target.dataset.match);
-                    displayActivityDetails('Liked Profile', matchData); /* Use generic modal */
+                    displayActivityDetails('Liked Profile', matchData);
                 });
 
             } else {
-                // No more matches
                 roommateMatchCardDisplay.innerHTML = '';
                 swipeButtonsContainer.classList.add('hidden');
                 noMoreMatchesPrompt.classList.remove('hidden');
@@ -1103,6 +1323,8 @@
         }
 
         async function fetchRoommateMatches() {
+            if (!roommatePrompt || !noMoreMatchesPrompt || !roommateMatchesLoader || !roommateMatchCardDisplay || !swipeButtonsContainer) return;
+
             roommatePrompt.classList.add('hidden');
             noMoreMatchesPrompt.classList.add('hidden');
             roommateMatchesLoader.classList.remove('hidden');
@@ -1110,7 +1332,7 @@
             swipeButtonsContainer.classList.add('hidden');
 
             try {
-                const response = await fetch('/api/find_roommate_matches/', {
+                const result = await fetch('/api/find_roommate_matches/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1118,12 +1340,12 @@
                     },
                     body: JSON.stringify({})
                 });
-                const result = await response.json();
+                const data = await result.json();
 
                 roommateMatchesLoader.classList.add('hidden');
 
-                if (result.status === 'success' && result.data && result.data.matches) {
-                    currentMatches = result.data.matches;
+                if (data.status === 'success' && data.data && data.data.matches) {
+                    currentMatches = data.data.matches;
                     currentMatchIndex = 0;
                     if (currentMatches.length > 0) {
                         displayCurrentMatch();
@@ -1131,32 +1353,30 @@
                         noMoreMatchesPrompt.classList.remove('hidden');
                     }
                 } else {
-                    showToast(result.message || 'Failed to find matches.', 'error');
-                    roommatePrompt.classList.remove('hidden'); // Show prompt again on error
+                    showToast(data.message || 'Failed to find matches.', 'error');
+                    roommatePrompt.classList.remove('hidden');
                 }
             } catch (error) {
                 console.error('Network error:', error);
                 roommateMatchesLoader.classList.add('hidden');
                 showToast('Network error. Please try again.', 'error');
-                roommatePrompt.classList.remove('hidden'); // Show prompt again on network error
+                roommatePrompt.classList.remove('hidden');
             }
         }
 
         async function animateAndAdvance(direction) {
             const currentCard = roommateMatchCardDisplay.querySelector('.roommate-match-card');
             if (currentCard) {
-                // If liking, save the profile first
                 if (direction === 'like') {
                     const likedMatchData = currentMatches[currentMatchIndex];
-                    // Ensure all expected fields are present and correctly typed for the backend
                     const dataToSend = {
                         name: likedMatchData.name || '',
-                        age: parseInt(likedMatchData.age) || null, /* Ensure age is integer or null */
+                        age: parseInt(likedMatchData.age) || null,
                         gender: likedMatchData.gender || '',
                         location: likedMatchData.location || '',
-                        budget: parseInt(likedMatchData.budget) || null, /* Ensure budget is integer or null */
+                        budget: parseInt(likedMatchData.budget) || null,
                         bio: likedMatchData.bio || '',
-                        compatibility_score: parseInt(likedMatchData.compatibility_score) || null, /* Ensure score is integer or null */
+                        compatibility_score: parseInt(likedMatchData.compatibility_score) || null,
                         avatar_url: likedMatchData.avatar_url || ''
                     };
 
@@ -1167,13 +1387,17 @@
                                 'Content-Type': 'application/json',
                                 'X-CSRFToken': '{{ csrf_token }}'
                             },
-                            body: JSON.stringify(dataToSend) // Send the sanitized data
+                            body: JSON.stringify(dataToSend)
                         });
                         const saveResult = await saveResponse.json();
                         if (saveResult.status === 'success') {
                             showToast(saveResult.message, 'success');
-                            // Reload the page to show the new liked profile in recent activity
-                            location.reload(); 
+                            currentCard.classList.add('swiping-right');
+                            currentCard.addEventListener('transitionend', () => {
+                                currentMatchIndex++;
+                                displayCurrentMatch();
+                                window.location.href = '/profile/'; // Explicitly redirect to avoid undefined in URL
+                            }, { once: true });
                         } else {
                             showToast(saveResult.message || 'Failed to save liked profile.', 'error');
                             console.error('Error saving liked profile:', saveResult.errors);
@@ -1182,8 +1406,8 @@
                         console.error('Network error saving liked profile:', error);
                         showToast('Network error saving liked profile. Please try again.', 'error');
                     }
-                } else { // If skipping, just advance
-                    currentCard.classList.add(direction === 'like' ? 'swiping-right' : 'swiping-left');
+                } else { // If skipping
+                    currentCard.classList.add('swiping-left');
                     currentCard.addEventListener('transitionend', () => {
                         currentMatchIndex++;
                         displayCurrentMatch();
@@ -1194,6 +1418,10 @@
 
         if (findMatchesBtn) {
             findMatchesBtn.addEventListener('click', fetchRoommateMatches);
+        }
+
+        if (findMatchesBtnInner) { // For the inner button in roommate-prompt
+            findMatchesBtnInner.addEventListener('click', fetchRoommateMatches);
         }
 
         if (resetMatchesBtn) {
@@ -1214,20 +1442,22 @@
         const activityModalContent = document.getElementById('activity-modal-content');
 
         function displayActivityDetails(activityType, details) {
-            activityModalContent.innerHTML = ''; // Clear previous content
+            if (!activityModalContent || !activityDetailsModal) return;
+
+            activityModalContent.innerHTML = '';
             let contentHtml = `<h3 class="text-2xl font-bold text-gray-900 mb-4">${activityType} Details</h3>`;
 
             if (activityType === 'Liked Profile') {
                 contentHtml += `
-                    <img src="${details.avatar_url}" alt="${details.name}" class="mx-auto mb-4 w-24 h-24 rounded-full object-cover border-4 border-blue-400">
-                    <h4 class="text-xl font-bold text-gray-900 mb-2">${details.name}, ${details.age}</h4>
-                    <p class="text-md text-gray-700 mb-4">${details.gender} | ${details.location}</p>
+                    <img src="${details.avatar_url}" alt="${details.name}" class="mx-auto mb-4 w-24 h-24 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/96x96/cccccc/ffffff?text=User'">
+                    <h4 class="text-xl font-bold text-gray-900 mb-2">${details.name}, ${details.age || 'N/A'}</h4>
+                    <p class="text-md text-gray-700 mb-4">${details.gender || 'N/A'} | ${details.location || 'N/A'}</p>
                     <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-money-bill-wave"></i><span class="font-semibold">Budget:</span> £${details.budget} / month</div>
-                        <div class="detail-item"><i class="fas fa-user-friends"></i><span class="font-semibold">Compatibility:</span> <span class="compatibility-score-modal">${details.compatibility_score}%</span></div>
-                        <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> ${details.bio}</div>
+                        <div class="detail-item"><i class="fas fa-money-bill-wave"></i><span class="font-semibold">Budget:</span> £${details.budget || 'N/A'} / month</div>
+                        <div class="detail-item"><i class="fas fa-user-friends"></i><span class="font-semibold">Compatibility:</span> <span class="compatibility-score-modal">${details.compatibility_score || 'N/A'}%</span></div>
+                        <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> ${details.bio || 'No bio provided.'}</div>
                     </div>
-                    <button class="btn-primary mt-6 w-full">Connect with ${details.name}</button>
+                    <!-- <button class="btn-primary mt-6 w-full">Connect with ${details.name}</button> -->
                 `;
             } else if (activityType === 'Rent Check') {
                 contentHtml += `
@@ -1270,7 +1500,7 @@
                         <div class="detail-item"><i class="fas fa-user"></i><span class="font-semibold">Author:</span> ${details.author}</div>
                     </div>
                 `;
-            } else if (activityType === 'Contract Analysis') { // NEW: Contract Analysis details
+            } else if (activityType === 'Contract Analysis') {
                 contentHtml += `
                     <div class="text-left space-y-3">
                         <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Analyzed At:</span> ${new Date(details.analyzed_at).toLocaleString()}</div>
@@ -1278,7 +1508,21 @@
                         <div class="detail-item"><i class="fas fa-robot"></i><span class="font-semibold">AI Analysis:</span> <p class="whitespace-pre-wrap text-sm max-h-60 overflow-y-auto border p-2 rounded">${details.analysis_result}</p></div>
                     </div>
                 `;
-            } else {
+            } else if (activityType === 'Rent Declaration Check') {
+                contentHtml += `
+                    <div class="text-left space-y-3">
+                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Postcode:</span> ${details.postcode}</div>
+                        <div class="detail-item"><i class="fas fa-bed"></i><span class="font-semibold">Bedrooms:</span> ${details.bedrooms}</div>
+                        <div class="detail-item"><i class="fas fa-pound-sign"></i><span class="font-semibold">Actual Rent Paid:</span> £${details.actual_rent_paid} / month</div>
+                        <div class="detail-item"><i class="fas fa-city"></i><span class="font-semibold">Council Tax Band:</span> ${details.council_tax_band}</div>
+                        <div class="detail-item"><i class="fas fa-calculator"></i><span class="font-semibold">Estimated Council Tax:</span> £${details.estimated_council_tax || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-exclamation-circle"></i><span class="font-semibold">Discrepancy Found:</span> <span class="${details.discrepancy_found ? 'text-red-600 font-bold' : 'text-green-600 font-bold'}">${details.discrepancy_found ? 'Yes' : 'No'}</span></div>
+                        <div class="detail-item"><i class="fas fa-robot"></i><span class="font-semibold">AI Analysis:</span> <p>${details.analysis_result || 'No detailed analysis available.'}</p></div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Checked At:</span> ${new Date(details.checked_at).toLocaleString()}</div>
+                    </div>
+                `;
+            }
+            else {
                 contentHtml += `<p class="text-center text-gray-500">Details for this activity type are not available.</p>`;
             }
 
@@ -1302,7 +1546,6 @@
 
             if (activityItem) {
                 const activityType = activityItem.dataset.activityType;
-                // For json_script, the data is directly in the script tag
                 const scriptTag = activityItem.querySelector('script[type="application/json"]');
                 let details;
                 if (scriptTag) {
@@ -1314,7 +1557,6 @@
                         return;
                     }
                 } else {
-                    // Fallback for direct data-attribute if json_script wasn't used for all
                     try {
                         details = JSON.parse(activityItem.dataset.activityDetails);
                     } catch (e) {

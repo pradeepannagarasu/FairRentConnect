@@ -149,6 +149,7 @@ if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and AWS_STORAGE_BUCKET_NAME:
     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
     # MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/' # This would serve media directly from S3
 
+ALLOWED_HOSTS = ['.onrender.com', 'roomto.live', 'www.roomto.live']
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
