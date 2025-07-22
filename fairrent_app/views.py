@@ -30,7 +30,7 @@ def index(request):
     Renders the main application homepage.
     If the user is authenticated, redirects them to their profile dashboard.
     """
-    # This is the crucial change: Redirect authenticated users to their dashboard
+    # CRITICAL CHANGE: Redirect authenticated users to their profile dashboard
     if request.user.is_authenticated:
         return redirect('fairrent_app:profile')
     return render(request, 'fairrent_app/index.html')
@@ -45,13 +45,12 @@ def profile_view(request):
     user_complaints = Complaint.objects.filter(user=request.user).order_by('-submitted_at')[:5]
     user_reviews = LandlordReview.objects.filter(user=request.user).order_by('-reviewed_at')[:5]
     
-    # --- IMPORTANT CHANGE HERE: Fetch the roommate profile, and handle if it doesn't exist ---
+    # CRITICAL CHANGE: Fetch the roommate profile, and handle if it doesn't exist
     user_roommate_profile = RoommateProfile.objects.filter(user=request.user).first()
     
     # Add a message if the profile is missing, guiding the user to create it
     if not user_roommate_profile:
         messages.info(request, "Welcome! Please create your roommate profile to unlock all features and find matches.")
-    # --- END IMPORTANT CHANGE ---
 
     user_rent_checks = RentCheck.objects.filter(user=request.user).order_by('-checked_at')[:5] # Fetch user's rent checks
     user_forum_posts = ForumPost.objects.filter(user=request.user).order_by('-created_at')[:5]
