@@ -22,7 +22,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True' # Load DEBUG from env, default to False
 
-ALLOWED_HOSTS = ['.onrender.com', 'roomto.live'] # Add your production domain(s) when deployed
+ALLOWED_HOSTS = ['.onrender.com', 'roomto.live', 'www.roomto.live'] # Add your production domain(s) when deployed
 # If you also want to access via IP for some reason:
 # ALLOWED_HOSTS += os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',')
 
@@ -173,6 +173,8 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'webmaster@localhost') # Yo
 # Security settings for production (only active when DEBUG is False)
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
+    # Add this for Render: Render acts as a proxy, so Django needs to know it's behind SSL
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') # <--- ADD THIS LINE
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
