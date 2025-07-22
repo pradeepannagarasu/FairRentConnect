@@ -16,15 +16,15 @@
         :root {
             --bg: #f4f7fa; /* From new template */
             --nav-bg: #232946; /* Dark blue from new template */
-            --accent: #eebbc3; /* Pink from new template */
-            --accent2: #006699; /* Blue from new template */
+            --accent: #66ccff; /* Changed: Vibrant light blue for neon effect */
+            --accent2: #006699; /* Blue from new template (kept) */
             --sidebar-highlight: #fffffe; /* From new template */
             --card-bg: #ffffffcc; /* From new template */
             --transition: 0.3s cubic-bezier(.39,.6,.58,1); /* From new template */
             --shadow: 0 4px 20px 0 rgba(26, 26, 36, 0.07); /* From new template */
 
             /* Custom colors from existing code, kept for specific components */
-            --primary: #6366f1; /* Indigo 500 */
+            --primary: #6366f1; /* Indigo 500 (strong blue) */
             --primary-dark: #4f46e5; /* Indigo 600 */
             --secondary: #10b981; /* Teal 500 */
             --dark: #1e293b; /* Slate 800 */
@@ -57,7 +57,7 @@
             transform: translateX(-100%);
         }
         .sidebar-logo {
-            font-size: 2rem; font-weight: bold; margin: 2rem 0 1rem 2rem; color: var(--accent);
+            font-size: 2rem; font-weight: bold; margin: 2rem 0 1rem 2rem; color: var(--accent); /* Uses new accent */
             letter-spacing: 1px;
             display: flex; align-items: center;
             gap: 8px;
@@ -79,9 +79,9 @@
             position: relative;
         }
         .sidebar a.active, .sidebar a:focus, .sidebar a:hover {
-            background: var(--accent);
+            background: var(--accent); /* Uses new accent */
             color: var(--nav-bg) !important;
-            box-shadow: 0 4px 16px 0 rgba(238,187,195,0.15);
+            box-shadow: 0 4px 16px 0 rgba(102, 204, 255, 0.15); /* Changed: Blue shadow */
             outline: none;
         }
         .sidebar-footer {
@@ -93,7 +93,7 @@
         /* Sidebar Toggle (Hamburger) - From new template */
         .sidebar-toggle {
             display: none; position: fixed; top: 1.5rem; left: 1.5rem; z-index: 200;
-            background: var(--nav-bg); color: var(--accent);
+            background: var(--nav-bg); color: var(--accent); /* Uses new accent */
             border: none; font-size: 2rem; padding: .5rem .7rem; border-radius: 7px;
             cursor: pointer; box-shadow: var(--shadow);
             transition: background .2s;
@@ -129,8 +129,8 @@
             overflow: hidden;
             animation: fade-up .7s cubic-bezier(.45,1.6,.8,1.2) both;
         }
-        .dashboard-card:hover { /* From new template */
-            box-shadow: 0 8px 40px 0 #eebbc349;
+        .dashboard-card:hover { /* Updated shadow color */
+            box-shadow: 0 8px 40px 0 rgba(102, 204, 255, 0.15); /* Changed: Blue shadow */
             transform: translateY(-6px) scale(1.025);
         }
         .dashboard-card .card-title { /* From new template */
@@ -218,7 +218,7 @@
             box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.15);
         }
         .gradient-text {
-            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%); /* Uses new accent */
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -258,7 +258,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, var(--primary), #9333ea, var(--accent));
+            background: linear-gradient(45deg, var(--primary), #9333ea, var(--accent)); /* Uses new accent */
             z-index: -1;
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -453,10 +453,11 @@
             justify-content: center;
         }
         .roommate-match-card {
-            position: absolute;
-            width: 90%;
-            max-width: 450px;
-            height: auto;
+            /* Inherits glass-card for base styling */
+            position: absolute; /* Stack cards */
+            width: 90%; /* Max width for responsiveness */
+            max-width: 450px; /* Max width for desktop */
+            height: auto; /* Adjust height based on content */
             padding: 2rem;
             text-align: center;
             transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2), opacity 0.5s ease-out, box-shadow 0.4s ease;
@@ -483,7 +484,7 @@
         .compatibility-score {
             font-size: 2.5rem;
             font-weight: 900;
-            background: linear-gradient(45deg, var(--primary), #8b5cf6, #c084fc);
+            background: linear-gradient(45deg, var(--accent2), var(--accent), var(--sidebar-highlight)); /* Changed: Blue/white neon gradient */
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.05em;
@@ -529,14 +530,14 @@
             box-shadow: 0 6px 15px rgba(0,0,0,0.25);
         }
         .swipe-button.skip {
-            background-color: #ef4444;
+            background-color: #64748b; /* Changed: Slate gray for neutral skip */
             color: white;
-            border-color: #dc2626;
+            border-color: #4a5568;
         }
         .swipe-button.like {
-            background-color: #22c55e;
+            background-color: var(--primary); /* Changed: Uses primary indigo blue */
             color: white;
-            border-color: #16a34a;
+            border-color: var(--primary-dark);
         }
         .tag-input-container {
             display: flex;
@@ -1435,7 +1436,9 @@
                     <h4 class="text-3xl font-bold text-gray-900">${match.name}, ${match.age || 'N/A'}</h4>
                     <p class="text-lg text-gray-600 mb-2">${match.location || 'N/A'}</p>
                     <div class="compatibility-score">${match.compatibility_score || 'N/A'}% Match</div>
-                    <p class="text-gray-700 text-sm italic max-w-xs overflow-hidden text-ellipsis whitespace-nowrap">${match.bio || 'No bio provided.'}</p>
+                    <p class="text-gray-700 text-base italic leading-relaxed mt-2">
+                        ${match.bio || 'No bio provided.'}
+                    </p>
                     <button class="match-details-btn btn-secondary mt-4 btn-hover-effect" data-match='${JSON.stringify(match)}'>View Details</button>
                 `;
                 roommateMatchCardDisplay.appendChild(matchCard);
