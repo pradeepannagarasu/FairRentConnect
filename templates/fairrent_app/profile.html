@@ -4,19 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - FairRent Connect</title>
+    <title>Dashboard - Roomto.Live</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* CSS Variables for consistent theming */
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #10b981;
-            --accent: #ec4899;
-            --dark: #1e293b;
-            --light: #f8fafc;
+            --primary: #6366f1; /* Indigo 500 */
+            --primary-dark: #4f46e5; /* Indigo 600 */
+            --secondary: #10b981; /* Teal 500 */
+            --accent: #ec4899; /* Pink 500 */
+            --dark: #1e293b; /* Slate 800 */
+            --light: #f8fafc; /* Gray 50 */
         }
         
         /* Base styles */
@@ -190,6 +190,8 @@
             transition: transform 0.3s ease-in-out;
             transform: translateX(0);
             z-index: 50;
+            position: fixed; /* Always fixed for desktop */
+            height: 100vh; /* Full height on desktop */
         }
         /* Mobile sidebar specific styles */
         @media (max-width: 1023px) {
@@ -197,7 +199,7 @@
                 flex-direction: column; /* Stack on mobile */
             }
             .sidebar {
-                position: fixed;
+                position: fixed; /* Fixed position for mobile sidebar */
                 height: 100vh;
                 width: 280px; /* Fixed width for mobile sidebar */
                 top: 0;
@@ -563,7 +565,12 @@
         <!-- Sidebar -->
         <aside id="sidebar" class="hidden lg:flex">
             <div>
-                <div class="text-white text-2xl font-extrabold mb-10 tracking-wide">FairRent Connect</div>
+                <div class="text-white text-2xl font-extrabold mb-10 tracking-wide flex items-center space-x-2">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    <span>Roomto.Live</span>
+                </div>
                 <nav>
                     <ul class="space-y-4">
                         <li>
@@ -610,7 +617,7 @@
             <section id="dashboard-home" class="content-section active space-y-8">
                 <div class="mb-8">
                     <h2 class="text-4xl font-extrabold text-gray-900 leading-tight">Welcome, <span class="gradient-text">{{ user.username }}</span>!</h2>
-                    <p class="text-gray-600 mt-2 text-xl">Here's a quick overview of your FairRent Connect activity.</p>
+                    <p class="text-xl text-gray-600 mt-2 text-xl">Here's a quick overview of your Roomto.Live activity.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1076,14 +1083,14 @@
                         overlay.addEventListener('click', () => {
                             sidebar.classList.remove('open');
                             overlay.classList.remove('active');
-                            overlay.remove();
+                            overlay.remove(); // Remove the overlay from DOM when closing
                         });
                     }
-                    overlay.classList.add('active');
+                    overlay.classList.add('active'); // Activate the overlay
                 } else {
                     if (overlay) {
-                        overlay.classList.remove('active');
-                        overlay.remove();
+                        overlay.classList.remove('active'); // Deactivate the overlay
+                        overlay.remove(); // Remove the overlay from DOM when closing
                     }
                 }
             });
@@ -1113,7 +1120,8 @@
                     // Close sidebar on mobile after selection
                     if (window.innerWidth < 1024) {
                         sidebar.classList.remove('open');
-                        document.getElementById('sidebar-overlay')?.remove();
+                        document.getElementById('sidebar-overlay')?.classList.remove('active'); // Deactivate overlay
+                        document.getElementById('sidebar-overlay')?.remove(); // Remove overlay from DOM
                     }
                 }
             });
@@ -1576,7 +1584,7 @@
         // Tab switching logic for My Services section
         document.addEventListener('DOMContentLoaded', () => {
             const mainContentTabButtons = document.querySelectorAll('#my-services-section .main-content-tab-button');
-            const mainContentTabContents = document.querySelectorAll('#my-services-section .main-content-tab-content');
+            const mainContentTabContents = document.querySelectorAll('.main-content-tab-content'); // Select all tab content sections
 
             mainContentTabButtons.forEach(button => {
                 button.addEventListener('click', () => {
