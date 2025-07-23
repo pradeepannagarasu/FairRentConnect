@@ -18,6 +18,7 @@ import requests
 import random
 import logging
 import uuid # Import uuid for generating unique IDs for AI profiles
+from decimal import Decimal # Import Decimal to handle precise numbers
 
 from .models import Complaint, LandlordReview, RoommateProfile, ForumPost, ForumReply, RentCheck, LikedProfile, RentalContract, RentDeclarationCheck # Import all models
 
@@ -168,7 +169,7 @@ def profile_view(request):
                 'estimated_council_tax': str(declaration_check.estimated_council_tax) if declaration_check.estimated_council_tax else 'N/A',
                 'discrepancy_found': declaration_check.discrepancy_found,
                 'analysis_result': declaration_check.analysis_result,
-                'checked_at': declaration_check.checked_at.isoformat() if declaration_check.checked_at else None # Corrected from 'declaration.checked_at'
+                'checked_at': declaration_check.checked_at.isoformat() if declaration_check.checked_at else None
             }
         })
 
@@ -359,9 +360,11 @@ def find_roommate_matches_api(request):
         # Budget compatibility: within +/- 20%
         if user_profile.budget and other_profile.budget:
             budget_diff = abs(user_profile.budget - other_profile.budget)
-            if budget_diff <= user_profile.budget * 0.20: # Within 20%
+            # FIXED: Convert float to Decimal for multiplication
+            if budget_diff <= user_profile.budget * Decimal('0.20'): # Within 20%
                 score += 2
-            elif budget_diff <= user_profile.budget * 0.50: # Within 50%
+            # FIXED: Convert float to Decimal for multiplication
+            elif budget_diff <= user_profile.budget * Decimal('0.50'): # Within 50%
                 score += 1
 
         if user_profile.sleep_schedule and user_profile.sleep_schedule == other_profile.sleep_schedule:
@@ -586,7 +589,7 @@ def predict_rent(request):
             json={
                 "model": "gpt-3.5-turbo", # Or gpt-4, gpt-4o if available and desired
                 "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.7, # Adjust for creativity vs. consistency
+                "temperature": 0.7, # Balance creativity and factual accuracy
                 "response_format": {"type": "json_object"} # Crucial for getting JSON back
             }
         )
@@ -609,7 +612,7 @@ def predict_rent(request):
             estimated_rent_decimal = None
             if predicted_rent_value is not None:
                 try:
-                    estimated_rent_decimal = float(predicted_rent_value)
+                    estimated_rent_decimal = Decimal(str(predicted_rent_value)) # Convert to Decimal
                 except (ValueError, TypeError):
                     logger.warning(f"Invalid estimated_rent from OpenAI: {predicted_rent_value}")
 
@@ -996,7 +999,7 @@ def check_rent_declaration_api(request):
 
         # Extract data from AI response
         estimated_council_tax = declaration_data.get('estimated_council_tax')
-        discrepancy_found = declaration_data.get('discrespancy_found', False)
+        discrepancy_found = declaration_data.get('discrepancy_found', False)
         analysis_result = declaration_data.get('analysis_result', 'No analysis provided.')
 
         # Save the rent declaration check result for authenticated users
