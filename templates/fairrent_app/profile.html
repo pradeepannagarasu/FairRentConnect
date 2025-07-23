@@ -5,11 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Roomto.Live Dashboard</title>
-    <!-- Tailwind CSS for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font for a clean, modern look -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Font Awesome for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         /* --- Root Variables for Refined Professional Theme --- */
@@ -39,146 +36,13 @@
             overflow-x: hidden; /* Prevent horizontal scroll issues */
         }
 
-        /* --- Sidebar Styles --- */
-        .sidebar {
-            background-color: var(--text-dark); /* Dark background for sidebar */
-            color: var(--secondary-gray);
-            width: 280px; /* Slightly wider sidebar for more space */
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 100;
-            box-shadow: var(--shadow-lg); /* More pronounced shadow */
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform var(--transition-ease);
-            will-change: transform;
-        }
+        /* --- NO SIDEBAR STYLES NEEDED NOW --- */
+        /* Removed all `.sidebar` related styles to simplify */
+        /* Removed `.sidebar-toggle` and `.overlay` as well */
 
-        .sidebar.hidden-mobile {
-            transform: translateX(-100%);
-        }
-
-        .sidebar-logo {
-            font-size: 2rem; /* Larger, more impactful logo */
-            font-weight: 900; /* Extra bold */
-            margin: 2.5rem 2rem 2rem 2rem; /* Generous padding */
-            color: var(--primary-blue); /* Primary blue for logo accent */
-            letter-spacing: -0.5px; /* Tighter for modern feel */
-            display: flex;
-            align-items: center;
-            gap: 12px; /* More space between icon and text */
-        }
-        .sidebar-logo svg {
-            color: var(--primary-blue); /* Ensure SVG matches logo text color */
-        }
-
-        .sidebar nav {
-            flex: 1;
-        }
-
-        .sidebar ul {
-            list-style: none;
-            padding: 0 1.5rem; /* Consistent padding */
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem; /* Increased gap between menu items */
-        }
-
-        .sidebar li {
-            border-radius: 0.75rem; /* More rounded corners for softness */
-            transition: background var(--transition-ease), color var(--transition-ease), transform var(--transition-ease);
-        }
-
-        .sidebar a {
-            display: flex;
-            align-items: center;
-            gap: 1.25rem; /* More space between icon and text */
-            text-decoration: none;
-            font-size: 1.05rem; /* Slightly larger font size for readability */
-            font-weight: 600;
-            color: var(--secondary-gray);
-            padding: 0.9rem 1.25rem; /* More vertical padding */
-            border-radius: 0.75rem;
-            transition: var(--transition-ease);
-            position: relative;
-            outline: none;
-        }
-
-        .sidebar a.active,
-        .sidebar a:focus,
-        .sidebar a:hover {
-            background-color: var(--primary-blue);
-            color: var(--bg-card) !important; /* White text */
-            box-shadow: var(--shadow-md); /* Clearer shadow on hover/active */
-            transform: translateX(8px); /* More noticeable slide effect */
-        }
-        .sidebar a i {
-            font-size: 1.2rem; /* Larger icons */
-        }
-
-        .sidebar-footer {
-            padding: 2rem; /* More padding for footer */
-            border-top: 1px solid rgba(255, 255, 255, 0.15); /* Slightly more visible border */
-            font-size: 0.95rem;
-            opacity: 0.9;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem; /* Space between footer links */
-        }
-        .sidebar-footer a {
-            padding: 0.6rem 0; /* Adjusted padding for footer links */
-            font-size: 1rem; /* Consistent font size for footer links */
-            color: var(--secondary-gray);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: color var(--transition-ease);
-        }
-        .sidebar-footer a:hover {
-            color: var(--primary-blue); /* Highlight color for footer links */
-            background: none;
-            transform: none;
-            box-shadow: none;
-        }
-        .sidebar-footer a i {
-            font-size: 1.1rem;
-        }
-
-        /* --- Sidebar Toggle (Hamburger) --- */
-        .sidebar-toggle {
-            display: none;
-            position: fixed;
-            top: 1.25rem;
-            left: 1.25rem;
-            z-index: 200;
-            background-color: var(--primary-blue);
-            color: var(--bg-card);
-            border: none;
-            font-size: 1.9rem; /* Larger, more clickable icon */
-            padding: 0.7rem 0.9rem;
-            border-radius: 0.75rem; /* More rounded corners */
-            cursor: pointer;
-            box-shadow: var(--shadow-md);
-            transition: var(--transition-ease);
-            outline: none;
-        }
-
-        .sidebar-toggle:focus {
-            outline: 3px solid var(--primary-dark-blue); /* Thicker focus ring */
-            outline-offset: 3px;
-        }
-        .sidebar-toggle:hover {
-            background-color: var(--primary-dark-blue);
-            transform: translateY(-3px) scale(1.02); /* More pronounced lift and slight scale */
-        }
-
-        /* --- Main Content Styles --- */
+        /* --- Main Content Styles (Adjusted for No Sidebar) --- */
         .main-content {
-            margin-left: 280px; /* Adjust margin to match wider sidebar */
+            margin-left: 0; /* No sidebar, so no left margin */
             padding: 2.5rem 3rem; /* Generous padding on all sides */
             min-height: 100vh;
             transition: margin-left var(--transition-ease);
@@ -248,6 +112,11 @@
         }
 
         /* --- Animations --- */
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @keyframes fade-up {
             0% { opacity: 0; transform: translateY(20px); }
             100% { opacity: 1; transform: translateY(0); }
@@ -260,13 +129,7 @@
 
         /* --- Responsive Styles --- */
         @media (max-width: 1200px) {
-            .main-content { margin-left: 250px; padding: 2rem 2.5rem; } /* Adjusted padding */
-            .sidebar { width: 250px;}
-            .sidebar-logo { font-size: 1.8rem; margin: 2rem 1.5rem 1.5rem 1.5rem; }
-            .sidebar a { font-size: 1rem; padding: 0.8rem 1rem; gap: 1rem; }
-            .sidebar a i { font-size: 1.1rem; }
-            .sidebar-footer { padding: 1.5rem; gap: 0.5rem; }
-            .sidebar-footer a { font-size: 0.95rem; gap: 0.75rem; }
+            .main-content { padding: 2rem 2.5rem; } /* Adjusted padding */
             .dashboard-header { font-size: 2.5rem; }
             .dashboard-header + p { font-size: 1rem; }
             .cards-grid { gap: 1.5rem; }
@@ -278,24 +141,8 @@
         }
 
         @media (max-width: 900px) {
-            /* Increased padding-top on body to clear fixed sidebar-toggle */
-            body { padding-top: 8rem; } /* Added padding to body */
+            body { padding-top: 2rem; } /* Less padding needed without fixed sidebar toggle */
             .main-content { margin-left: 0; padding-left: 1.5rem; padding-right: 1.5rem; padding-top: 0; } /* Remove main-content top padding as body handles it */
-            .sidebar { position: fixed; left: 0; top: 0; height: 100vh; z-index: 1001; width: 85vw; max-width: 320px; } /* Wider for better content display */
-            .sidebar.hidden-mobile {
-                transform: translateX(-100%);
-            }
-            .sidebar-toggle { display: block; }
-            .overlay {
-                display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5); /* Darker overlay */
-                z-index: 1000; /* Above content, below sidebar */
-                transition: opacity .3s ease-in-out;
-            }
-            .overlay.hidden { opacity: 0; pointer-events: none; } /* Fade out overlay */
-            .content-area {
-                margin-left: 0 !important;
-                width: 100%;
-            }
             .dashboard-header { font-size: 2.2rem; margin-bottom: 1rem;}
             .dashboard-header + p { font-size: 0.95rem; margin-bottom: 1.5rem; }
             .dashboard-card { padding: 1.5rem; }
@@ -306,10 +153,8 @@
         }
 
         @media (max-width: 600px) {
-            body { font-size: 14px; padding-top: 7rem; } /* Added padding to body */
+            body { font-size: 14px; padding-top: 1rem; } /* Less padding needed */
             .main-content { padding: 1rem; padding-top: 0; } /* Remove main-content top padding as body handles it */
-            .sidebar { border-radius: 0; width: 100vw; max-width: none; } /* Full width on very small screens */
-            .sidebar-logo { font-size: 1.6rem; margin: 1.5rem; }
             .dashboard-header { font-size: 1.8rem; margin-bottom: 0.75rem;}
             .dashboard-header + p { font-size: 0.85rem; margin-bottom: 1rem; }
             .dashboard-card { padding: 1rem; }
@@ -830,84 +675,41 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar Toggle Button (Mobile) -->
-    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Open sidebar" aria-controls="sidebar" aria-expanded="false">
-        <i class="fas fa-bars"></i>
-    </button>
-    <!-- Dimmed Overlay (Mobile) -->
-    <div class="overlay hidden" id="sidebarOverlay"></div>
-
-    <!-- Sidebar -->
-    <aside class="sidebar hidden-mobile" id="sidebar" tabindex="0" aria-label="Main Navigation">
-        <div>
-            <!-- FIXED: Wrapped the sidebar-logo content in an <a> tag to make it clickable -->
-            <a href="{% url 'fairrent_app:index' %}" class="sidebar-logo">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <main class="main-content" id="mainContent">
+        <header class="flex justify-between items-center mb-10 p-4 bg-white rounded-xl shadow-md border border-gray-200">
+            <a href="{% url 'fairrent_app:index' %}" class="flex items-center space-x-3 text-2xl font-black text-gray-900">
+                <svg class="w-8 h-8 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                 </svg>
-                <span>Roomto.Live</span>
+                <span class="gradient-text">Roomto.Live</span>
             </a>
-            <nav aria-label="Sidebar">
-                <ul>
-                    <li>
-                        <!-- This link already correctly points to the homepage and does not have data-content-target -->
-                        <a href="{% url 'fairrent_app:index' %}" class="sidebar-nav-item">
-                            <i class="fas fa-home"></i>Home
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="sidebar-nav-item active" data-content-target="dashboard-home">
-                            <i class="fas fa-chart-line"></i>Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="sidebar-nav-item" data-content-target="roommate-finder-section">
-                            <i class="fas fa-users"></i>Roommate Finder
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="sidebar-nav-item" data-content-target="my-services-section">
-                            <i class="fas fa-tools"></i>My Services
-                        </a>
-                    </li>
-                </ul>
+            <nav class="flex items-center space-x-4">
+                <a href="{% url 'fairrent_app:index' %}" class="btn-secondary flex items-center justify-center btn-hover-effect text-base px-4 py-2">
+                    <i class="fas fa-home mr-2"></i>Homepage
+                </a>
+                <a href="#" class="btn-primary flex items-center justify-center btn-hover-effect text-base px-4 py-2" data-content-target="roommate-finder-section" id="roommate-finder-header-btn">
+                    <i class="fas fa-users mr-2"></i>Roommate Finder
+                </a>
+                <a href="#" class="btn-primary flex items-center justify-center btn-hover-effect text-base px-4 py-2" data-content-target="my-services-section" id="my-services-header-btn">
+                    <i class="fas fa-tools mr-2"></i>My Services
+                </a>
+                <a href="{% url 'fairrent_app:logout' %}" class="btn-secondary flex items-center justify-center btn-hover-effect text-base px-4 py-2">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </a>
             </nav>
-        </div>
-        <div class="sidebar-footer">
-            <a href="{% url 'fairrent_app:logout' %}" class="flex items-center">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </div>
-    </aside>
+        </header>
 
-    <!-- Main Content -->
-    <main class="main-content" id="mainContent">
-        <!-- Mobile Header for Sidebar Toggle -->
-        <div class="lg:hidden flex justify-between items-center mb-6">
-            <!-- Removed redundant H1 here, as the main dashboard header is below -->
-        </div>
 
-        <!-- Dashboard Header and New Top-Right Buttons -->
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8">
             <div>
                 <h1 class="dashboard-header">Welcome, <span class="gradient-text">{{ user.username }}</span>!</h1>
                 <p class="text-lg text-gray-600 mb-4 sm:mb-0">Here's a quick overview of your Roomto.Live activity.</p>
             </div>
-            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-4 sm:mt-0">
-                <a href="{% url 'fairrent_app:index' %}" class="btn-secondary flex items-center justify-center btn-hover-effect">
-                    <i class="fas fa-home mr-2"></i>Homepage
-                </a>
-                <a href="#" class="btn-primary flex items-center justify-center btn-hover-effect" data-content-target="my-services-section" id="my-services-header-btn">
-                    <i class="fas fa-tools mr-2"></i>My Services
-                </a>
             </div>
-        </div>
 
 
-        <!-- Content Sections (Dynamically Swapped) -->
-        <section id="dashboard-home" class="content-section active space-y-8">
+        <section id="dashboard-home" class="content-section active space-y-8 animate-fade-in">
             <div class="cards-grid">
-                <!-- User Info Card (Compact) -->
                 <div class="dashboard-card glass-card animate-fade-in delay-100">
                     <h3 class="card-title"><i class="fas fa-user-circle"></i> Your Profile Overview</h3>
                     <div class="flex items-center mb-5">
@@ -934,7 +736,6 @@
                     </button>
                 </div>
 
-                <!-- Quick Stats Card -->
                 <div class="dashboard-card glass-card animate-fade-in delay-200 col-span-1 md:col-span-1 lg:col-span-2">
                     <h3 class="card-title"><i class="fas fa-chart-bar"></i> Quick Stats</h3>
                     <div class="grid grid-cols-2 gap-4 text-center">
@@ -954,7 +755,6 @@
                             <p class="text-3xl font-bold text-purple-600">{{ user_liked_profiles|length }}</p>
                             <p class="text-gray-600 text-sm">Profiles Liked</p>
                         </div>
-                        <!-- NEW: Contract Analyses Stat -->
                         <div class="p-4 bg-teal-50 rounded-lg shadow-sm">
                             <p class="text-3xl font-bold text-teal-600">{{ user_rental_contracts|length }}</p>
                             <p class="text-gray-600 text-sm">Contracts Analyzed</p>
@@ -963,7 +763,6 @@
                 </div>
             </div>
 
-            <!-- Recent Activity Card (Full Width) -->
             <div class="dashboard-card glass-card animate-fade-in delay-300">
                 <h3 class="card-title"><i class="fas fa-history"></i> Recent Activity</h3>
                 <div id="recent-activity-list" class="space-y-3">
@@ -971,7 +770,9 @@
                         {% for activity in recent_activities %}
                             <div class="activity-item cursor-pointer"
                                 data-activity-type="{{ activity.type }}"
-                                data-activity-details-id="activity_details_{{ forloop.counter }}">
+                                data-activity-details-id="activity_details_{{ forloop.counter }}"
+                                data-redirect-url="{% if activity.redirect_url %}{{ activity.redirect_url }}{% endif %}"
+                                >
                                 <div class="content flex items-start">
                                     <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
                                         <i class="fas fa-{{ activity.icon }}"></i>
@@ -994,7 +795,6 @@
             </div>
         </section>
 
-        <!-- Roommate Finder Section (Full Page View) -->
         <section id="roommate-finder-section" class="content-section hidden space-y-8 animate-fade-in">
             <div class="glass-card p-8">
                 <div class="flex justify-between items-center mb-8">
@@ -1013,8 +813,7 @@
                     </div>
                     
                     <div id="roommate-match-card-display" class="flex flex-col items-center justify-center w-full h-full relative">
-                        <!-- Dynamic match cards will be loaded here -->
-                    </div>
+                        </div>
 
                     <div id="roommate-prompt" class="text-center p-6 w-full h-full flex flex-col items-center justify-center z-10">
                         <i class="fas fa-users text-6xl text-gray-400 mb-6"></i>
@@ -1038,7 +837,6 @@
             </div>
         </section>
 
-        <!-- My Services & Activity Tabs -->
         <section id="my-services-section" class="content-section hidden space-y-8 animate-fade-in">
             <div class="glass-card p-6">
                 <h3 class="card-title"><i class="fas fa-clipboard-list"></i> My Services & Activity</h3>
@@ -1053,7 +851,9 @@
                         {% for activity in recent_activities %}
                             <div class="activity-item cursor-pointer"
                                 data-activity-type="{{ activity.type }}"
-                                data-activity-details-id="activity_details_tab_{{ forloop.counter }}">
+                                data-activity-details-id="activity_details_tab_{{ forloop.counter }}"
+                                data-redirect-url="{% if activity.redirect_url %}{{ activity.redirect_url }}{% endif %}"
+                                >
                                 <div class="content flex items-start">
                                     <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
                                         <i class="fas fa-{{ activity.icon }}"></i>
@@ -1080,11 +880,11 @@
                             <div class="service-result-card cursor-pointer rent-checker-result-card"
                                 data-activity-type="Rent Check"
                                 data-activity-details='{
-                                        "postcode": "{{ rent_result.postcode }}",
-                                        "bedrooms": "{{ rent_result.bedrooms }}",
-                                        "estimated_rent": "{{ rent_result.estimated_rent|floatformat:0 }}",
-                                        "checked_at": "{{ rent_result.checked_at|date:"Y-m-d H:i:s" }}"
-                                    }'>
+                                            "postcode": "{{ rent_result.postcode }}",
+                                            "bedrooms": "{{ rent_result.bedrooms }}",
+                                            "estimated_rent": "{{ rent_result.estimated_rent|floatformat:0 }}",
+                                            "checked_at": "{{ rent_result.checked_at|date:"Y-m-d H:i:s" }}"
+                                        }'>
                                 <div class="icon-wrapper bg-blue-100 text-blue-600">
                                     <i class="fas fa-gbp-sign"></i>
                                 </div>
@@ -1100,13 +900,13 @@
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Review"
                                 data-activity-details='{
-                                        "landlord_name": "{{ review.landlord_name|escapejs }}",
-                                        "property_address": "{{ review.property_address|escapejs }}",
-                                        "rating": {{ review.rating }},
-                                        "comments": "{{ review.comments|escapejs }}",
-                                        "reviewed_at": "{{ review.reviewed_at|date:"Y-m-d H:i:s" }}",
-                                        "reviewer": "{{ review.user.username|escapejs }}"
-                                    }'>
+                                            "landlord_name": "{{ review.landlord_name|escapejs }}",
+                                            "property_address": "{{ review.property_address|escapejs }}",
+                                            "rating": {{ review.rating }},
+                                            "comments": "{{ review.comments|escapejs }}",
+                                            "reviewed_at": "{{ review.reviewed_at|date:"Y-m-d H:i:s" }}",
+                                            "reviewer": "{{ review.user.username|escapejs }}"
+                                        }'>
                                 <div class="icon-wrapper-small bg-green-100 text-green-600 mr-4">
                                     <i class="fas fa-star"></i>
                                 </div>
@@ -1123,13 +923,13 @@
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Complaint"
                                 data-activity-details='{
-                                        "issue_type": "{{ complaint.get_issue_type_display|escapejs }}",
-                                        "property_address": "{{ complaint.property_address|escapejs }}",
-                                        "landlord_name": "{{ complaint.landlord_name|default:''|escapejs }}",
-                                        "description": "{{ complaint.description|escapejs }}",
-                                        "status": "{{ complaint.get_status_display|escapejs }}",
-                                        "submitted_at": "{{ complaint.submitted_at|date:"Y-m-d H:i:s" }}"
-                                    }'>
+                                            "issue_type": "{{ complaint.get_issue_type_display|escapejs }}",
+                                            "property_address": "{{ complaint.property_address|escapejs }}",
+                                            "landlord_name": "{{ complaint.landlord_name|default:''|escapejs }}",
+                                            "description": "{{ complaint.description|escapejs }}",
+                                            "status": "{{ complaint.get_status_display|escapejs }}",
+                                            "submitted_at": "{{ complaint.submitted_at|date:"Y-m-d H:i:s" }}"
+                                        }'>
                                 <div class="icon-wrapper-small bg-red-100 text-red-600 mr-4">
                                     <i class="fas fa-exclamation-triangle"></i>
                                 </div>
@@ -1145,12 +945,12 @@
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Forum Post"
                                 data-activity-details='{
-                                        "title": "{{ post.title|escapejs }}",
-                                        "content": "{{ post.content|escapejs }}",
-                                        "category": "{{ post.get_category_display|escapejs }}",
-                                        "created_at": "{{ post.created_at|date:"Y-m-d H:i:s" }}",
-                                        "author": "{{ post.user.username|escapejs }}"
-                                    }'>
+                                            "title": "{{ post.title|escapejs }}",
+                                            "content": "{{ post.content|escapejs }}",
+                                            "category": "{{ post.get_category_display|escapejs }}",
+                                            "created_at": "{{ post.created_at|date:"Y-m-d H:i:s" }}",
+                                            "author": "{{ post.user.username|escapejs }}"
+                                        }'>
                                 <div class="icon-wrapper-small bg-yellow-100 text-yellow-600 mr-4">
                                     <i class="fas fa-comments"></i>
                                 </div>
@@ -1166,15 +966,15 @@
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Liked Profile"
                                 data-activity-details='{
-                                        "name": "{{ liked_profile.liked_user_name|escapejs }}",
-                                        "age": {{ liked_profile.liked_user_age|default:"null" }},
-                                        "gender": "{{ liked_profile.liked_user_gender|escapejs }}",
-                                        "location": "{{ liked_profile.liked_user_location|escapejs }}",
-                                        "budget": {{ liked_profile.liked_user_budget|default:"null" }},
-                                        "bio": "{{ liked_profile.liked_user_bio|escapejs }}",
-                                        "compatibility_score": {{ liked_profile.liked_user_compatibility_score|default:"null" }},
-                                        "avatar_url": "{{ liked_profile.liked_user_avatar_url|escapejs }}"
-                                    }'>
+                                            "name": "{{ liked_profile.liked_user_name|escapejs }}",
+                                            "age": {{ liked_profile.liked_user_age|default:"null" }},
+                                            "gender": "{{ liked_profile.liked_user_gender|escapejs }}",
+                                            "location": "{{ liked_profile.liked_user_location|escapejs }}",
+                                            "budget": {{ liked_profile.liked_user_budget|default:"null" }},
+                                            "bio": "{{ liked_profile.liked_user_bio|escapejs }}",
+                                            "compatibility_score": {{ liked_profile.liked_user_compatibility_score|default:"null" }},
+                                            "avatar_url": "{{ liked_profile.liked_user_avatar_url|escapejs }}"
+                                        }'>
                                 <div class="icon-wrapper-small bg-pink-100 text-pink-500 mr-4">
                                     <i class="fas fa-heart"></i>
                                 </div>
@@ -1190,10 +990,10 @@
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Contract Analysis"
                                 data-activity-details='{
-                                        "original_text": "{{ contract.original_text|escapejs }}",
-                                        "analysis_result": "{{ contract.analysis_result|escapejs }}",
-                                        "analyzed_at": "{{ contract.analyzed_at|date:"Y-m-d H:i:s" }}"
-                                    }'>
+                                            "original_text": "{{ contract.original_text|escapejs }}",
+                                            "analysis_result": "{{ contract.analysis_result|escapejs }}",
+                                            "analyzed_at": "{{ contract.analyzed_at|date:"Y-m-d H:i:s" }}"
+                                        }'>
                                 <div class="icon-wrapper-small bg-teal-100 text-teal-600 mr-4">
                                     <i class="fas fa-file-contract"></i>
                                 </div>
@@ -1209,15 +1009,15 @@
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Rent Declaration Check"
                                 data-activity-details='{
-                                        "postcode": "{{ declaration_check.postcode|escapejs }}",
-                                        "bedrooms": "{{ declaration_check.bedrooms|escapejs }}",
-                                        "actual_rent_paid": "{{ declaration_check.actual_rent_paid }}",
-                                        "council_tax_band": "{{ declaration_check.council_tax_band|escapejs }}",
-                                        "estimated_council_tax": "{{ declaration_check.estimated_council_tax|default:"null" }}",
-                                        "discrepancy_found": {{ declaration_check.discrepancy_found|lower }},
-                                        "analysis_result": "{{ declaration_check.analysis_result|escapejs }}",
-                                        "checked_at": "{{ declaration_check.checked_at|date:"Y-m-d H:i:s" }}"
-                                    }'>
+                                            "postcode": "{{ declaration_check.postcode|escapejs }}",
+                                            "bedrooms": "{{ declaration_check.bedrooms|escapejs }}",
+                                            "actual_rent_paid": "{{ declaration_check.actual_rent_paid }}",
+                                            "council_tax_band": "{{ declaration_check.council_tax_band|escapejs }}",
+                                            "estimated_council_tax": "{{ declaration_check.estimated_council_tax|default:"null" }}",
+                                            "discrepancy_found": {{ declaration_check.discrepancy_found|lower }},
+                                            "analysis_result": "{{ declaration_check.analysis_result|escapejs }}",
+                                            "checked_at": "{{ declaration_check.checked_at|date:"Y-m-d H:i:s" }}"
+                                        }'>
                                 <div class="icon-wrapper-small bg-orange-100 text-orange-600 mr-4">
                                     <i class="fas fa-file-invoice-dollar"></i>
                                 </div>
@@ -1237,7 +1037,6 @@
         </section>
     </main>
 
-    <!-- Roommate Profile Edit Modal -->
     <div id="profile-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full p-8">
             <button type="button" id="close-profile-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
@@ -1298,8 +1097,7 @@
                 <div class="mt-4">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Lifestyle Preferences</label>
                     <div id="lifestyle-preferences-tags" class="tag-input-container">
-                        <!-- Tags will be injected here by JavaScript -->
-                    </div>
+                        </div>
                     <input type="hidden" id="lifestyle_preferences_hidden" name="lifestyle_preferences" value="{{ user_roommate_profile.lifestyle_preferences|default:'' }}">
                 </div>
                 <div class="mt-4">
@@ -1316,19 +1114,19 @@
         </div>
     </div>
 
-    <!-- Generic Activity/Service Details Modal -->
     <div id="activity-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="activity-modal-title">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 relative transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
             <button type="button" id="close-activity-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
                 <i class="fas fa-times fa-lg"></i>
             </button>
             <div id="activity-modal-content" class="text-left activity-detail-modal-content">
-                <!-- Activity/Service details will be injected here by JavaScript -->
+                </div>
+            <div class="mt-6 text-center">
+                <button id="modal-redirect-btn" class="btn-primary hidden px-6 py-2">Go to Service</button>
             </div>
         </div>
     </div>
 
-    <!-- Alert/Toast Notification -->
     <div id="alert-toast" class="fixed bottom-5 right-5 z-50 hidden p-4 rounded-lg text-white transition-transform transform translate-y-20">
         <p id="alert-message"></p>
     </div>
@@ -1355,127 +1153,52 @@
             }, 3000);
         }
 
-        // --- Dashboard Navigation Logic ---
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        // FIXED: Changed selector to only target links with data-content-target for internal tab switching
-        const navLinks = document.querySelectorAll('.sidebar nav a[data-content-target]'); 
+        // --- Dashboard Navigation Logic (Simplified for No Sidebar) ---
+        // We no longer have a sidebar, so these elements are removed or adjusted.
+        // The top header links will now control the sections.
         const contentSections = document.querySelectorAll('.content-section');
+        const headerNavButtons = document.querySelectorAll('header nav a[data-content-target]');
 
-        // Open sidebar on mobile
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.remove('hidden-mobile');
-            sidebar.classList.add('open-mobile');
-            sidebarOverlay.classList.remove('hidden');
-            sidebarToggle.setAttribute('aria-expanded', 'true');
-            sidebar.focus();
-        });
-
-        // Close sidebar when clicking overlay or pressing Escape
-        sidebarOverlay.addEventListener('click', closeSidebar);
-        sidebar.addEventListener('keydown', e => {
-            if (e.key === "Escape") closeSidebar();
-        });
-
-        function closeSidebar() {
-            sidebar.classList.add('hidden-mobile');
-            sidebar.classList.remove('open-mobile');
-            sidebarOverlay.classList.add('hidden');
-            sidebarToggle.setAttribute('aria-expanded', 'false');
-        }
-
-        // Responsive behavior
-        function handleResize() {
-            if (window.innerWidth > 900) {
-                sidebar.classList.remove('hidden-mobile');
-                sidebar.classList.remove('open-mobile');
-                sidebarOverlay.classList.add('hidden');
-                sidebarToggle.setAttribute('aria-expanded', 'true');
-                document.getElementById('mainContent').style.marginLeft = '280px'; // Match new sidebar width
-            } else {
-                sidebar.classList.add('hidden-mobile');
-                sidebar.classList.remove('open-mobile');
-                sidebarOverlay.classList.add('hidden');
-                sidebarToggle.setAttribute('aria-expanded', 'false');
-                document.getElementById('mainContent').style.marginLeft = '0';
+        // Function to switch content sections
+        function switchContentSection(targetId) {
+            contentSections.forEach(section => section.classList.add('hidden'));
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add('animate-fade-in'); // Re-apply animation on switch
             }
+
+            // Update active state for header buttons
+            headerNavButtons.forEach(btn => {
+                if (btn.dataset.contentTarget === targetId) {
+                    btn.classList.add('active-header-btn'); // You might need to define this class in CSS
+                    btn.classList.remove('btn-secondary');
+                    btn.classList.add('btn-primary');
+                } else {
+                    btn.classList.remove('active-header-btn');
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-secondary');
+                }
+            });
         }
-        window.addEventListener('resize', handleResize);
-        window.addEventListener('DOMContentLoaded', handleResize);
 
-
-        // Switch content sections based on sidebar navigation
-        navLinks.forEach(item => {
-            item.addEventListener('click', (e) => {
-                const targetId = item.dataset.contentTarget;
-                // No need for a special check for homepage here, as it's excluded by the selector
-                
+        // Event listeners for header navigation buttons
+        headerNavButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const targetId = button.dataset.contentTarget;
                 if (targetId) {
                     e.preventDefault(); // Prevent default link behavior for internal navigation
-                    console.log(`Navigating internally to: ${targetId}`); // Log internal navigation
-                    navLinks.forEach(nav => nav.classList.remove('active'));
-                    item.classList.add('active');
-
-                    contentSections.forEach(section => section.classList.add('hidden'));
-                    const targetSection = document.getElementById(targetId);
-                    if (targetSection) {
-                        targetSection.classList.remove('hidden');
-                    }
-
-                    if (window.innerWidth <= 900) {
-                        closeSidebar();
-                    }
+                    window.location.hash = targetId; // Update URL hash for direct linking
+                    switchContentSection(targetId);
                 }
             });
         });
 
-        // Initialize active sidebar item and content section on load
+        // Initialize active content section on load based on URL hash or default
         document.addEventListener('DOMContentLoaded', () => {
-            // Determine the initial section based on URL hash or default to dashboard-home
             const initialSectionId = window.location.hash ? window.location.hash.substring(1) : 'dashboard-home';
-            
-            // Find the sidebar navigation item corresponding to the initial section
-            const initialNavItem = document.querySelector(`.sidebar-nav-item[data-content-target="${initialSectionId}"]`);
-            
-            // Find the content section element
-            const initialContentSection = document.getElementById(initialSectionId);
-
-            // Deactivate all sidebar navigation items first
-            document.querySelectorAll('.sidebar-nav-item').forEach(nav => nav.classList.remove('active'));
-            // Hide all content sections first
-            contentSections.forEach(section => section.classList.add('hidden'));
-
-            // If the current page is the profile page and there's no hash, or the hash points to dashboard-home
-            // or if a specific internal nav item is found, activate it.
-            if (window.location.pathname.includes('profile') && (!window.location.hash || initialSectionId === 'dashboard-home')) {
-                const dashboardNavItem = document.querySelector('.sidebar-nav-item[data-content-target="dashboard-home"]');
-                if (dashboardNavItem) {
-                    dashboardNavItem.classList.add('active');
-                }
-                const dashboardSection = document.getElementById('dashboard-home');
-                if (dashboardSection) {
-                    dashboardSection.classList.remove('hidden');
-                }
-            } else if (initialNavItem) {
-                // If a specific hash was provided and a corresponding nav item exists
-                initialNavItem.classList.add('active');
-                if (initialContentSection) {
-                    initialContentSection.classList.remove('hidden');
-                }
-            } else {
-                // Fallback: If nothing matches, default to dashboard-home
-                const dashboardNavItem = document.querySelector('.sidebar-nav-item[data-content-target="dashboard-home"]');
-                if (dashboardNavItem) {
-                    dashboardNavItem.classList.add('active');
-                }
-                const dashboardSection = document.getElementById('dashboard-home');
-                if (dashboardSection) {
-                    dashboardSection.classList.remove('hidden');
-                }
-            }
+            switchContentSection(initialSectionId);
         });
-
 
         // --- Roommate Profile Modal Logic ---
         const profileModal = document.getElementById('profile-modal');
@@ -1784,8 +1507,9 @@
         const activityDetailsModal = document.getElementById('activity-details-modal');
         const closeActivityModalBtn = document.getElementById('close-activity-modal-btn');
         const activityModalContent = document.getElementById('activity-modal-content');
+        const modalRedirectBtn = document.getElementById('modal-redirect-btn');
 
-        function displayActivityDetails(activityType, details) {
+        function displayActivityDetails(activityType, details, redirectUrl = null) {
             if (!activityModalContent || !activityDetailsModal) return;
 
             activityModalContent.innerHTML = '';
@@ -1886,6 +1610,15 @@
             }
 
             activityModalContent.innerHTML = contentHtml;
+            
+            // Handle redirect button visibility and URL
+            if (redirectUrl) {
+                modalRedirectBtn.href = redirectUrl;
+                modalRedirectBtn.classList.remove('hidden');
+            } else {
+                modalRedirectBtn.classList.add('hidden');
+            }
+
             activityDetailsModal.classList.remove('hidden');
             activityDetailsModal.classList.add('flex');
         }
@@ -1906,6 +1639,7 @@
             if (activityItem) {
                 const activityType = activityItem.dataset.activityType;
                 const scriptId = activityItem.dataset.activityDetailsId;
+                const redirectUrl = activityItem.dataset.redirectUrl || null;
                 const scriptTag = document.getElementById(scriptId);
                 let details;
 
@@ -1925,7 +1659,7 @@
                 }
                 
                 if (details) {
-                    displayActivityDetails(activityType, details);
+                    displayActivityDetails(activityType, details, redirectUrl);
                 } else {
                     showToast('Activity details are empty or invalid.', 'error');
                 }
@@ -1935,7 +1669,8 @@
                 // For serviceResultCard, we expect direct JSON in data-activity-details
                 try {
                     const details = JSON.parse(serviceResultCard.dataset.activityDetails);
-                    displayActivityDetails(activityType, details);
+                    // For service results, we don't typically have a redirect_url attached directly to the card
+                    displayActivityDetails(activityType, details); 
                 } catch (e) {
                     console.error('Error parsing service result details from data attribute:', e);
                     showToast('Error loading service result details.', 'error');
@@ -1966,40 +1701,10 @@
             });
         });
 
-        // Event listener for the new "My Services" button in the header
-        const myServicesHeaderBtn = document.getElementById('my-services-header-btn');
-        if (myServicesHeaderBtn) {
-            myServicesHeaderBtn.addEventListener('click', (e) => {
-                const targetId = myServicesHeaderBtn.dataset.contentTarget; // Corrected to use dataset.contentTarget
-                if (targetId) {
-                    e.preventDefault(); // Prevent default link behavior for internal navigation
+        // Removed the previous myServicesHeaderBtn logic as it's now handled by headerNavButtons loop
+        // and the general switchContentSection function.
 
-                    // Deactivate all sidebar nav items
-                    document.querySelectorAll('.sidebar-nav-item').forEach(nav => nav.classList.remove('active')); // Select all sidebar-nav-items
-                    // Activate the corresponding sidebar nav item
-                    const correspondingSidebarItem = document.querySelector(`.sidebar-nav-item[data-content-target="${targetId}"]`);
-                    if (correspondingSidebarItem) {
-                        correspondingSidebarItem.classList.add('active');
-                    }
-
-                    // Hide all content sections
-                    contentSections.forEach(section => section.classList.add('hidden'));
-                    // Show the target content section
-                    const targetSection = document.getElementById(targetId);
-                    if (targetSection) {
-                        targetSection.classList.remove('hidden');
-                    }
-
-                    // Close sidebar on mobile if open
-                    if (window.innerWidth <= 900) {
-                        closeSidebar();
-                    }
-                }
-            });
-        }
     </script>
-    <!-- Assuming main.js exists and contains additional scripts, if any. -->
-    <!-- If main.js is critical, ensure it's loaded AFTER the inline script that sets up global functions/listeners -->
     <script src="{% static 'fairrent_app/js/main.js' %}"></script>
 </body>
 </html>
