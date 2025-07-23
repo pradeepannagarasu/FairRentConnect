@@ -914,7 +914,7 @@
                     <div class="grid grid-cols-2 gap-4 text-center">
                         <div class="p-4 bg-blue-50 rounded-lg shadow-sm">
                             <p class="text-3xl font-bold text-blue-600">{{ user_rent_checks|length }}</p>
-                            <p class="text-gray-600 text-sm">Rent Checks</p>
+                            <p class="text-gray-600 text-sm">Reviews Submitted</p>
                         </div>
                         <div class="p-4 bg-green-50 rounded-lg shadow-sm">
                             <p class="text-3xl font-bold text-green-600">{{ user_reviews|length }}</p>
@@ -1562,15 +1562,23 @@
 
             if (currentMatchIndex < currentMatches.length) {
                 const match = currentMatches[currentMatchIndex];
+                // Ensure all fields have fallbacks for display
+                const name = match.name || 'Unknown User';
+                const age = match.age ? `${match.age}` : 'N/A';
+                const location = match.location || 'N/A';
+                const compatibilityScore = match.compatibility_score ? `${match.compatibility_score}` : 'N/A';
+                const bio = match.bio || 'No bio provided for this user.';
+                const avatarUrl = match.avatar_url || 'https://placehold.co/110x110/cccccc/ffffff?text=User'; // Fallback placeholder
+
                 const matchCard = document.createElement('div');
                 matchCard.className = 'roommate-match-card glass-card';
                 matchCard.innerHTML = `
-                    <img src="${match.avatar_url}" alt="${match.name}" class="mx-auto mb-4 w-24 h-24 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/96x96/cccccc/ffffff?text=User'">
-                    <h4 class="text-3xl font-bold text-gray-900">${match.name}, ${match.age || 'N/A'}</h4>
-                    <p class="text-lg text-gray-600 mb-2">${match.location || 'N/A'}</p>
-                    <div class="compatibility-score">${match.compatibility_score || 'N/A'}% Match</div>
+                    <img src="${avatarUrl}" alt="${name}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/110x110/cccccc/ffffff?text=User'">
+                    <h4 class="text-3xl font-bold text-gray-900">${name}, ${age}</h4>
+                    <p class="text-lg text-gray-600 mb-2">${location}</p>
+                    <div class="compatibility-score">${compatibilityScore}% Match</div>
                     <p class="text-gray-700 text-base italic leading-relaxed mt-2">
-                        ${match.bio || 'No bio provided.'}
+                        ${bio}
                     </p>
                     <button class="match-details-btn btn-secondary mt-4 btn-hover-effect" data-match='${JSON.stringify(match)}'>View Details</button>
                 `;
@@ -1578,8 +1586,8 @@
                 swipeButtonsContainer.classList.remove('hidden');
 
                 matchCard.querySelector('.match-details-btn').addEventListener('click', (e) => {
-                    const matchData = JSON.parse(e.target.dataset.match);
-                    displayActivityDetails('Liked Profile', matchData);
+                    // Use the original match object for detailed view to avoid issues with stringified data
+                    displayActivityDetails('Liked Profile', match);
                 });
 
             } else {
@@ -1716,75 +1724,75 @@
 
             if (activityType === 'Liked Profile') {
                 contentHtml += `
-                    <img src="${details.avatar_url}" alt="${details.name}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/112x112/cccccc/ffffff?text=User'">
-                    <h4 class="text-xl font-bold text-gray-900 mb-2">${details.name}, ${details.age || 'N/A'}</h4>
+                    <img src="${details.avatar_url || 'https://placehold.co/112x112/cccccc/ffffff?text=User'}" alt="${details.name || 'User'}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/112x112/cccccc/ffffff?text=User'">
+                    <h4 class="text-xl font-bold text-gray-900 mb-2">${details.name || 'Unknown User'}, ${details.age || 'N/A'}</h4>
                     <p class="text-md text-gray-700 mb-4">${details.gender || 'N/A'} | ${details.location || 'N/A'}</p>
                     <div class="text-left space-y-3">
                         <div class="detail-item"><i class="fas fa-money-bill-wave"></i><span class="font-semibold">Budget:</span> £${details.budget || 'N/A'} / month</div>
                         <div class="detail-item"><i class="fas fa-user-friends"></i><span class="font-semibold">Compatibility:</span> <span class="compatibility-score-modal">${details.compatibility_score || 'N/A'}%</span></div>
-                        <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> <p class="whitespace-pre-wrap">${details.bio || 'No bio provided.'}</p></div>
+                        <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> <p class="whitespace-pre-wrap">${details.bio || 'No bio provided for this user.'}</p></div>
                     </div>
                 `;
             } else if (activityType === 'Rent Check') {
                 contentHtml += `
                     <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Postcode:</span> ${details.postcode}</div>
-                        <div class="detail-item"><i class="fas fa-bed"></i><span class="font-semibold">Bedrooms:</span> ${details.bedrooms}</div>
-                        <div class="detail-item"><i class="fas fa-gbp-sign"></i><span class="font-semibold">Estimated Rent:</span> £${details.estimated_rent} / month</div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Checked At:</span> ${new Date(details.checked_at).toLocaleString()}</div>
+                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Postcode:</span> ${details.postcode || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-bed"></i><span class="font-semibold">Bedrooms:</span> ${details.bedrooms || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-gbp-sign"></i><span class="font-semibold">Estimated Rent:</span> £${details.estimated_rent || 'N/A'} / month</div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Checked At:</span> ${details.checked_at ? new Date(details.checked_at).toLocaleString() : 'N/A'}</div>
                     </div>
                 `;
             } else if (activityType === 'Review') {
                 contentHtml += `
                     <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-user-tie"></i><span class="font-semibold">Landlord:</span> ${details.landlord_name}</div>
-                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Property:</span> ${details.property_address}</div>
-                        <div class="detail-item"><i class="fas fa-star"></i><span class="font-semibold">Rating:</span> ${details.rating} Stars</div>
-                        <div class="detail-item"><i class="fas fa-comment-alt"></i><span class="font-semibold">Comments:</span> <p class="whitespace-pre-wrap">${details.comments}</p></div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Reviewed At:</span> ${new Date(details.reviewed_at).toLocaleString()}</div>
-                        <div class="detail-item"><i class="fas fa-user"></i><span class="font-semibold">Reviewer:</span> ${details.reviewer}</div>
+                        <div class="detail-item"><i class="fas fa-user-tie"></i><span class="font-semibold">Landlord:</span> ${details.landlord_name || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Property:</span> ${details.property_address || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-star"></i><span class="font-semibold">Rating:</span> ${details.rating || 'N/A'} Stars</div>
+                        <div class="detail-item"><i class="fas fa-comment-alt"></i><span class="font-semibold">Comments:</span> <p class="whitespace-pre-wrap">${details.comments || 'No comments provided.'}</p></div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Reviewed At:</span> ${details.reviewed_at ? new Date(details.reviewed_at).toLocaleString() : 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-user"></i><span class="font-semibold">Reviewer:</span> ${details.reviewer || 'N/A'}</div>
                     </div>
                 `;
             } else if (activityType === 'Complaint') {
                 contentHtml += `
                     <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-exclamation-triangle"></i><span class="font-semibold">Issue Type:</span> ${details.issue_type}</div>
-                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Property:</span> ${details.property_address}</div>
+                        <div class="detail-item"><i class="fas fa-exclamation-triangle"></i><span class="font-semibold">Issue Type:</span> ${details.issue_type || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Property:</span> ${details.property_address || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-user-tie"></i><span class="font-semibold">Landlord (Optional):</span> ${details.landlord_name || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Description:</span> <p class="whitespace-pre-wrap">${details.description}</p></div>
-                        <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Status:</span> ${details.status}</div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Submitted At:</span> ${new Date(details.submitted_at).toLocaleString()}</div>
+                        <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Description:</span> <p class="whitespace-pre-wrap">${details.description || 'No description provided.'}</p></div>
+                        <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Status:</span> ${details.status || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Submitted At:</span> ${details.submitted_at ? new Date(details.submitted_at).toLocaleString() : 'N/A'}</div>
                     </div>
                 `;
             } else if (activityType === 'Forum Post') {
                 contentHtml += `
                     <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-heading"></i><span class="font-semibold">Title:</span> ${details.title}</div>
-                        <div class="detail-item"><i class="fas fa-tags"></i><span class="font-semibold">Category:</span> ${details.category}</div>
-                        <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Content:</span> <p class="whitespace-pre-wrap">${details.content}</p></div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Posted At:</span> ${new Date(details.created_at).toLocaleString()}</div>
-                        <div class="detail-item"><i class="fas fa-user"></i><span class="font-semibold">Author:</span> ${details.author}</div>
+                        <div class="detail-item"><i class="fas fa-heading"></i><span class="font-semibold">Title:</span> ${details.title || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-tags"></i><span class="font-semibold">Category:</span> ${details.category || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Content:</span> <p class="whitespace-pre-wrap">${details.content || 'No content provided.'}</p></div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Posted At:</span> ${details.created_at ? new Date(details.created_at).toLocaleString() : 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-user"></i><span class="font-semibold">Author:</span> ${details.author || 'N/A'}</div>
                     </div>
                 `;
             } else if (activityType === 'Contract Analysis') {
                 contentHtml += `
                     <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Analyzed At:</span> ${new Date(details.analyzed_at).toLocaleString()}</div>
-                        <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Original Text:</span> <p class="whitespace-pre-wrap text-sm max-h-40 overflow-y-auto border p-2 rounded">${details.original_text}</p></div>
-                        <div class="detail-item"><i class="fas fa-robot"></i><span class="font-semibold">AI Analysis:</span> <p class="whitespace-pre-wrap text-sm max-h-60 overflow-y-auto border p-2 rounded">${details.analysis_result}</p></div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Analyzed At:</span> ${details.analyzed_at ? new Date(details.analyzed_at).toLocaleString() : 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Original Text:</span> <p class="whitespace-pre-wrap text-sm max-h-40 overflow-y-auto border p-2 rounded">${details.original_text || 'No original text provided.'}</p></div>
+                        <div class="detail-item"><i class="fas fa-robot"></i><span class="font-semibold">AI Analysis:</span> <p class="whitespace-pre-wrap text-sm max-h-60 overflow-y-auto border p-2 rounded">${details.analysis_result || 'No detailed analysis available.'}</p></div>
                     </div>
                 `;
             } else if (activityType === 'Rent Declaration Check') {
                 contentHtml += `
                     <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Postcode:</span> ${details.postcode}</div>
-                        <div class="detail-item"><i class="fas fa-bed"></i><span class="font-semibold">Bedrooms:</span> ${details.bedrooms}</div>
-                        <div class="detail-item"><i class="fas fa-pound-sign"></i><span class="font-semibold">Actual Rent Paid:</span> £${details.actual_rent_paid} / month</div>
-                        <div class="detail-item"><i class="fas fa-city"></i><span class="font-semibold">Council Tax Band:</span> ${details.council_tax_band}</div>
+                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Postcode:</span> ${details.postcode || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-bed"></i><span class="font-semibold">Bedrooms:</span> ${details.bedrooms || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-pound-sign"></i><span class="font-semibold">Actual Rent Paid:</span> £${details.actual_rent_paid || 'N/A'} / month</div>
+                        <div class="detail-item"><i class="fas fa-city"></i><span class="font-semibold">Council Tax Band:</span> ${details.council_tax_band || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-calculator"></i><span class="font-semibold">Estimated Council Tax:</span> £${details.estimated_council_tax || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-exclamation-circle"></i><span class="font-semibold">Discrepancy Found:</span> <span class="${details.discrepancy_found ? 'text-red-600 font-bold' : 'text-green-600 font-bold'}">${details.discrepancy_found ? 'Yes' : 'No'}</span></div>
                         <div class="detail-item"><i class="fas fa-robot"></i><span class="font-semibold">AI Analysis:</span> <p class="whitespace-pre-wrap">${details.analysis_result || 'No detailed analysis available.'}</p></div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Checked At:</span> ${new Date(details.checked_at).toLocaleString()}</div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Checked At:</span> ${details.checked_at ? new Date(details.checked_at).toLocaleString() : 'N/A'}</div>
                     </div>
                 `;
             }
@@ -1813,12 +1821,12 @@
             if (activityItem) {
                 const activityType = activityItem.dataset.activityType;
                 // Get the script tag ID from the data attribute
-                const scriptId = activityItem.dataset.activityDetails.match(/json_script:"(.*?)"/);
+                const scriptIdMatch = activityItem.dataset.activityDetails.match(/json_script:"(.*?)"/);
                 let details;
 
-                if (scriptId && scriptId[1]) {
+                if (scriptIdMatch && scriptIdMatch[1]) {
                     // If a script tag ID is found, try to parse from the script tag
-                    const scriptTag = document.getElementById(scriptId[1]);
+                    const scriptTag = document.getElementById(scriptIdMatch[1]);
                     if (scriptTag) {
                         try {
                             details = JSON.parse(scriptTag.textContent);
@@ -1828,7 +1836,7 @@
                             return; // Stop execution if parsing fails
                         }
                     } else {
-                        console.warn('Script tag not found for ID:', scriptId[1]);
+                        console.warn('Script tag not found for ID:', scriptIdMatch[1]);
                         // Fallback to direct data attribute parsing if script tag is not found
                         try {
                             details = JSON.parse(activityItem.dataset.activityDetails);
