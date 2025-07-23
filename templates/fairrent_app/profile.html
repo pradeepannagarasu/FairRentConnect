@@ -944,7 +944,7 @@
                     {% endif %}
                 </div>
 
-                <div id="my-service-results-tab" class="main-content-tab-content hidden space-y-3">
+                <div id="my-service-results-tab" class="main-content-tab-content space-y-3">
                     {% if user_rent_checks or user_reviews or user_complaints or user_forum_posts or user_liked_profiles or user_rental_contracts or user_rent_declaration_checks %}
                         {% for rent_result in user_rent_checks %}
                             <div class="service-result-card cursor-pointer rent-checker-result-card"
@@ -1715,30 +1715,23 @@
 
             if (activityItem) {
                 const activityType = activityItem.dataset.activityType;
-                const scriptTag = activityItem.querySelector('script[type="application/json"]');
-                let details;
-                if (scriptTag) {
-                    try {
-                        details = JSON.parse(scriptTag.textContent);
-                    } catch (e) {
-                        console.error('Error parsing activity details from script tag:', e);
-                        showToast('Error loading activity details.', 'error');
-                        return;
-                    }
-                } else {
-                    try {
-                        details = JSON.parse(activityItem.dataset.activityDetails);
-                    } catch (e) {
-                        console.error('Error parsing activity details from data attribute:', e);
-                        showToast('Error loading activity details.', 'error');
-                        return;
-                    }
+                // Directly parse from data-activity-details, assuming it's always valid JSON string
+                try {
+                    const details = JSON.parse(activityItem.dataset.activityDetails);
+                    displayActivityDetails(activityType, details);
+                } catch (e) {
+                    console.error('Error parsing activity details from data attribute:', e);
+                    showToast('Error loading activity details.', 'error');
                 }
-                displayActivityDetails(activityType, details);
             } else if (serviceResultCard) {
                 const activityType = serviceResultCard.dataset.activityType;
-                const details = JSON.parse(serviceResultCard.dataset.activityDetails);
-                displayActivityDetails(activityType, details);
+                try {
+                    const details = JSON.parse(serviceResultCard.dataset.activityDetails);
+                    displayActivityDetails(activityType, details);
+                } catch (e) {
+                    console.error('Error parsing service result details from data attribute:', e);
+                    showToast('Error loading service result details.', 'error');
+                }
             }
         });
 
