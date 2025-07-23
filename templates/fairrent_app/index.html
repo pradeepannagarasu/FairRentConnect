@@ -1,263 +1,131 @@
+<!-- templates/fairrent_app/index.html -->
+<!-- This file contains the main HTML structure of your application. -->
+<!-- It uses Django's staticfiles tag to correctly link CSS and JS. -->
+
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Dashboard - Roomto.Live</title>
-    <!-- Tailwind CSS from existing code -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room To Live - Empowering UK Renters</title>
+    <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font from profile.html, including all weights -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Font Awesome from both, keeping the latest version -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* Consolidated CSS Variables to match profile.html's aesthetic */
-        :root {
-            --bg: #f9fafb; /* Lighter background from profile.html */
-            --nav-bg: #232946; /* Dark blue from new template (kept for sidebar) */
-            --accent: #ec4899; /* Pink/Rose from profile.html's gradient-text */
-            --accent2: #6366f1; /* Primary Indigo from profile.html */
-            --sidebar-highlight: #fffffe; /* From new template */
-            --card-bg: #ffffffcc; /* From new template */
-            --transition: 0.3s cubic-bezier(.39,.6,.58,1); /* From new template */
-            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); /* From profile.html's glass-card shadow */
-
-            /* Primary colors from profile.html for consistency */
-            --primary: #6366f1; /* Indigo 500 */
-            --primary-dark: #4f46e5; /* Indigo 600 */
-            --secondary: #10b981; /* Teal 500 (not used extensively in profile.html, but kept) */
-            --dark: #1e293b; /* Slate 800 */
-            --light: #f8fafc; /* Gray 50 */
-
-            /* Neon effect colors for specific elements */
-            --neon-blue-light: #66ccff; /* Vibrant light blue */
-            --neon-blue-dark: #006699; /* Darker blue */
-            --neon-purple: #9333ea;
-        }
+        /* Base styles */
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            min-height: 100vh;
-            margin: 0; padding: 0;
-            color: #111827; /* Darker text from profile.html */
-            overflow-x: hidden; /* Prevent horizontal scroll on animations */
+            background-color: #f8fafc; /* Very light, cool background */
+            color: #2d3748; /* Darker default text for contrast */
         }
-
-        /* Sidebar Styles - Primarily from new template, adapted for profile.html colors */
-        .sidebar {
-            background: var(--nav-bg);
-            color: var(--sidebar-highlight);
-            width: 250px;
-            height: 100vh;
-            position: fixed; top: 0; left: 0;
-            z-index: 100;
-            box-shadow: var(--shadow);
-            display: flex; flex-direction: column; justify-content: space-between;
-            transition: transform var(--transition);
-            will-change: transform;
-        }
-        .sidebar.hidden-mobile {
-            transform: translateX(-100%);
-        }
-        .sidebar-logo {
-            font-size: 2rem; font-weight: bold; margin: 2rem 0 1rem 2rem;
-            color: #a855f7; /* Purple-300 equivalent from profile.html's SVG */
-            letter-spacing: 1px;
-            display: flex; align-items: center;
-            gap: 8px;
-            /* Added vertical alignment to center items */
-            align-items: center;
-        }
-        .sidebar nav { flex: 1; }
-        .sidebar ul {
-            list-style: none; padding: 0 2rem; margin: 0;
-            display: flex; flex-direction: column; gap: 0.7rem;
-        }
-        .sidebar li {
-            border-radius: 8px;
-            transition: background var(--transition), color var(--transition);
-        }
-        .sidebar a {
-            display: flex; align-items: center; gap: 1rem;
-            text-decoration: none; font-size: 1.1rem; font-weight: 600;
-            color: var(--sidebar-highlight); padding: 0.8rem 1rem;
-            border-radius: 8px; transition: background var(--transition), color var(--transition);
-            position: relative;
-        }
-        .sidebar a.active, .sidebar a:focus, .sidebar a:hover {
-            background: var(--primary); /* Use primary blue for active/hover */
-            color: var(--sidebar-highlight) !important; /* Keep text white */
-            box-shadow: 0 4px 16px 0 rgba(99, 102, 241, 0.25); /* Blue shadow */
-            outline: none;
-        }
-        .sidebar-footer {
-            padding: 1.5rem 2rem;
-            border-top: 1px solid rgba(255,255,255,0.08);
-            font-size: 1rem; opacity: 0.95;
-        }
-
-        /* Sidebar Toggle (Hamburger) */
-        .sidebar-toggle {
-            display: none; position: fixed; top: 1.5rem; left: 1.5rem; z-index: 200;
-            background: var(--nav-bg); color: var(--neon-blue-light); /* Neon blue for toggle */
-            border: none; font-size: 2rem; padding: .5rem .7rem; border-radius: 7px;
-            cursor: pointer; box-shadow: var(--shadow);
-            transition: background .2s;
-        }
-        .sidebar-toggle:focus { outline: 2px solid var(--neon-blue-light);}
-
-        /* Main Content Styles */
-        .main-content {
-            margin-left: 250px;
-            padding: 2.5rem 1.5rem 1.5rem 1.5rem;
-            min-height: 100vh; transition: margin-left var(--transition);
-        }
-        .dashboard-header {
-            font-size: 2.3rem;
-            font-weight: 900;
-            margin-bottom: 1.2rem;
-            letter-spacing: 0.5px;
-            color: var(--accent2); /* Uses primary indigo */
-            animation: slide-in 1s cubic-bezier(.45,1.6,.8,1.2) .2s both;
-        }
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit,minmax(230px,1fr));
-            gap: 2rem;
-        }
-        .dashboard-card {
-            background: var(--card-bg);
-            border-radius: 1.2rem;
-            box-shadow: var(--shadow);
-            padding: 2rem;
-            transition: box-shadow var(--transition), transform var(--transition);
-            position: relative;
-            overflow: hidden;
-            animation: fade-up .7s cubic-bezier(.45,1.6,.8,1.2) both;
-        }
-        .dashboard-card:hover {
-            box-shadow: 0 8px 40px 0 rgba(99, 102, 241, 0.15); /* Blue shadow on hover */
-            transform: translateY(-6px) scale(1.025);
-        }
-        .dashboard-card .card-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 0.8rem;
-            color: var(--accent2); /* Uses primary indigo */
-        }
-        .dashboard-card .card-value {
-            font-size: 2.2rem;
-            font-weight: bold;
-            margin-bottom: .2rem;
-            color: var(--nav-bg); /* Dark blue */
-            letter-spacing: .5px;
-        }
-        .dashboard-card .card-desc { color: #444; opacity: 0.8; }
-
-        /* Animations */
-        @keyframes fade-up {
-            0% { opacity:0; transform:translateY(30px) scale(1.01);}
-            100% { opacity:1; transform:translateY(0) scale(1);}
-        }
-        @keyframes slide-in {
-            0% { opacity:0; transform: translateX(-30px);}
-            100%{ opacity:1; transform: translateX(0);}
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 1200px) {
-            .main-content { margin-left: 220px; padding-top:2rem; }
-            .sidebar { width: 220px;}
-        }
-        @media (max-width: 900px) {
-            .main-content { margin-left: 0; padding-top:4rem;}
-            .sidebar { position: fixed; left: 0; top: 0; height: 100vh; z-index: 1001;}
-            .sidebar.hidden-mobile {
-                transform: translateX(-100%);
-            }
-            .sidebar-toggle { display: block; }
-            .overlay {
-                display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.1); z-index: 100;
-                transition: opacity .2s;
-            }
-            .overlay.hidden { display: none;}
-            .content-area {
-                margin-left: 0 !important;
-                width: 100%;
-            }
-            #sidebar-overlay {
-                position: fixed;
-                inset: 0;
-                background-color: rgba(0, 0, 0, 0.5);
-                z-index: 40;
-                display: none;
-            }
-            #sidebar-overlay.active {
-                display: block;
-            }
-        }
-        @media (max-width: 700px) {
-            body { font-size: 15px; }
-            .main-content { padding: 1.2rem;}
-            .dashboard-header { font-size: 1.3rem;}
-            .sidebar { width: 83vw; max-width:290px;}
-        }
-        @media (max-width: 520px) {
-            .main-content { padding: .6rem;}
-            .sidebar { border-radius:0; }
-            .dashboard-card{ padding:1rem;}
-        }
-
-        /* Custom styles from profile.html, adapted for consistency */
+        /* Modern glass card effect */
         .glass-card {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-radius: 1.5rem;
             border: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow: var(--shadow); /* Use consolidated shadow variable */
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
+
         .glass-card:hover {
-            transform: translateY(-5px); /* Slightly less lift than profile.html's -8px for dashboard cards */
+            transform: translateY(-8px);
             box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.15);
         }
+
+        /* Gradient text */
         .gradient-text {
-            /* Matching profile.html's vibrant gradient */
-            background: linear-gradient(90deg, var(--primary-dark) 0%, var(--neon-purple) 50%, var(--accent) 100%);
+            background: linear-gradient(90deg, #4f46e5 0%, #9333ea 50%, #ec4899 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
+
+        /* Floating animation */
         @keyframes float {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); } /* Slightly less float than profile.html's -12px */
+            50% { transform: translateY(-12px); }
         }
+
         .floating {
             animation: float 6s ease-in-out infinite;
         }
+
+        /* Service grid layout */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Service card */
+        .service-card {
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .service-card:hover {
+            transform: rotateY(5deg) rotateX(2deg); /* Subtle 3D tilt on hover */
+        }
+
+        .service-icon {
+            transition: all 0.4s ease;
+        }
+
+        .service-card:hover .service-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        /* Smooth scroll behavior */
         html {
             scroll-behavior: smooth;
         }
+
+        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
+
         ::-webkit-scrollbar-track {
             background: #f1f1f1;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #888;
             border-radius: 4px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
+
+        /* Wave divider */
+        .wave-divider {
+            position: relative;
+            height: 100px;
+            overflow: hidden;
+        }
+
+        .wave-divider svg {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+        }
+
+        /* Button hover effect */
         .btn-hover-effect {
             position: relative;
             overflow: hidden;
             z-index: 1;
         }
+
         .btn-hover-effect::before {
             content: '';
             position: absolute;
@@ -265,890 +133,1035 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* Matching profile.html's button gradient */
-            background: linear-gradient(45deg, var(--primary-dark), var(--neon-purple), var(--accent));
+            background: linear-gradient(45deg, #4f46e5, #9333ea, #ec4899);
             z-index: -1;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
+
         .btn-hover-effect:hover::before {
             opacity: 1;
         }
+
+        /* Fade-in animation */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
         .animate-fade-in {
             animation: fadeIn 0.8s ease-out forwards;
-            opacity: 0;
+            opacity: 0; /* Ensure initial state is hidden */
         }
+
         .delay-100 { animation-delay: 0.1s; }
         .delay-200 { animation-delay: 0.2s; }
         .delay-300 { animation-delay: 0.3s; }
         .delay-400 { animation-delay: 0.4s; }
         .delay-500 { animation-delay: 0.5s; }
-        .btn-primary {
-            background-color: var(--primary); /* Uses primary indigo */
-            color: white;
-            padding: 0.9rem 2rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-            box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.4);
+
+        /* Specific backgrounds for service icons */
+        .bg-blue-gradient-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+        .bg-green-gradient-icon { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+        .bg-purple-gradient-icon { background: linear-gradient(135deg, #a855f7, #9333ea); color: white; }
+        .bg-red-gradient-icon { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+        .bg-yellow-gradient-icon { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        .bg-indigo-gradient-icon { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; }
+        .bg-teal-gradient-icon { background: linear-gradient(135deg, #14b8a6, #0d9488); color: white; }
+        .bg-orange-gradient-icon { background: linear-gradient(135deg, #f97316, #ea580c); color: white; } /* New gradient for Rent Declaration Check */
+
+
+        /* Modal specific sizing for responsive full-screen feel */
+        .modal-content-lg {
+            width: 95%; /* Occupy more width on small screens */
+            max-width: 768px; /* Max width for larger screens */
+            padding: 2rem; /* Default padding */
         }
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px -3px rgba(99, 102, 241, 0.5);
-        }
-        .btn-secondary {
-            background-color: #e0e7ff; /* Light indigo */
-            color: var(--primary);
-            padding: 0.9rem 2rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
-            border: 1px solid #c7d2fe;
-        }
-        .btn-secondary:hover {
-            background-color: #c7d2fe;
-            color: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-        .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            transition: backdrop-filter 0.3s ease-out;
-        }
-        .spinner {
-            border-top-color: var(--primary);
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1rem center;
-            background-size: 1.5em 1.5em;
-            padding-right: 3rem;
-        }
-        .dashboard-container {
-            display: flex;
-            flex: 1;
-        }
-        @media (min-width: 901px) {
-            .content-area {
-                margin-left: 250px;
+        @media (min-width: 768px) {
+            .modal-content-lg {
+                max-width: 960px; /* Even wider on medium screens */
+                padding: 3rem; /* More padding on larger modals */
             }
         }
-        .stat-card {
-            position: relative;
-            overflow: hidden;
-        }
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-            transform: rotate(30deg);
-            transition: all 0.5s ease;
-        }
-        .stat-card:hover::before {
-            transform: rotate(45deg) translateY(-20px);
-        }
-        .stat-card .icon-wrapper-small {
-            width: 3rem;
-            height: 3rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .activity-item {
-            position: relative;
-            padding-left: 2.5rem;
-            border-left: 2px solid #e2e8f0;
-            padding-bottom: 1.5rem;
-            margin-bottom: 1.5rem;
-            cursor: pointer;
-        }
-        .activity-item:last-child {
-            border-left: none;
-            padding-bottom: 0;
-            margin-bottom: 0;
-        }
-        .activity-item::before {
-            content: '';
-            position: absolute;
-            left: -0.5rem;
-            top: 0.5rem;
-            width: 1rem;
-            height: 1rem;
-            border-radius: 50%;
-            background: var(--primary);
-            border: 3px solid white;
-            z-index: 1;
-        }
-        .activity-item .content {
-            background-color: #ffffff;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            transition: all 0.2s ease;
-        }
-        .activity-item:hover .content {
-            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
-        }
-        .activity-item .activity-icon {
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            margin-right: 0.75rem;
-        }
-        .roommate-match-container {
-            position: relative;
-            min-height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .roommate-match-card {
-            position: absolute;
-            width: 90%;
-            max-width: 450px;
-            height: auto;
-            padding: 2rem;
-            text-align: center;
-            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2), opacity 0.5s ease-out, box-shadow 0.4s ease;
-            transform-origin: center bottom;
-            will-change: transform, opacity;
-        }
-        .roommate-match-card.swiping-right {
-            transform: translateX(200%) rotate(45deg);
-            opacity: 0;
-        }
-        .roommate-match-card.swiping-left {
-            transform: translateX(-200%) rotate(-45deg);
-            opacity: 0;
-        }
-        .roommate-match-card img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 1.5rem;
-            border: 4px solid var(--primary);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        }
-        .compatibility-score {
-            font-size: 2.5rem;
-            font-weight: 900;
-            /* Neon blue/purple/pink gradient for compatibility score */
-            background: linear-gradient(45deg, var(--neon-blue-light), var(--neon-purple), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.05em;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
-        .match-detail-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.75rem;
-            font-size: 1rem;
-            color: #4a5568;
-        }
-        .match-detail-item i {
-            margin-right: 1rem;
-            color: #9ca3af;
-            width: 1.4rem;
-            text-align: center;
-        }
-        .swipe-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-top: 2rem;
-            position: relative;
-            z-index: 30;
-        }
-        .swipe-button {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1.2), box-shadow 0.3s ease, background-color 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            border: 2px solid transparent;
-        }
-        .swipe-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
-        }
-        .swipe-button.skip {
-            background-color: #64748b; /* Neutral gray for skip */
-            color: white;
-            border-color: #4a5568;
-        }
-        .swipe-button.like {
-            background-color: var(--primary); /* Primary indigo for like */
-            color: white;
-            border-color: var(--primary-dark);
-        }
-        .tag-input-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            padding: 0.75rem;
-            border: 1px solid #cbd5e1;
-            border-radius: 0.75rem;
-            background-color: #f8fafc;
-            min-height: 48px;
-            align-items: center;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
-        }
-        .tag {
-            background-color: #e0e7ff;
-            color: var(--primary);
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: 1px solid #c7d2fe;
-            user-select: none;
-        }
-        .tag:hover {
-            background-color: #c7d2fe;
-            transform: translateY(-1px);
-        }
-        .tag.selected {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            box-shadow: 0 2px 5px rgba(99,102,241,0.2);
-        }
-        .tag.selected:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(0);
-        }
-        .main-content-tabs {
-            display: flex;
-            border-bottom: 2px solid #e2e8f0;
-            margin-bottom: 2rem;
-        }
-        .main-content-tab-button {
-            padding: 1rem 1.5rem;
-            font-weight: 600;
-            color: #64748b;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
-        }
-        .main-content-tab-button:hover {
-            color: var(--primary-dark);
-        }
-        .main-content-tab-button.active {
-            color: var(--primary);
-            border-color: var(--primary);
-        }
-        .activity-detail-modal-content .detail-item {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 0.75rem;
-            font-size: 1rem;
-            color: #4a5568;
-        }
-        .activity-detail-modal-content .detail-item i {
-            margin-right: 0.75rem;
-            color: #94a3b8;
-            width: 1.2rem;
-            text-align: center;
-            flex-shrink: 0;
-            padding-top: 0.1rem;
-        }
-        .activity-detail-modal-content .detail-item span {
-            font-weight: 500;
-            color: #2d3748;
-        }
-        .activity-detail-modal-content .detail-item p {
-            margin-top: 0.1rem;
-            font-size: 0.9rem;
-            color: #4a5568;
-        }
-        .rent-checker-result-card {
-            background: linear-gradient(135deg, #e0f2fe, #bfdbfe);
-            border: 1px solid #93c5fd;
-            border-radius: 1.25rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-        .rent-checker-result-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-        }
-        .rent-checker-result-card .icon-wrapper {
-            width: 3rem;
-            height: 3rem;
-            min-width: 3rem;
-            min-height: 3rem;
-            border-radius: 0.75rem;
-            background-color: #3b82f6;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .rent-checker-result-card .details {
-            flex-grow: 1;
-        }
-        .rent-checker-result-card .details p {
-            margin-bottom: 0.25rem;
-            font-size: 0.95rem;
-            color: #374151;
-        }
-        .rent-checker-result-card .details .highlight {
-            font-weight: 600;
-            color: #1d4ed8;
-        }
-        .rent-checker-result-card .details .timestamp {
-            font-size: 0.8rem;
-            color: #6b7280;
-            margin-top: 0.5rem;
+        @media (min-width: 1024px) {
+            .modal-content-lg {
+                max-width: 1100px; /* Even wider on large screens */
+                padding: 4rem; /* Even more padding */
+            }
         }
 
-        /* Mobile specific adjustments for roommate card for better comfort */
-        @media (max-width: 640px) { /* Tailwind's 'sm' breakpoint */
-            .roommate-match-card {
-                padding: 1.5rem; /* Reduce padding on small screens */
-                width: 95%; /* Make it slightly wider on very small screens */
+        /* Added blur to modal backdrop */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(12px); /* Apply blur effect */
+            -webkit-backdrop-filter: blur(12px); /* For Safari support */
+            transition: backdrop-filter 0.3s ease-out; /* Smooth transition for blur */
+        }
+
+        /* New styles for rent checker insights (modal-rent-results) */
+        .rent-insight-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            text-align: left;
+        }
+        @media (min-width: 768px) {
+            .rent-insight-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
-            .roommate-match-card img {
-                width: 100px;
-                height: 100px;
-            }
-            .roommate-match-card h4 {
-                font-size: 2rem; /* Adjust heading size */
-            }
-            .roommate-match-card .compatibility-score {
-                font-size: 2rem; /* Adjust score size */
-            }
-            .roommate-match-card .text-lg {
-                font-size: 1rem; /* Adjust text size */
-            }
-            .swipe-buttons {
-                gap: 1rem; /* Reduce gap between buttons */
-                margin-top: 1.5rem;
-            }
-            .swipe-button {
-                width: 50px;
-                height: 50px;
-                font-size: 1.5rem;
-            }
+        }
+        .insight-card {
+            background-color: white; /* Changed from f0f4f8 to white for consistency with glass-card */
+            border-radius: 1rem; /* Slightly more rounded */
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .insight-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .insight-card h5 {
+            font-weight: 700; /* Bolder heading */
+            color: #2d3748; /* Darker text */
+            margin-bottom: 0.75rem; /* More space */
+            display: flex;
+            align-items: center;
+        }
+        .insight-card h5 i {
+            margin-right: 0.75rem;
+            color: #6366f1; /* Primary color for icons */
+            font-size: 1.25rem; /* Slightly larger icon */
+        }
+        .insight-card p {
+            font-size: 1rem; /* Slightly larger text */
+            color: #4a5568; /* Darker gray for readability */
+            line-height: 1.5;
+        }
+        .rent-prediction-output {
+            font-weight: 900; /* Extra bold for impact */
+            font-size: 4.5rem; /* Larger font size */
+            background: linear-gradient(90deg, #3b82f6, #6366f1); /* Blue to Indigo gradient */
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+        .rent-prediction-message {
+            font-size: 1.5rem; /* Larger message */
+            color: #4a5568;
+            font-weight: 500;
+        }
+        .cost-breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0; /* More padding */
+            border-bottom: 1px dashed #cbd5e1;
+            font-size: 1rem; /* Consistent font size */
+        }
+        .cost-breakdown-item:last-child {
+            border-bottom: none;
+        }
+        .cost-breakdown-item span:first-child {
+            font-weight: 600; /* Bolder labels */
+            color: #2d3748;
+        }
+        .cost-breakdown-item span:last-child {
+            font-weight: 700; /* Even bolder values */
+            color: #111827;
         }
     </style>
 </head>
-<body>
-    <!-- Sidebar Toggle Button (Mobile) -->
-    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Open sidebar" aria-controls="sidebar" aria-expanded="false">
-        <i class="fas fa-bars"></i>
-    </button>
-    <!-- Dimmed Overlay (Mobile) -->
-    <div class="overlay hidden" id="sidebarOverlay"></div>
+<body class="antialiased text-gray-800">
 
-    <!-- Sidebar -->
-    <aside class="sidebar hidden-mobile" id="sidebar" tabindex="0" aria-label="Main Navigation">
-        <div>
-            <div class="sidebar-logo">
-                <!-- Original SVG Logo from existing code, color adjusted by CSS variable -->
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--neon-purple);">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                </svg>
-                <span>Roomto.Live</span>
+    <!-- Header -->
+    <header class="fixed w-full z-50 bg-white/90 backdrop-blur-md shadow-sm">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="#" class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-xl">RL</div>
+                    <span class="text-xl font-bold">Room To Live</span>
+                </a>
+                
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#services" class="text-gray-600 hover:text-indigo-600 transition-colors duration-200 font-medium">Services</a>
+                    <a href="#about" class="text-gray-600 hover:text-indigo-600 transition-colors duration-200 font-medium">About</a>
+                    <a href="#contact" class="text-gray-600 hover:text-indigo-600 transition-colors duration-200 font-medium">Contact</a>
+                </nav>
+                
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'fairrent_app:profile' %}" class="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                            Dashboard
+                        </a>
+                        <a href="{% url 'fairrent_app:logout' %}" class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors duration-200">
+                            Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'fairrent_app:login' %}" class="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                            Login
+                        </a>
+                        <a href="{% url 'fairrent_app:signup' %}" class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors duration-200">
+                            Sign Up
+                        </a>
+                    {% endif %}
+                </div>
             </div>
-            <nav aria-label="Sidebar">
-                <ul>
-                    <li>
-                        <a href="#" class="sidebar-nav-item active" data-content-target="dashboard-home">
-                            <i class="fas fa-home"></i>Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="sidebar-nav-item" data-content-target="roommate-finder-section">
-                            <i class="fas fa-users"></i>Roommate Finder
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="sidebar-nav-item" data-content-target="my-services-section">
-                            <i class="fas fa-tools"></i>My Services
-                        </a>
-                    </li>
-                </ul>
-            </nav>
         </div>
-        <div class="sidebar-footer">
-            <!-- Footer links from existing code -->
-            <a href="{% url 'fairrent_app:index' %}" class="flex items-center text-indigo-300 hover:text-white transition-colors duration-200 mb-2">
-                <i class="fas fa-arrow-circle-left mr-2"></i> Homepage
-            </a>
-            <a href="{% url 'fairrent_app:logout' %}" class="flex items-center text-red-400 hover:text-white transition-colors duration-200">
-                <i class="fas fa-sign-out-alt mr-2"></i> Logout
-            </a>
-        </div>
-    </aside>
+    </header>
 
     <!-- Main Content -->
-    <main class="main-content" id="mainContent">
-        <!-- Mobile Header for Sidebar Toggle -->
-        <div class="lg:hidden flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-extrabold text-gray-900">Dashboard</h1>
-            <div class="w-8"></div> <!-- Spacer -->
-        </div>
-
-        <!-- Dashboard Header from new template -->
-        <div class="dashboard-header">Welcome back! 🚀</div>
-
-        <!-- Content Sections (Dynamically Swapped) -->
-        <section id="dashboard-home" class="content-section active space-y-8">
-            <div class="mb-8">
-                <h2 class="text-4xl font-extrabold text-gray-900 leading-tight">Welcome, <span class="gradient-text">{{ user.username }}</span>!</h2>
-                <p class="text-xl text-gray-600 mt-2 text-xl">Here's a quick overview of your Roomto.Live activity.</p>
+    <main>
+        <!-- Hero Section -->
+        <section class="pt-32 pb-20 md:pt-40 md:pb-28 relative overflow-hidden bg-fuchsia-50">
+            <div class="absolute inset-0 -z-10">
+                <div class="absolute inset-0 bg-gradient-to-br from-indigo-50 to-purple-50 opacity-90"></div>
+                <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')] bg-cover bg-center mix-blend-overlay opacity-20"></div>
             </div>
-
-            <div class="cards-grid">
-                <!-- User Info Card (Compact) -->
-                <div class="dashboard-card glass-card animate-fade-in delay-100">
-                    <h3 class="card-title">Your Profile Overview</h3>
-                    <div class="flex items-center mb-5">
-                        <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mr-4 shadow-inner">
-                            <i class="fas fa-user fa-2x"></i>
-                        </div>
-                        <div>
-                            <p class="text-xl font-bold text-gray-900">{{ user.username }}</p>
-                            <p class="text-sm text-gray-500">{{ user.email }}</p>
-                        </div>
-                    </div>
-                    <div class="text-base text-gray-600 space-y-2 border-t pt-5 mt-5 border-gray-100">
-                        <p class="flex items-center"><i class="fas fa-calendar-plus w-5 mr-3 text-gray-400"></i>Joined {{ user.date_joined|date:"F Y" }}</p>
-                        {% if user_roommate_profile %}
-                            <p class="flex items-center"><i class="fas fa-venus-mars w-5 mr-3 text-gray-400"></i>Gender: {{ user_roommate_profile.get_gender_display|default:'N/A' }}</p>
-                            <p class="flex items-center"><i class="fas fa-money-bill-wave w-5 mr-3 text-gray-400"></i>Budget: £{{ user_roommate_profile.budget|default:'N/A' }}</p>
-                            <p class="flex items-center"><i class="fas fa-map-marker-alt w-5 mr-3 text-gray-400"></i>Location: {{ user_roommate_profile.location|default:'N/A' }}</p>
-                        {% endif %}
-                    </div>
-                    <button id="edit-profile-btn-dashboard-home" class="btn-secondary w-full mt-6 flex items-center justify-center btn-hover-effect">
-                        <i class="fas fa-edit mr-2"></i>{% if user_roommate_profile %}Edit Profile{% else %}Create Profile{% endif %}
-                    </button>
-                </div>
-
-                <!-- Quick Stats Card -->
-                <div class="dashboard-card glass-card animate-fade-in delay-200 col-span-1 md:col-span-1 lg:col-span-2">
-                    <h3 class="card-title">Quick Stats</h3>
-                    <div class="grid grid-cols-2 gap-4 text-center">
-                        <div class="p-4 bg-blue-50 rounded-lg shadow-sm">
-                            <p class="text-3xl font-bold text-blue-600">{{ user_rent_checks|length }}</p>
-                            <p class="text-gray-600 text-sm">Rent Checks</p>
-                        </div>
-                        <div class="p-4 bg-green-50 rounded-lg shadow-sm">
-                            <p class="text-3xl font-bold text-green-600">{{ user_reviews|length }}</p>
-                            <p class="text-gray-600 text-sm">Reviews Submitted</p>
-                        </div>
-                        <div class="p-4 bg-red-50 rounded-lg shadow-sm">
-                            <p class="text-3xl font-bold text-red-600">{{ user_complaints|length }}</p>
-                            <p class="text-gray-600 text-sm">Complaints Filed</p>
-                        </div>
-                        <div class="p-4 bg-purple-50 rounded-lg shadow-sm">
-                            <p class="text-3xl font-bold text-purple-600">{{ user_liked_profiles|length }}</p>
-                            <p class="text-gray-600 text-sm">Profiles Liked</p>
-                        </div>
-                        <!-- NEW: Contract Analyses Stat -->
-                        <div class="p-4 bg-teal-50 rounded-lg shadow-sm">
-                            <p class="text-3xl font-bold text-teal-600">{{ user_rental_contracts|length }}</p>
-                            <p class="text-gray-600 text-sm">Contracts Analyzed</p>
-                        </div>
+            
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto text-center">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight animate-fade-in">
+                        <span class="gradient-text">Renting Made Fair</span> <br>For Everyone 
+                    </h1>
+                    <p class="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto animate-fade-in delay-200">
+                        Your all-in-one platform for fair rent, transparent reviews, and finding the perfect roommate across the UK.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in delay-300">
+                        <a href="#services" class="px-8 py-3 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors duration-200 shadow-lg hover:shadow-xl btn-hover-effect">
+                            Explore Services
+                        </a>
+                        <a href="{% url 'fairrent_app:signup' %}" class="px-8 py-3 rounded-lg bg-white text-indigo-600 font-medium border border-indigo-200 hover:bg-indigo-50 transition-colors duration-200 shadow-md hover:shadow-lg btn-hover-effect">
+                            Join Now
+                        </a>
                     </div>
                 </div>
-            </div>
-
-            <!-- Recent Activity Card (Full Width) -->
-            <div class="dashboard-card glass-card animate-fade-in delay-300">
-                <h3 class="card-title">Recent Activity</h3>
-                <div id="recent-activity-list" class="space-y-3">
-                    {% if recent_activities %}
-                        {% for activity in recent_activities %}
-                            <div class="activity-item cursor-pointer"
-                                data-activity-type="{{ activity.type }}"
-                                data-activity-details='{% if activity.details %}{{ activity.details|json_script:"activity_details_data" }}{% endif %}'>
-                                <div class="content flex items-start">
-                                    <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
-                                        <i class="fas fa-{{ activity.icon }}"></i>
+                
+                <div class="mt-16 md:mt-24 flex justify-center animate-fade-in delay-400">
+                    <div class="glass-card p-6 max-w-4xl w-full">
+                        <div class="flex flex-col md:flex-row items-center gap-6">
+                            <div class="flex-1">
+                                <h3 class="text-xl font-semibold mb-3">Check Your Rent</h3>
+                                <p class="text-gray-600 mb-4">See if you're paying a fair price based on your location and property details.</p>
+                                <form id="hero-rent-checker-form" class="space-y-3">
+                                    <div>
+                                        <label for="hero_modal_postcode" class="sr-only">Postcode</label>
+                                        <input type="text" id="hero_modal_postcode" name="postcode" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter Postcode">
                                     </div>
                                     <div>
-                                        <p class="text-gray-800 font-medium">{{ activity.description }}</p>
-                                        <p class="text-sm text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</p>
+                                        <label for="hero_modal_bedrooms" class="sr-only">Select Bedrooms</label>
+                                        <select id="hero_modal_bedrooms" name="bedrooms" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                            <option value="">Select Bedrooms</option>
+                                            <option value="studio">Studio</option>
+                                            <option value="1">1 Bedroom</option>
+                                            <option value="2">2 Bedrooms</option>
+                                            <option value="3">3 Bedrooms</option>
+                                            <option value="4+">4+ Bedrooms</option>
+                                        </select>
                                     </div>
+                                    <button type="submit" class="w-full px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors duration-200 btn-hover-effect">
+                                        Check Now
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="hidden md:block flex-1">
+                                <div class="relative">
+                                    <div class="absolute -inset-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-25"></div>
+                                    <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Modern apartment" class="relative rounded-xl shadow-lg w-full h-64 object-cover">
                                 </div>
                             </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-center text-gray-500 py-4">No recent activity to display.</p>
-                    {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Roommate Finder Section (Full Page View) -->
-        <section id="roommate-finder-section" class="content-section hidden space-y-8 animate-fade-in">
-            <div class="glass-card p-8">
-                <div class="flex justify-between items-center mb-8">
-                    <div>
-                        <h3 class="text-3xl font-bold text-gray-900">AI Roommate Finder</h3>
-                        <p class="text-gray-500 mt-1">Discover compatible roommates with our smart AI.</p>
+        <!-- Stats Section -->
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                    <div class="animate-fade-in delay-100">
+                        <div class="text-4xl font-bold text-indigo-600 mb-2">10K+</div>
+                        <div class="text-gray-600">Properties Listed</div>
                     </div>
-                    <button id="edit-profile-btn-roommate-section" class="btn-primary flex items-center btn-hover-effect">
-                        <i class="fas fa-edit mr-2"></i>{% if user_roommate_profile %}Edit Profile{% else %}Create Profile{% endif %}
-                    </button>
+                    <div class="animate-fade-in delay-200">
+                        <div class="text-4xl font-bold text-indigo-600 mb-2">5K+</div>
+                        <div class="text-gray-600">Landlord Reviews</div>
+                    </div>
+                    <div class="animate-fade-in delay-300">
+                        <div class="text-4xl font-bold text-indigo-600 mb-2">95%</div>
+                        <div class="text-gray-600">User Satisfaction</div>
+                    </div>
+                    <div class="animate-fade-in delay-400">
+                        <div class="text-4xl font-bold text-indigo-600 mb-2">24/7</div>
+                        <div class="text-gray-600">Support Available</div>
+                    </div>
                 </div>
-                <div id="roommate-match-container" class="relative min-h-[400px] bg-gray-50 rounded-xl border border-gray-200 overflow-hidden flex items-center justify-center">
-                    <div id="roommate-matches-loader" class="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-90 rounded-xl hidden z-20">
-                        <div class="spinner w-16 h-16 border-6 border-gray-200 rounded-full mb-4"></div>
-                        <p class="text-gray-700 font-medium text-lg">Finding your perfect matches with AI...</p>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services" class="py-20 bg-gray-50 relative">
+            <div class="wave-divider text-gray-50">
+                <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                    <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25"></path>
+                    <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5"></path>
+                    <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z"></path>
+                </svg>
+            </div>
+            
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4 animate-fade-in">Our Comprehensive Services</h2>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto animate-fade-in delay-100">Everything you need for a better renting experience in one place</p>
+                </div>
+                
+                <div class="services-grid">
+                    <!-- Rent Checker -->
+                    <div class="service-card glass-card p-8 animate-fade-in delay-200" data-service-target="rent-checker-modal">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-blue-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-pound-sign"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Rent Checker</h3>
+                        <p class="text-gray-600 mb-4">Check average rent prices in your area to ensure you're paying a fair amount.</p>
+                        <button class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
                     </div>
                     
-                    <div id="roommate-match-card-display" class="absolute inset-0 flex items-center justify-center z-10">
-                        <!-- Dynamic match cards will be loaded here -->
+                    <!-- Landlord Reviews -->
+                    <div class="service-card glass-card p-8 animate-fade-in delay-300" data-service-target="landlord-reviews-modal">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-green-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Landlord Reviews</h3>
+                        <p class="text-gray-600 mb-4">Read and write anonymous reviews about landlords and properties.</p>
+                        <button class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Roommate Finder -->
+                    <a href="{% url 'fairrent_app:profile' %}" class="service-card glass-card p-8 animate-fade-in delay-400">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-purple-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">AI Roommate Finder</h3>
+                        <p class="text-gray-600 mb-4">Our smart algorithm helps you find compatible roommates based on lifestyle.</p>
+                        <span class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </span>
+                    </a>
+                    
+                    <!-- Complaint Submission -->
+                    <div class="service-card glass-card p-8 animate-fade-in delay-100" data-service-target="complaint-submission-modal">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-red-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Complaint Submission</h3>
+                        <p class="text-gray-600 mb-4">Submit complaints to local councils with AI-assisted refinement.</p>
+                        <button class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Community Forums -->
+                    <div class="service-card glass-card p-8 animate-fade-in delay-200" data-service-target="community-forums-modal">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-yellow-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Community Forums</h3>
+                        <p class="text-gray-600 mb-4">Connect with other renters, share experiences, and get advice.</p>
+                        <button class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Legal & Contract Support -->
+                    <div class="service-card glass-card p-8 animate-fade-in delay-300" data-service-target="legal-support-modal">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-indigo-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Legal & Contract Support</h3>
+                        <p class="text-gray-600 mb-4">Access tools and guidance for your rental contracts and legal queries.</p>
+                        <button class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
                     </div>
 
-                    <div id="roommate-prompt" class="text-center p-6 w-full h-full flex flex-col items-center justify-center z-10">
-                        <i class="fas fa-users text-6xl text-gray-400 mb-6"></i>
-                        <p class="mt-4 font-semibold text-gray-700 text-xl">Your potential matches will appear here.</p>
-                        <p class="text-gray-500 mt-2 text-lg">{% if user.is_authenticated and user_roommate_profile %}Click "Find Matches" to begin your search!{% else %}Create your profile to get started and find your ideal roommate.{% endif %}</p>
-                        {% if user.is_authenticated and user_roommate_profile %}<button id="find-matches-btn-inner" class="mt-8 btn-primary text-lg btn-hover-effect"><i class="fas fa-search mr-3"></i>Find Matches</button>{% endif %}
+                    <!-- Contract Analyzer (AI) -->
+                    <div class="service-card glass-card p-8 animate-fade-in delay-400" data-service-target="rental-contract-modal">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-teal-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Contract Analyzer (AI)</h3>
+                        <p class="text-gray-600 mb-4">Upload or paste your rental contract for AI-powered analysis of terms, rights, and potential issues.</p>
+                        <button class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
                     </div>
 
-                    <div id="no-more-matches-prompt" class="hidden text-center p-6 w-full h-full flex flex-col items-center justify-content-center z-10">
-                        <i class="fas fa-heart-broken text-6xl text-gray-400 mb-6"></i>
-                        <p class="mt-4 font-semibold text-gray-700 text-xl">No more matches for now!</p>
-                        <p class="text-gray-500 mt-2 text-lg">Check back later or refine your profile to discover new connections.</p>
-                        <button id="reset-matches-btn" class="mt-8 btn-secondary text-lg btn-hover-effect"><i class="fas fa-redo mr-3"></i>Restart Matches</button>
+                    <!-- NEW: Rent Declaration Check Card -->
+                    <div class="service-card glass-card p-8 animate-fade-in delay-500" data-service-target="rent-declaration-modal">
+                        <div class="service-icon w-16 h-16 rounded-xl bg-orange-gradient-icon flex items-center justify-center text-white text-2xl mb-6">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Rent Declaration Check</h3>
+                        <p class="text-gray-600 mb-4">Check for discrepancies between your paid rent and landlord's council tax declarations.</p>
+                        <button class="text-indigo-600 font-medium inline-flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
                     </div>
                 </div>
+            </div>
+        </section>
+        
+        <!-- How It Works -->
+        <section class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4 animate-fade-in">How It Works</h2>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto animate-fade-in delay-100">Simple steps to improve your renting experience</p>
+                </div>
                 
-                <div id="swipe-buttons-container" class="swipe-buttons hidden z-30">
-                    <button id="skip-match-btn" class="swipe-button skip"><i class="fas fa-times"></i></button>
-                    <button id="like-match-btn" class="swipe-button like"><i class="fas fa-check"></i></button>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="glass-card p-8 text-center animate-fade-in delay-200">
+                        <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-2xl mb-6 mx-auto">
+                            <span class="font-bold">1</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Sign Up</h3>
+                        <p class="text-gray-600">Create your free account in just a few seconds.</p>
+                    </div>
+                    
+                    <div class="glass-card p-8 text-center animate-fade-in delay-300">
+                        <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-2xl mb-6 mx-auto">
+                            <span class="font-bold">2</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Explore Services</h3>
+                        <p class="text-gray-600">Choose from our range of rental tools and resources.</p>
+                    </div>
+                    
+                    <div class="glass-card p-8 text-center animate-fade-in delay-400">
+                        <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-2xl mb-6 mx-auto">
+                            <span class="font-bold">3</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Take Control</h3>
+                        <p class="text-gray-600">Make informed decisions about your rental situation.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- My Services & Activity Tabs -->
-        <section id="my-services-section" class="content-section hidden space-y-8 animate-fade-in">
-            <div class="glass-card p-6">
-                <h3 class="card-title">My Services & Activity</h3>
+        <!-- Testimonials -->
+        <section class="py-20 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4 animate-fade-in">What Our Users Say</h2>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto animate-fade-in delay-100">Trusted by thousands of renters across the UK</p>
+                </div>
                 
-                <div class="main-content-tabs flex border-b-2 border-gray-200 mb-6">
-                    <button class="main-content-tab-button active" data-tab-id="my-recent-activity-tab">Recent Activity</button>
-                    <button class="main-content-tab-button" data-tab-id="my-service-results-tab">My Service Results</button>
-                </div>
-
-                <div id="my-recent-activity-tab" class="main-content-tab-content space-y-3">
-                    {% if recent_activities %}
-                        {% for activity in recent_activities %}
-                            <div class="activity-item cursor-pointer"
-                                data-activity-type="{{ activity.type }}"
-                                data-activity-details='{% if activity.details %}{{ activity.details|json_script:"activity_details_data" }}{% endif %}'>
-                                <div class="content flex items-start">
-                                    <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
-                                        <i class="fas fa-{{ activity.icon }}"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-800 font-medium">{{ activity.description }}</p>
-                                        <p class="text-sm text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</p>
-                                    </div>
-                                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="glass-card p-8 animate-fade-in delay-200">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 mr-4">
+                                <i class="fas fa-user"></i>
                             </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-center text-gray-500 py-4">No recent activity to display.</p>
-                    {% endif %}
-                </div>
-
-                <div id="my-service-results-tab" class="main-content-tab-content hidden space-y-3">
-                    {% if user_rent_checks or user_reviews or user_complaints or user_forum_posts or user_liked_profiles or user_rental_contracts or user_rent_declaration_checks %}
-                        {% for rent_result in user_rent_checks %}
-                            <div class="service-result-card cursor-pointer rent-checker-result-card"
-                                data-activity-type="Rent Check"
-                                data-activity-details='{
-                                    "postcode": "{{ rent_result.postcode }}",
-                                    "bedrooms": "{{ rent_result.bedrooms }}",
-                                    "estimated_rent": "{{ rent_result.estimated_rent|floatformat:0 }}",
-                                    "checked_at": "{{ rent_result.checked_at|date:"Y-m-d H:i:s" }}"
-                                }'>
-                                <div class="icon-wrapper bg-blue-100 text-blue-600">
-                                    <i class="fas fa-gbp-sign"></i>
-                                </div>
-                                <div class="details">
-                                    <p>Rent Check for <span class="highlight">{{ rent_result.postcode }}</span> ({{ rent_result.bedrooms }} bed)</p>
-                                    <p>Estimated Rent: <span class="highlight">£{{ rent_result.estimated_rent|floatformat:0 }}</span></p>
-                                    <p class="timestamp">Checked on {{ rent_result.checked_at|date:"M d, Y" }}</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                        {% for review in user_reviews %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Review"
-                                data-activity-details='{
-                                    "landlord_name": "{{ review.landlord_name }}",
-                                    "property_address": "{{ review.property_address }}",
-                                    "rating": {{ review.rating }},
-                                    "comments": "{{ review.comments|escapejs }}",
-                                    "reviewed_at": "{{ review.reviewed_at|date:"Y-m-d H:i:s" }}",
-                                    "reviewer": "{{ review.user.username }}"
-                                }'>
-                                <div class="icon-wrapper-small bg-green-100 text-green-600 mr-4">
+                            <div>
+                                <h4 class="font-bold">Sarah K.</h4>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
                                 </div>
-                                <div>
-                                    <p class="font-semibold text-gray-800">Your Review for <span class="font-bold">{{ review.landlord_name }}</span> ({{ review.property_address }})</p>
-                                    <p class="text-gray-700">Rating: <span class="font-bold text-green-600">{{ review.rating }} Stars</span></p>
-                                    <p class="text-sm text-gray-500">"{{ review.comments|truncatechars:100 }}"</p>
-                                    <p class="text-sm text-gray-500">Submitted on {{ review.reviewed_at|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600">"The rent checker saved me £200 a month! I was able to negotiate a fairer price thanks to the data provided."</p>
+                    </div>
+                    
+                    <div class="glass-card p-8 animate-fade-in delay-300">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 mr-4">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold">James L.</h4>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
                                 </div>
                             </div>
-                        {% endfor %}
-
-                        {% for complaint in user_complaints %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Complaint"
-                                data-activity-details='{
-                                    "issue_type": "{{ complaint.get_issue_type_display }}",
-                                    "property_address": "{{ complaint.property_address }}",
-                                    "landlord_name": "{{ complaint.landlord_name|default:'' }}",
-                                    "description": "{{ complaint.description|escapejs }}",
-                                    "status": "{{ complaint.get_status_display }}",
-                                    "submitted_at": "{{ complaint.submitted_at|date:"Y-m-d H:i:s" }}"
-                                }'>
-                                <div class="icon-wrapper-small bg-red-100 text-red-600 mr-4">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-800">Complaint: <span class="font-bold">{{ complaint.get_issue_type_display }}</span> (<span class="font-bold">{{ complaint.property_address }}</span>)</p>
-                                    <p class="text-gray-700">Status: <span class="text-orange-500 font-semibold">{{ complaint.get_status_display }}</span></p>
-                                    <p class="text-sm text-gray-500">Submitted on {{ complaint.submitted_at|date:"M d, Y" }}</p>
+                        </div>
+                        <p class="text-gray-600">"Found my perfect roommate through the AI matching system. We've been living together for 6 months now!"</p>
+                    </div>
+                    
+                    <div class="glass-card p-8 animate-fade-in delay-400">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 mr-4">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold">Emma T.</h4>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
                                 </div>
                             </div>
-                        {% endfor %}
-
-                        {% for post in user_forum_posts %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Forum Post"
-                                data-activity-details='{
-                                    "title": "{{ post.title|escapejs }}",
-                                    "content": "{{ post.content|escapejs }}",
-                                    "category": "{{ post.get_category_display }}",
-                                    "created_at": "{{ post.created_at|date:"Y-m-d H:i:s" }}",
-                                    "author": "{{ post.user.username }}"
-                                }'>
-                                <div class="icon-wrapper-small bg-yellow-100 text-yellow-600 mr-4">
-                                    <i class="fas fa-comments"></i>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-800">Forum Post: <span class="font-bold">"{{ post.title }}"</span></p>
-                                    <p class="text-gray-700">Category: <span class="font-bold">{{ post.get_category_display }}</span></p>
-                                    <p class="text-sm text-gray-500">Posted on {{ post.created_at|date:"M d, Y" }}</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                        {% for liked_profile in user_liked_profiles %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Liked Profile"
-                                data-activity-details='{
-                                    "name": "{{ liked_profile.liked_user_name }}",
-                                    "age": {{ liked_profile.liked_user_age|default:"null" }},
-                                    "gender": "{{ liked_profile.liked_user_gender }}",
-                                    "location": "{{ liked_profile.liked_user_location }}",
-                                    "budget": {{ liked_profile.liked_user_budget|default:"null" }},
-                                    "bio": "{{ liked_profile.liked_user_bio|escapejs }}",
-                                    "compatibility_score": {{ liked_profile.liked_user_compatibility_score|default:"null" }},
-                                    "avatar_url": "{{ liked_profile.liked_user_avatar_url }}"
-                                }'>
-                                <div class="icon-wrapper-small bg-pink-100 text-pink-500 mr-4">
-                                    <i class="fas fa-heart"></i>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-800">Liked Profile: <span class="font-bold">{{ liked_profile.liked_user_name }}</span></p>
-                                    <p class="text-gray-700">Compatibility: <span class="font-bold text-blue-600">{{ liked_profile.liked_user_compatibility_score|default:'N/A' }}%</span></p>
-                                    <p class="text-sm text-gray-500">Liked on {{ liked_profile.liked_at|date:"M d, Y" }}</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                        {% for contract in user_rental_contracts %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Contract Analysis"
-                                data-activity-details='{
-                                    "original_text": "{{ contract.original_text|escapejs }}",
-                                    "analysis_result": "{{ contract.analysis_result|escapejs }}",
-                                    "analyzed_at": "{{ contract.analyzed_at|date:"Y-m-d H:i:s" }}"
-                                }'>
-                                <div class="icon-wrapper-small bg-teal-100 text-teal-600 mr-4">
-                                    <i class="fas fa-file-contract"></i>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-800">Contract Analysis</p>
-                                    <p class="text-gray-700">Analyzed on <span class="font-bold">{{ contract.analyzed_at|date:"M d, Y" }}</span></p>
-                                    <p class="text-sm text-gray-500">Preview: "{{ contract.original_text|truncatechars:100 }}"</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                        {% for declaration_check in user_rent_declaration_checks %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Rent Declaration Check"
-                                data-activity-details='{
-                                    "postcode": "{{ declaration_check.postcode }}",
-                                    "bedrooms": "{{ declaration_check.bedrooms }}",
-                                    "actual_rent_paid": "{{ declaration_check.actual_rent_paid }}",
-                                    "council_tax_band": "{{ declaration_check.council_tax_band }}",
-                                    "estimated_council_tax": "{{ declaration_check.estimated_council_tax|default:"null" }}",
-                                    "discrepancy_found": {{ declaration_check.discrepancy_found|lower }},
-                                    "analysis_result": "{{ declaration_check.analysis_result|escapejs }}",
-                                    "checked_at": "{{ declaration_check.checked_at|date:"Y-m-d H:i:s" }}"
-                                }'>
-                                <div class="icon-wrapper-small bg-orange-100 text-orange-600 mr-4">
-                                    <i class="fas fa-file-invoice-dollar"></i>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-800">Rent Declaration Check for <span class="font-bold">{{ declaration_check.postcode }}</span></p>
-                                    <p class="text-gray-700">Discrepancy: <span class="font-bold {% if declaration_check.discrepancy_found %}text-red-600{% else %}text-green-600{% endif %}">{{ declaration_check.discrepancy_found|yesno:"Found,None" }}</span></p>
-                                    <p class="text-sm text-gray-500">Checked on {{ declaration_check.checked_at|date:"M d, Y" }}</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                    {% else %}
-                        <p class="text-center text-gray-500 py-2">No service results to display yet.</p>
-                    {% endif %}
+                        </div>
+                        <p class="text-gray-600">"The contract analyzer helped me spot several unfair clauses before I signed. Essential tool for renters!"</p>
+                    </div>
                 </div>
             </div>
         </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-col md:flex-row items-center gap-12">
+                    <div class="md:w-1/2 animate-fade-in">
+                        <h2 class="text-3xl md:text-4xl font-bold mb-6">About Room To Live</h2>
+                        <p class="text-gray-600 mb-6">We're on a mission to create a fairer, more transparent rental market in the UK. Our platform empowers renters with the tools and information they need to make better decisions.</p>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-bold text-gray-900">Data-Driven</h4>
+                                    <p class="text-gray-600">Our insights are powered by real market data and AI analysis.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-bold text-gray-900">Community Focused</h4>
+                                    <p class="text-gray-600">Built by renters, for renters. We listen to our community.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-bold text-gray-900">Always Improving</h4>
+                                    <p class="text-gray-600">We continuously add new features based on user feedback.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2 relative animate-fade-in delay-200">
+                        <div class="relative">
+                            <div class="absolute -inset-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-25"></div>
+                            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Team working" class="relative rounded-xl shadow-lg w-full">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-20 bg-gradient-to-r from-indigo-600 to-purple-700 text-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 animate-fade-in">Ready to Take Control of Your Renting Experience?</h2>
+                <p class="text-xl text-indigo-100 mb-10 max-w-2xl mx-auto animate-fade-in delay-100">
+                    Join thousands of renters who are already benefiting from Room To Live.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in delay-200">
+                    <a href="{% url 'fairrent_app:signup' %}" class="px-8 py-3 rounded-lg bg-white text-indigo-600 font-medium hover:bg-indigo-50 transition-colors duration-200 shadow-lg hover:shadow-xl btn-hover-effect">
+                        Get Started for Free
+                    </a>
+                    <a href="#services" class="px-8 py-3 rounded-lg border border-indigo-300 text-white font-medium hover:bg-indigo-700 transition-colors duration-200 shadow-md hover:shadow-lg btn-hover-effect">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section (New) -->
+        <section id="contact" class="py-20 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 animate-fade-in">Get in Touch</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-12 animate-fade-in delay-100">
+                    Have questions or need support? Reach out to us through the following channels.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="glass-card p-8 animate-fade-in delay-200">
+                        <i class="fas fa-envelope text-5xl text-indigo-500 mb-4"></i>
+                        <h3 class="text-xl font-bold mb-3">Email Us</h3>
+                        <p class="text-gray-600">Send us an email and we'll get back to you as soon as possible.</p>
+                        <a href="mailto:support@roomtolive.com" class="mt-4 inline-flex items-center text-indigo-600 font-medium hover:underline">
+                            support@roomtolive.com
+                        </a>
+                    </div>
+                    <div class="glass-card p-8 animate-fade-in delay-300">
+                        <i class="fas fa-phone-alt text-5xl text-indigo-500 mb-4"></i>
+                        <h3 class="text-xl font-bold mb-3">Call Us</h3>
+                        <p class="text-gray-600">Speak directly with our support team during business hours.</p>
+                        <a href="tel:+442012345678" class="mt-4 inline-flex items-center text-indigo-600 font-medium hover:underline">
+                            +44 20 1234 5678
+                        </a>
+                    </div>
+                    <div class="glass-card p-8 animate-fade-in delay-400">
+                        <i class="fas fa-map-marker-alt text-5xl text-indigo-500 mb-4"></i>
+                        <h3 class="text-xl font-bold mb-3">Visit Us</h3>
+                        <p class="text-gray-600">Our office is located in the heart of London.</p>
+                        <p class="mt-4 text-indigo-600 font-medium">85 Portland Street, London, UK</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <!-- Roommate Profile Edit Modal -->
-    <div id="profile-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full p-8">
-            <button type="button" id="close-profile-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-xl">RL</div>
+                        <span class="text-xl font-bold">Room To Live</span>
+                    </div>
+                    <p class="text-gray-400">Empowering renters across the UK with fair, transparent housing solutions.</p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Services</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Rent Checker</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Landlord Reviews</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Roommate Finder</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Legal Support</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Complaint Submission</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Community Forums</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Contract Analyzer</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition-colors">Rent Declaration Check</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#about" class="text-gray-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Press</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
+                    <ul class="space-y-2">
+                        <li class="text-gray-400">hello@roomtolive.com</li>
+                        <li class="text-gray-400">+44 20 1234 5678</li>
+                        <li class="text-gray-400">85 Portland Street, London, UK</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 mb-4 md:mb-0">&copy; {% now "Y" %} Room To Live. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Modals for Interactive Services -->
+
+    <!-- Rent Checker Modal -->
+    <div id="rent-checker-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="rent-checker-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
                 <i class="fas fa-times fa-lg"></i>
             </button>
-            <form id="roommate-profile-form" class="space-y-6">
-                <h3 id="profile-modal-title" class="text-3xl font-bold mb-6 text-gray-900">Your Roommate Profile</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="age" class="block text-sm font-medium text-gray-700 mb-1">Age</label>
-                        <input type="number" id="age" name="age" value="{{ user_roommate_profile.age|default:'' }}"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
-                               min="18" max="99" placeholder="e.g., 25">
-                    </div>
-                    <div>
-                        <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                        <select id="gender" name="gender"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
-                            <option value="">Select Gender</option>
-                            <option value="male" {% if user_roommate_profile.gender == 'male' %}selected{% endif %}>Male</option>
-                            <option value="female" {% if user_roommate_profile.gender == 'female' %}selected{% endif %}>Female</option>
-                            <option value="other" {% if user_roommate_profile.gender == 'other' %}selected{% endif %}>Other</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="sleep_schedule" class="block text-sm font-medium text-gray-700 mb-1">Sleep Schedule</label>
-                        <select id="sleep_schedule" name="sleep_schedule"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
-                            <option value="">Select Schedule</option>
-                            <option value="early_bird" {% if user_roommate_profile.sleep_schedule == 'early_bird' %}selected{% endif %}>Early Bird</option>
-                            <option value="night_owl" {% if user_roommate_profile.sleep_schedule == 'night_owl' %}selected{% endif %}>Night Owl</option>
-                            <option value="flexible" {% if user_roommate_profile.sleep_schedule == 'flexible' %}selected{% endif %}>Flexible</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="cleanliness" class="block text-sm font-medium text-gray-700 mb-1">Cleanliness</label>
-                        <select id="cleanliness" name="cleanliness"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
-                            <option value="">Select Cleanliness</option>
-                            <option value="very_tidy" {% if user_roommate_profile.cleanliness == 'very_tidy' %}selected{% endif %}>Very Tidy</option>
-                            <option value="average" {% if user_roommate_profile.cleanliness == 'average' %}selected{% endif %}>Average</option>
-                            <option value="relaxed" {% if user_roommate_profile.cleanliness == 'relaxed' %}selected{% endif %}>Relaxed</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="budget" class="block text-sm font-medium text-gray-700 mb-1">Max Budget (£/month)</label>
-                        <input type="number" id="budget" name="budget" value="{{ user_roommate_profile.budget|default:'' }}"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
-                               min="100" max="5000" placeholder="e.g., 800">
-                    </div>
-                    <div>
-                        <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Desired Location</label>
-                        <input type="text" id="location" name="location" value="{{ user_roommate_profile.location|default:'' }}"
-                               placeholder="e.g., East London"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
-                    </div>
+            <h3 id="rent-checker-modal-title" class="text-3xl font-bold text-center mb-8 text-gray-900">Check Your Rent Instantly</h3>
+            <form id="rent-checker-form" class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                <div>
+                    <label for="modal_postcode" class="block text-sm font-medium text-gray-700 mb-1">Postcode</label>
+                    <input type="text" id="modal_postcode" name="postcode" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., SW1A 0AA" required>
                 </div>
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Lifestyle Preferences</label>
-                    <div id="lifestyle-preferences-tags" class="tag-input-container">
-                        <!-- Tags will be injected here by JavaScript -->
-                    </div>
-                    <input type="hidden" id="lifestyle_preferences_hidden" name="lifestyle_preferences" value="{{ user_roommate_profile.lifestyle_preferences|default:'' }}">
+                <div>
+                    <label for="modal_bedrooms" class="block text-sm font-medium text-gray-700 mb-1">Bedrooms</label>
+                    <select id="modal_bedrooms" name="bedrooms" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <option value="studio">Studio</option>
+                        <option value="1">1 Bedroom</option>
+                        <option value="2" selected>2 Bedrooms</option>
+                        <option value="3">3 Bedrooms</option>
+                        <option value="4+">4+ Bedrooms</option>
+                    </select>
                 </div>
-                <div class="mt-4">
-                    <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                    <textarea id="bio" name="bio" rows="4"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
-                               placeholder="Tell us about yourself and what you're looking for... (max 500 words)">{{ user_roommate_profile.bio|default:'' }}</textarea>
-                </div>
-                <div class="mt-8 flex justify-end space-x-4">
-                    <button type="button" id="profile-form-cancel-btn" class="btn-secondary btn-hover-effect">Cancel</button>
-                    <button type="submit" class="btn-primary btn-hover-effect">Save Profile</button>
+                <div class="md:col-span-2">
+                    <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold text-lg">Check Price <i class="fas fa-arrow-right ml-2"></i></button>
                 </div>
             </form>
+            <div id="modal-rent-results" class="hidden mt-8 text-center">
+                <div id="modal-rent-prediction-loader" class="hidden">
+                    <div class="spinner w-10 h-10 border-4 border-gray-200 rounded-full mx-auto"></div>
+                    <p class="mt-3 text-gray-600 text-lg">Calculating your estimated rent...</p>
+                </div>
+                <!-- New structure for OpenAI insights -->
+                <div id="modal-rent-prediction-output" class="rent-prediction-output"></div>
+                <p id="modal-rent-prediction-message" class="rent-prediction-message"></p>
+
+                <div class="rent-insight-grid">
+                    <div class="insight-card">
+                        <h5><i class="fas fa-map-marker-alt"></i> Amenity Impact</h5>
+                        <p id="amenity-impact-output"></p>
+                    </div>
+                    <div class="insight-card">
+                        <h5><i class="fas fa-chart-line"></i> Market Trend</h5>
+                        <p id="market-trend-output"></p>
+                    </div>
+                    <div class="insight-card">
+                        <h5><i class="fas fa-dollar-sign"></i> Estimated Utilities</h5>
+                        <p id="utilities-cost-output"></p>
+                    </div>
+                    <div class="insight-card">
+                        <h5><i class="fas fa-city"></i> Estimated Council Tax</h5>
+                        <p id="council-tax-output"></p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Generic Activity/Service Details Modal -->
-    <div id="activity-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="activity-modal-title">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 relative transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
-            <button type="button" id="close-activity-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+    <!-- Landlord Reviews Modal -->
+    <div id="landlord-reviews-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="landlord-reviews-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
                 <i class="fas fa-times fa-lg"></i>
             </button>
-            <div id="activity-modal-content" class="text-left activity-detail-modal-content">
-                <!-- Activity/Service details will be injected here by JavaScript -->
+            <h3 id="landlord-reviews-modal-title" class="text-3xl font-bold text-center mb-8 text-gray-900">Submit a Landlord Review</h3>
+            <form id="review-form" class="space-y-6">
+                <div>
+                    <label for="review_landlord_name" class="block text-sm font-medium text-gray-700 mb-1">Landlord Name</label>
+                    <input type="text" id="review_landlord_name" name="landlord_name" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., John Smith" required>
+                </div>
+                <div>
+                    <label for="review_property_address" class="block text-sm font-medium text-gray-700 mb-1">Property Address</label>
+                    <input type="text" id="review_property_address" name="property_address" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., 10 Downing St, London" required>
+                </div>
+                <div>
+                    <label for="review_rating" class="block text-sm font-medium text-gray-700 mb-1">Rating (1-5 Stars)</label>
+                    <select id="review_rating" name="rating" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <option value="">Select Rating</option>
+                        <option value="1">1 Star - Very Poor</option>
+                        <option value="2">2 Stars - Poor</option>
+                        <option value="3">3 Stars - Average</option>
+                        <option value="4">4 Stars - Good</option>
+                        <option value="5">5 Stars - Excellent</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="review_comments" class="block text-sm font-medium text-gray-700 mb-1">Comments</label>
+                    <textarea id="review_comments" name="comments" rows="5" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="Share your experience..." required></textarea>
+                </div>
+                <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold text-lg">Submit Review <i class="fas fa-paper-plane ml-2"></i></button>
+            </form>
+            <div class="mt-10">
+                <h4 class="text-2xl font-bold mb-5 text-gray-900">Recent Reviews</h4>
+                <div id="recent-reviews-list" class="space-y-4">
+                    <!-- Reviews will be loaded here -->
+                    <p class="text-center text-gray-500 py-4">Loading recent reviews...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaint Submission Modal -->
+    <div id="complaint-submission-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="complaint-submission-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+            <h3 id="complaint-submission-modal-title" class="text-3xl font-bold text-center mb-8 text-gray-900">Submit a Complaint</h3>
+            <form id="complaint-form" class="space-y-6">
+                <div>
+                    <label for="complaint_issue_type" class="block text-sm font-medium text-gray-700 mb-1">Issue Type</label>
+                    <select id="complaint_issue_type" name="issue_type" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <option value="">Select Issue Type</option>
+                        <option value="unpaid_repairs">Unpaid Repairs</option>
+                        <option value="deposit_dispute">Deposit Dispute</option>
+                        <option value="poor_conditions">Poor Living Conditions</option>
+                        <option value="harassment">Harassment</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="complaint_property_address" class="block text-sm font-medium text-gray-700 mb-1">Property Address</label>
+                    <input type="text" id="complaint_property_address" name="property_address" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., 10 Downing St, London" required>
+                </div>
+                <div>
+                    <label for="complaint_landlord_name" class="block text-sm font-medium text-gray-700 mb-1">Landlord Name (Optional)</label>
+                    <input type="text" id="complaint_landlord_name" name="landlord_name" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., Jane Doe">
+                </div>
+                <div>
+                    <label for="complaint_description" class="block text-sm font-medium text-gray-700 mb-1">Description of Issue</label>
+                    <textarea id="complaint_description" name="description" rows="7" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="Describe your complaint in detail..." required></textarea>
+                </div>
+                <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button type="button" id="refine-complaint-btn" class="btn-secondary w-full sm:w-auto flex-1 py-3 rounded-lg font-medium">
+                        <i class="fas fa-magic mr-2"></i>Refine Text (AI)
+                    </button>
+                    <button type="submit" class="btn-primary w-full sm:w-auto flex-1 py-3 rounded-lg font-semibold">Submit Complaint <i class="fas fa-paper-plane ml-2"></i></button>
+                </div>
+            </form>
+            <div id="refined-text-loader" class="hidden text-center py-6">
+                <div class="spinner w-8 h-8 border-4 border-gray-200 rounded-full mx-auto"></div>
+                <p class="mt-3 text-gray-600 text-md">Refining with AI...</p>
+            </div>
+            <div id="refined-text-output" class="mt-6 p-6 bg-blue-50 rounded-lg border border-blue-200 hidden">
+                <h5 class="font-semibold text-gray-700 mb-3 text-lg">AI Refined Text:</h5>
+                <p id="refined-text-content" class="text-gray-800 leading-relaxed"></p>
+                <button id="use-refined-text-btn" class="mt-5 btn-primary px-4 py-2 rounded-lg text-md">Use This Text</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Community Forums Modal -->
+    <div id="community-forums-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="community-forums-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+            <h3 id="community-forums-modal-title" class="text-3xl font-bold text-center mb-8 text-gray-900">Community Forums</h3>
+            <div class="flex justify-center mb-8">
+                <button id="create-post-btn" class="btn-primary px-6 py-3 rounded-lg font-medium text-lg">
+                    <i class="fas fa-plus mr-2"></i>Create New Post
+                </button>
+            </div>
+
+            <div id="forum-post-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="forum-post-modal-title">
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative p-8">
+                    <button type="button" id="close-forum-post-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-times fa-lg"></i>
+                    </button>
+                    <form id="forum-post-form" class="space-y-6">
+                        <h3 id="forum-post-modal-title" class="text-3xl font-bold mb-6 text-gray-900">Create New Forum Post</h3>
+                        <div>
+                            <label for="post_category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <select id="post_category" name="category" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                                <option value="">Select Category</option>
+                                <option value="general">General Advice</option>
+                                <option value="legal">Legal Questions</option>
+                                <option value="roommates">Roommate Tips</option>
+                                <option value="landlords">Landlord Issues</option>
+                                <option value="housing_market">Housing Market</option>
+                            </select>
+                        </div>
+                        <div class="mt-4">
+                            <label for="post_title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                            <input type="text" id="post_title" name="title" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., Tips for dealing with noisy neighbours" required>
+                        </div>
+                        <div class="mt-4">
+                            <label for="post_content" class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                            <textarea id="post_content" name="content" rows="10" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="Write your post content here..." required></textarea>
+                        </div>
+                        <div class="mt-8 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                            <button type="button" id="generate-forum-idea-btn" class="btn-secondary w-full sm:w-auto flex-1 py-3 rounded-lg font-medium">
+                                <i class="fas fa-lightbulb mr-2"></i>Generate Idea (AI)
+                            </button>
+                            <button type="submit" class="btn-primary w-full sm:w-auto flex-1 py-3 rounded-lg font-semibold">Submit Post <i class="fas fa-paper-plane ml-2"></i></button>
+                        </div>
+                    </form>
+                    <div id="forum-idea-loader" class="hidden text-center py-6">
+                        <div class="spinner w-8 h-8 border-4 border-gray-200 rounded-full mx-auto"></div>
+                        <p class="mt-3 text-gray-600 text-md">Generating idea with AI...</p>
+                    </div>
+                    <div id="forum-idea-output" class="mt-6 p-6 bg-blue-50 rounded-lg border border-blue-200 hidden">
+                        <h5 class="font-semibold text-gray-700 mb-3 text-lg">AI Generated Idea:</h5>
+                        <p id="forum-idea-content" class="text-gray-800 leading-relaxed"></p>
+                        <button id="use-forum-idea-btn" class="mt-5 btn-primary px-4 py-2 rounded-lg text-md">Use This Idea</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10">
+                <h4 class="text-2xl font-bold mb-5 text-gray-900">Recent Forum Posts</h4>
+                <div id="recent-forum-posts-list" class="space-y-4">
+                    <!-- Forum posts will be loaded here -->
+                    <p class="text-center text-gray-500 py-4">Loading recent forum posts...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Support Modal -->
+    <div id="legal-support-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="legal-support-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+            <h3 id="legal-support-modal-title" class="text-3xl font-bold text-center mb-8 text-gray-900">Legal & Contract Support</h3>
+            <p class="text-gray-600 text-center mb-8 text-lg max-w-2xl mx-auto">
+                This section provides guidance on common legal and contract-related issues for renters.
+                While we don't offer legal advice, our tools can help you understand your rights.
+            </p>
+            <div class="grid grid-cols-1 gap-8">
+                <div class="bg-blue-50 p-8 rounded-lg text-center border border-blue-200 shadow-md">
+                    <i class="fas fa-info-circle text-blue-600 text-4xl mb-4"></i>
+                    <h4 class="text-xl font-semibold text-gray-800 mb-3">Understanding Your Tenancy Agreement</h4>
+                    <p class="text-gray-700 leading-relaxed">Learn about common clauses, your responsibilities, and landlord obligations with our comprehensive guides.</p>
+                    <button class="btn-primary mt-6 px-8 py-3 rounded-lg font-medium text-lg">
+                        <i class="fas fa-book-open mr-2"></i>Read Our Guides
+                    </button>
+                </div>
+                <div class="bg-green-50 p-8 rounded-lg text-center border border-green-200 shadow-md">
+                    <i class="fas fa-question-circle text-green-600 text-4xl mb-4"></i>
+                    <h4 class="text-xl font-semibold text-gray-800 mb-3">Ask a Quick Question (AI Powered)</h4>
+                    <p class="text-gray-700 leading-relaxed">Get instant, general information on UK rental laws and common issues. (Disclaimer: Not legal advice)</p>
+                    <button id="ask-legal-ai-btn" class="btn-primary mt-6 px-8 py-3 rounded-lg font-medium">
+                        <i class="fas fa-robot mr-2"></i>Ask AI
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Legal Question Modal -->
+            <div id="legal-ai-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="legal-ai-modal-title">
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative p-8">
+                    <button type="button" id="close-legal-ai-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-times fa-lg"></i>
+                    </button>
+                    <div class="space-y-6">
+                        <h3 id="legal-ai-modal-title" class="text-3xl font-bold mb-6 text-center text-gray-900">Ask Our AI Legal Assistant</h3>
+                        <p class="text-md text-gray-600 mb-4 text-center leading-relaxed">
+                            Please note: This AI provides general information based on UK rental laws and is not a substitute for professional legal advice.
+                        </p>
+                        <div class="mb-4">
+                            <label for="legal-query-input" class="block text-sm font-medium text-gray-700 mb-1">Your Question:</label>
+                            <textarea id="legal-query-input" rows="6" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., What are my rights regarding a broken boiler?"></textarea>
+                        </div>
+                        <button id="submit-legal-query-btn" class="btn-primary w-full py-3 rounded-lg font-semibold text-lg">Get AI Answer <i class="fas fa-robot ml-2"></i></button>
+                        
+                        <div id="legal-ai-loader" class="hidden text-center py-6">
+                            <div class="spinner w-8 h-8 border-4 border-gray-200 rounded-full mx-auto"></div>
+                            <p class="mt-3 text-gray-600 text-md">Generating answer...</p>
+                        </div>
+                        <div id="legal-ai-output" class="mt-6 p-6 bg-gray-50 rounded-lg border border-gray-200 hidden">
+                            <h5 class="font-semibold text-gray-700 mb-3 text-lg">AI Response:</h5>
+                            <p id="legal-ai-content" class="text-gray-800 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- NEW: Rental Contract Analyzer Modal -->
+    <div id="rental-contract-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="rental-contract-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+            <h3 id="rental-contract-modal-title" class="text-3xl font-bold text-center mb-8 text-gray-900">AI Rental Contract Analyzer</h3>
+            <p class="text-gray-600 text-center mb-6 text-lg max-w-2xl mx-auto">
+                Paste your rental contract text below for an AI-powered analysis of key terms, obligations, and potential issues under UK law.
+            </p>
+            <form id="rental-contract-form" class="space-y-6">
+                <div>
+                    <label for="contract_text" class="block text-sm font-medium text-gray-700 mb-1">Paste Contract Text Here</label>
+                    <textarea id="contract_text" name="contract_text" rows="15" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., 'This Tenancy Agreement is made on...'"></textarea>
+                </div>
+                <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold text-lg">Analyze Contract <i class="fas fa-robot ml-2"></i></button>
+            </form>
+            <div id="contract-analysis-loader" class="hidden text-center py-6">
+                <div class="spinner w-10 h-10 border-4 border-gray-200 rounded-full mx-auto"></div>
+                <p class="mt-3 text-gray-600 text-lg">Analyzing your contract with AI...</p>
+            </div>
+            <div id="contract-analysis-output" class="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200 hidden">
+                <h4 class="font-semibold text-gray-800 mb-4 text-xl">AI Analysis Result:</h4>
+                <div id="analysis-content" class="text-gray-800 leading-relaxed prose max-w-none">
+                    <!-- AI analysis will be injected here -->
+                </div>
+                <p class="text-sm text-red-600 mt-4 font-medium">
+                    Disclaimer: This analysis is for informational purposes only and does not constitute legal advice. For specific legal guidance, consult a qualified solicitor or housing expert.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Rent Declaration Check Modal -->
+    <div id="rent-declaration-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="rent-declaration-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+            <h3 id="rent-declaration-modal-title" class="text-3xl font-bold text-center mb-8 text-gray-900">Rent Declaration Check</h3>
+            <p class="text-gray-600 text-center mb-6 text-lg max-w-2xl mx-auto">
+                Enter your rent and council tax details to check for potential discrepancies.
+            </p>
+            <form id="rent-declaration-form" class="space-y-6">
+                <div>
+                    <label for="declaration_postcode" class="block text-sm font-medium text-gray-700 mb-1">Property Postcode</label>
+                    <input type="text" id="declaration_postcode" name="postcode" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., SW1A 0AA" required>
+                </div>
+                <div>
+                    <label for="declaration_bedrooms" class="block text-sm font-medium text-gray-700 mb-1">Number of Bedrooms</label>
+                    <select id="declaration_bedrooms" name="bedrooms" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <option value="">Select Bedrooms</option>
+                        <option value="studio">Studio</option>
+                        <option value="1">1 Bedroom</option>
+                        <option value="2">2 Bedrooms</option>
+                        <option value="3">3 Bedrooms</option>
+                        <option value="4+">4+ Bedrooms</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="actual_rent_paid" class="block text-sm font-medium text-gray-700 mb-1">Actual Rent Paid (£/month)</label>
+                    <input type="number" id="actual_rent_paid" name="actual_rent_paid" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="e.g., 1200" required step="0.01">
+                </div>
+                <div>
+                    <label for="council_tax_band" class="block text-sm font-medium text-gray-700 mb-1">Council Tax Band</label>
+                    <select id="council_tax_band" name="council_tax_band" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <option value="">Select Band</option>
+                        <option value="A">Band A</option>
+                        <option value="B">Band B</option>
+                        <option value="C">Band C</option>
+                        <option value="D">Band D</option>
+                        <option value="E">Band E</option>
+                        <option value="F">Band F</option>
+                        <option value="G">Band G</option>
+                        <option value="H">Band H</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold text-lg">Check for Discrepancy <i class="fas fa-magnifying-glass-dollar ml-2"></i></button>
+            </form>
+            <div id="declaration-analysis-loader" class="hidden text-center py-6">
+                <div class="spinner w-10 h-10 border-4 border-gray-200 rounded-full mx-auto"></div>
+                <p class="mt-3 text-gray-600 text-lg">Analyzing for discrepancies...</p>
+            </div>
+            <div id="declaration-analysis-output" class="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200 hidden">
+                <h4 class="font-semibold text-gray-800 mb-4 text-xl">Analysis Result:</h4>
+                <div id="declaration-analysis-content" class="text-gray-800 leading-relaxed prose max-w-none">
+                    <!-- AI analysis will be injected here -->
+                </div>
+                <p class="text-sm text-red-600 mt-4 font-medium">
+                    Disclaimer: This analysis is for informational purposes only and does not constitute legal advice. For specific legal guidance, consult a qualified solicitor or housing expert.
+                </p>
             </div>
         </div>
     </div>
@@ -1180,190 +1193,166 @@
             }, 3000);
         }
 
-        // --- Dashboard Navigation Logic ---
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const navLinks = document.querySelectorAll('.sidebar nav a');
-        const contentSections = document.querySelectorAll('.content-section');
+        // --- Service Modals Logic ---
+        const serviceCards = document.querySelectorAll('.service-card[data-service-target]');
+        const closeModalsBtns = document.querySelectorAll('.close-modal-btn');
 
-        // Open sidebar on mobile
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.remove('hidden-mobile');
-            sidebar.classList.add('open-mobile');
-            sidebarOverlay.classList.remove('hidden');
-            sidebarToggle.setAttribute('aria-expanded', 'true');
-            sidebar.focus();
-        });
-
-        // Close sidebar when clicking overlay or pressing Escape
-        sidebarOverlay.addEventListener('click', closeSidebar);
-        sidebar.addEventListener('keydown', e => {
-            if (e.key === "Escape") closeSidebar();
-        });
-
-        function closeSidebar() {
-            sidebar.classList.add('hidden-mobile');
-            sidebar.classList.remove('open-mobile');
-            sidebarOverlay.classList.add('hidden');
-            sidebarToggle.setAttribute('aria-expanded', 'false');
-        }
-
-        // Responsive behavior
-        function handleResize() {
-            if (window.innerWidth > 900) {
-                sidebar.classList.remove('hidden-mobile');
-                sidebar.classList.remove('open-mobile');
-                sidebarOverlay.classList.add('hidden');
-                sidebarToggle.setAttribute('aria-expanded', 'true');
-                document.getElementById('mainContent').style.marginLeft = '250px';
-            } else {
-                sidebar.classList.add('hidden-mobile');
-                sidebar.classList.remove('open-mobile');
-                sidebarOverlay.classList.add('hidden');
-                sidebarToggle.setAttribute('aria-expanded', 'false');
-                document.getElementById('mainContent').style.marginLeft = '0';
-            }
-        }
-        window.addEventListener('resize', handleResize);
-        window.addEventListener('DOMContentLoaded', handleResize);
-
-
-        // Switch content sections based on sidebar navigation
-        navLinks.forEach(item => {
-            item.addEventListener('click', (e) => {
-                const targetId = item.dataset.contentTarget;
-                if (targetId) {
-                    e.preventDefault();
-                    navLinks.forEach(nav => nav.classList.remove('active'));
-                    item.classList.add('active');
-
-                    contentSections.forEach(section => section.classList.add('hidden'));
-                    const targetSection = document.getElementById(targetId);
-                    if (targetSection) {
-                        targetSection.classList.remove('hidden');
-                    }
-
-                    if (window.innerWidth <= 900) {
-                        closeSidebar();
-                    }
+        serviceCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const targetModalId = card.dataset.serviceTarget;
+                const targetModal = document.getElementById(targetModalId);
+                if (targetModal) {
+                    targetModal.classList.remove('hidden');
+                    targetModal.classList.add('flex');
                 }
             });
         });
 
-        // Initialize active sidebar item and content section on load
-        document.addEventListener('DOMContentLoaded', () => {
-            const initialSectionId = window.location.hash ? window.location.hash.substring(1) : 'dashboard-home';
-            const initialNavItem = document.querySelector(`.sidebar-nav-item[data-content-target="${initialSectionId}"]`);
-            const initialContentSection = document.getElementById(initialSectionId);
-
-            if (initialNavItem) {
-                initialNavItem.classList.add('active');
-            } else {
-                document.querySelector('.sidebar-nav-item[data-content-target="dashboard-home"]').classList.add('active');
-            }
-
-            if (initialContentSection) {
-                initialContentSection.classList.remove('hidden');
-            } else {
-                document.getElementById('dashboard-home').classList.remove('hidden');
-            }
+        closeModalsBtns.forEach(button => {
+            button.addEventListener('click', () => {
+                const modal = button.closest('.fixed.inset-0');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
         });
 
+        // --- Rent Checker Form Logic ---
+        const rentCheckerForm = document.getElementById('rent-checker-form');
+        const modalRentResults = document.getElementById('modal-rent-results');
+        const modalRentPredictionLoader = document.getElementById('modal-rent-prediction-loader');
+        const modalRentPredictionOutput = document.getElementById('modal-rent-prediction-output');
+        const modalRentPredictionMessage = document.getElementById('modal-rent-prediction-message');
+        const amenityImpactOutput = document.getElementById('amenity-impact-output');
+        const marketTrendOutput = document.getElementById('market-trend-output');
+        const utilitiesCostOutput = document.getElementById('utilities-cost-output');
+        const councilTaxOutput = document.getElementById('council-tax-output');
+        const heroRentCheckerForm = document.getElementById('hero-rent-checker-form');
+        const heroModalPostcode = document.getElementById('hero_modal_postcode');
+        const heroModalBedrooms = document.getElementById('hero_modal_bedrooms');
 
-        // --- Roommate Profile Modal Logic ---
-        const profileModal = document.getElementById('profile-modal');
-        const editProfileBtnDashboardHome = document.getElementById('edit-profile-btn-dashboard-home');
-        const editProfileBtnRoommateSection = document.getElementById('edit-profile-btn-roommate-section');
-        const closeProfileModalBtn = document.getElementById('close-profile-modal-btn');
-        const profileFormCancelBtn = document.getElementById('profile-form-cancel-btn');
-        const roommateProfileForm = document.getElementById('roommate-profile-form');
-        const lifestylePreferencesTagsContainer = document.getElementById('lifestyle-preferences-tags');
-        const lifestylePreferencesHiddenInput = document.getElementById('lifestyle_preferences_hidden');
-        const profileLocationInput = document.getElementById('location');
 
-        // Pre-defined lifestyle preferences
-        const ALL_LIFESTYLE_PREFERENCES = [
-            'Quiet', 'Social', 'Pet-Friendly', 'Clean', 'Messy', 'Early Bird',
-            'Night Owl', 'Studious', 'Party-goer', 'Vegetarian', 'Vegan',
-            'Cooks Often', 'Rarely Cooks', 'Non-Smoker', 'Smoker', 'Introvert', 'Extrovert'
-        ];
-
-        // Function to render lifestyle preference tags
-        function renderLifestylePreferenceTags(selectedPreferences = []) {
-            if (!lifestylePreferencesTagsContainer) return;
-            lifestylePreferencesTagsContainer.innerHTML = ''; // Clear existing tags
-            ALL_LIFESTYLE_PREFERENCES.forEach(pref => {
-                const tag = document.createElement('span');
-                tag.className = 'tag';
-                tag.textContent = pref;
-                if (selectedPreferences.includes(pref)) {
-                    tag.classList.add('selected');
-                }
-                tag.addEventListener('click', () => {
-                    tag.classList.toggle('selected');
-                    updateLifestylePreferencesHiddenInput();
-                });
-                lifestylePreferencesTagsContainer.appendChild(tag);
-            });
-        }
-
-        // Function to update the hidden input based on selected tags
-        function updateLifestylePreferencesHiddenInput() {
-            if (!lifestylePreferencesTagsContainer || !lifestylePreferencesHiddenInput) return;
-            const selectedTags = Array.from(lifestylePreferencesTagsContainer.querySelectorAll('.tag.selected')).map(tag => tag.textContent);
-            lifestylePreferencesHiddenInput.value = selectedTags.join(', ');
-        }
-
-        // Event listeners for opening profile modal from different buttons
-        const openProfileModal = () => {
-            const currentPrefsString = lifestylePreferencesHiddenInput ? lifestylePreferencesHiddenInput.value : '';
-            const currentPrefsArray = currentPrefsString.split(',').map(item => item.trim()).filter(item => item.length > 0);
-            renderLifestylePreferenceTags(currentPrefsArray);
-            if (profileModal) {
-                profileModal.classList.remove('hidden');
-                profileModal.classList.add('flex');
-            }
-        };
-        if (editProfileBtnDashboardHome) {
-            editProfileBtnDashboardHome.addEventListener('click', openProfileModal);
-        }
-        if (editProfileBtnRoommateSection) {
-            editProfileBtnRoommateSection.addEventListener('click', openProfileModal);
-        }
-
-        if (closeProfileModalBtn) {
-            closeProfileModalBtn.addEventListener('click', () => {
-                if (profileModal) {
-                    profileModal.classList.add('hidden');
-                    profileModal.classList.remove('flex');
-                }
-            });
-        }
-
-        if (profileFormCancelBtn) {
-            profileFormCancelBtn.addEventListener('click', () => {
-                if (profileModal) {
-                    profileModal.classList.add('hidden');
-                    profileModal.classList.remove('flex');
-                }
-            });
-        }
-
-        if (roommateProfileForm) {
-            roommateProfileForm.addEventListener('submit', async (e) => {
+        if (heroRentCheckerForm) {
+            heroRentCheckerForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const submitBtn = roommateProfileForm.querySelector('button[type="submit"]');
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+                const heroPostcode = heroModalPostcode.value;
+                const heroBedrooms = heroModalBedrooms.value;
 
-                const formData = new FormData(roommateProfileForm);
+                // Open the main rent checker modal
+                const rentCheckerModal = document.getElementById('rent-checker-modal');
+                if (rentCheckerModal) {
+                    rentCheckerModal.classList.remove('hidden');
+                    rentCheckerModal.classList.add('flex');
+
+                    // Pre-fill modal form fields
+                    if (document.getElementById('modal_postcode')) document.getElementById('modal_postcode').value = heroPostcode;
+                    if (document.getElementById('modal_bedrooms')) document.getElementById('modal_bedrooms').value = heroBedrooms;
+                }
+            });
+        }
+        // Assuming setupAddressSuggestions is defined somewhere accessible (e.g., in main.js)
+        // setupAddressSuggestions(heroModalPostcode);
+
+
+        if (rentCheckerForm) {
+            rentCheckerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                modalRentResults.classList.add('hidden');
+                modalRentPredictionLoader.classList.remove('hidden');
+                modalRentPredictionOutput.textContent = '';
+                modalRentPredictionMessage.textContent = '';
+                amenityImpactOutput.textContent = '';
+                marketTrendOutput.textContent = '';
+                utilitiesCostOutput.textContent = '';
+                councilTaxOutput.textContent = '';
+
+
+                const formData = new FormData(rentCheckerForm);
                 const data = Object.fromEntries(formData.entries());
-                data.age = data.age ? parseInt(data.age) : null;
-                data.budget = data.budget ? parseInt(data.budget) : null;
 
                 try {
-                    const response = await fetch('/api/save_roommate_profile/', {
+                    const response = await fetch('/api/predict_rent/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+
+                    modalRentPredictionLoader.classList.add('hidden');
+                    modalRentResults.classList.remove('hidden');
+
+                    if (result.status === 'success') {
+                        modalRentPredictionOutput.textContent = result.data.predicted_rent;
+                        modalRentPredictionMessage.textContent = result.data.range; // Range is now a separate field
+
+                        // Populate new insight fields
+                        amenityImpactOutput.textContent = result.data.amenity_impact;
+                        marketTrendOutput.textContent = result.data.market_trend;
+                        utilitiesCostOutput.textContent = `£${result.data.cost_breakdown.utilities || 'N/A'}`;
+                        councilTaxOutput.textContent = `£${result.data.cost_breakdown.council_tax || 'N/A'}`;
+
+                    } else {
+                        modalRentPredictionOutput.textContent = 'Error';
+                        modalRentPredictionMessage.textContent = result.message || 'Failed to predict rent.';
+                        showToast(result.message || 'Failed to predict rent.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    modalRentPredictionLoader.classList.add('hidden');
+                    modalRentResults.classList.remove('hidden');
+                    modalRentPredictionOutput.textContent = 'Error';
+                    modalRentPredictionMessage.textContent = 'Network error. Please try again.';
+                    showToast('Network error. Please try again.', 'error');
+                }
+            });
+        }
+
+        // --- Landlord Review Form Logic ---
+        const reviewForm = document.getElementById('review-form');
+        const recentReviewsList = document.getElementById('recent-reviews-list');
+
+        async function fetchRecentReviews() {
+            try {
+                const response = await fetch('/api/reviews/');
+                const result = await response.json();
+                if (result.status === 'success') {
+                    recentReviewsList.innerHTML = ''; // Clear existing
+                    if (result.data.reviews.length > 0) {
+                        result.data.reviews.forEach(review => {
+                            const reviewItem = document.createElement('div');
+                            reviewItem.className = 'bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100';
+                            reviewItem.innerHTML = `
+                                <p class="font-semibold text-gray-800">${review.landlord_name} - <span class="text-yellow-500">${'★'.repeat(review.rating)}</span></p>
+                                <p class="text-sm text-gray-600 mt-1">"${review.comments}"</p>
+                                <p class="text-xs text-gray-400 mt-2">Reviewed by ${review.user__username} on ${new Date(review.reviewed_at).toLocaleDateString()}</p>
+                            `;
+                            recentReviewsList.appendChild(reviewItem);
+                        });
+                    } else {
+                        recentReviewsList.innerHTML = '<p class="text-center text-gray-500 py-4">No reviews yet.</p>';
+                    }
+                } else {
+                    recentReviewsList.innerHTML = `<p class="text-center text-red-500 py-4">Failed to load reviews: ${result.message || 'Unknown error'}</p>`;
+                }
+            } catch (error) {
+                console.error('Error fetching reviews:', error);
+                recentReviewsList.innerHTML = '<p class="text-center text-red-500 py-4">Network error loading reviews.</p>';
+            }
+        }
+
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(reviewForm);
+                const data = Object.fromEntries(formData.entries());
+                data.rating = parseInt(data.rating); // Ensure rating is an integer
+
+                try {
+                    const response = await fetch('/api/submit_review/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1374,351 +1363,464 @@
                     const result = await response.json();
                     if (result.status === 'success') {
                         showToast(result.message, 'success');
-                        if (profileModal) {
-                            profileModal.classList.add('hidden');
-                            profileModal.classList.remove('flex');
-                        }
-                        location.reload();
+                        reviewForm.reset(); // Clear form
+                        fetchRecentReviews(); // Reload reviews
                     } else {
-                        showToast(result.message || 'Failed to save profile.', 'error');
-                        if (profileModal) {
-                            profileModal.classList.remove('hidden');
-                            profileModal.classList.add('flex');
-                        }
+                        showToast(result.message || 'Failed to submit review.', 'error');
+                        console.error('Error submitting review:', result.errors);
                     }
                 } catch (error) {
                     console.error('Network error:', error);
                     showToast('Network error. Please try again.', 'error');
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Save Profile';
+                }
+            });
+            fetchRecentReviews(); // Load reviews on modal open
+        }
+
+        // --- Complaint Form Logic ---
+        const complaintForm = document.getElementById('complaint-form');
+        const refineComplaintBtn = document.getElementById('refine-complaint-btn');
+        const refinedTextLoader = document.getElementById('refined-text-loader');
+        const refinedTextOutput = document.getElementById('refined-text-output');
+        const refinedTextContent = document.getElementById('refined-text-content');
+        const useRefinedTextBtn = document.getElementById('use-refined-text-btn');
+        const complaintDescription = document.getElementById('complaint_description');
+
+        if (complaintForm) {
+            refineComplaintBtn.addEventListener('click', async () => {
+                const originalText = complaintDescription.value;
+                if (!originalText.trim()) {
+                    showToast('Please enter text to refine.', 'error');
+                    return;
+                }
+
+                refinedTextOutput.classList.add('hidden');
+                refinedTextLoader.classList.remove('hidden');
+
+                try {
+                    const response = await fetch('/api/refine_text/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ text: originalText })
+                    });
+                    const result = await response.json();
+
+                    refinedTextLoader.classList.add('hidden');
+                    refinedTextOutput.classList.remove('hidden');
+
+                    if (result.status === 'success') {
+                        refinedTextContent.textContent = result.data.refined_text;
+                    } else {
+                        refinedTextContent.textContent = result.message || 'Failed to refine text.';
+                        showToast(result.message || 'Failed to refine text.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    refinedTextLoader.classList.add('hidden');
+                    refinedTextOutput.classList.remove('hidden');
+                    if (refinedTextContent) refinedTextContent.textContent = 'Network error. Please try again.';
+                    showToast('Network error. Please try again.', 'error');
                 }
             });
         }
 
-
-        // --- Roommate Match Finder Logic (Swipe UI) ---
-        const findMatchesBtn = document.getElementById('find-matches-btn');
-        const roommateMatchesLoader = document.getElementById('roommate-matches-loader');
-        const roommateMatchCardDisplay = document.getElementById('roommate-match-card-display');
-        const roommatePrompt = document.getElementById('roommate-prompt');
-        const noMoreMatchesPrompt = document.getElementById('no-more-matches-prompt');
-        const resetMatchesBtn = document.getElementById('reset-matches-btn');
-        const swipeButtonsContainer = document.getElementById('swipe-buttons-container');
-        const skipMatchBtn = document.getElementById('skip-match-btn');
-        const likeMatchBtn = document.getElementById('like-match-btn');
-        const findMatchesBtnInner = document.getElementById('find-matches-btn-inner');
-
-        let currentMatches = [];
-        let currentMatchIndex = 0;
-
-        function displayCurrentMatch() {
-            if (!roommateMatchCardDisplay || !roommatePrompt || !noMoreMatchesPrompt || !swipeButtonsContainer) return;
-
-            roommateMatchCardDisplay.innerHTML = '';
-            roommatePrompt.classList.add('hidden');
-            noMoreMatchesPrompt.classList.add('hidden');
-
-            if (currentMatchIndex < currentMatches.length) {
-                const match = currentMatches[currentMatchIndex];
-                const matchCard = document.createElement('div');
-                matchCard.className = 'roommate-match-card glass-card';
-                matchCard.innerHTML = `
-                    <img src="${match.avatar_url}" alt="${match.name}" class="mx-auto mb-4 w-24 h-24 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/96x96/cccccc/ffffff?text=User'">
-                    <h4 class="text-3xl font-bold text-gray-900">${match.name}, ${match.age || 'N/A'}</h4>
-                    <p class="text-lg text-gray-600 mb-2">${match.location || 'N/A'}</p>
-                    <div class="compatibility-score">${match.compatibility_score || 'N/A'}% Match</div>
-                    <p class="text-gray-700 text-base italic leading-relaxed mt-2">
-                        ${match.bio || 'No bio provided.'}
-                    </p>
-                    <button class="match-details-btn btn-secondary mt-4 btn-hover-effect" data-match='${JSON.stringify(match)}'>View Details</button>
-                `;
-                roommateMatchCardDisplay.appendChild(matchCard);
-                swipeButtonsContainer.classList.remove('hidden');
-
-                matchCard.querySelector('.match-details-btn').addEventListener('click', (e) => {
-                    const matchData = JSON.parse(e.target.dataset.match);
-                    displayActivityDetails('Liked Profile', matchData);
-                });
-
-            } else {
-                roommateMatchCardDisplay.innerHTML = '';
-                swipeButtonsContainer.classList.add('hidden');
-                noMoreMatchesPrompt.classList.remove('hidden');
-            }
+        if (useRefinedTextBtn) {
+            useRefinedTextBtn.addEventListener('click', () => {
+                if (complaintDescription && refinedTextContent) complaintDescription.value = refinedTextContent.textContent;
+                if (refinedTextOutput) refinedTextOutput.classList.add('hidden');
+            });
         }
 
-        async function fetchRoommateMatches() {
-            if (!roommatePrompt || !noMoreMatchesPrompt || !roommateMatchesLoader || !roommateMatchCardDisplay || !swipeButtonsContainer) return;
+        if (complaintForm) {
+            complaintForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(complaintForm);
+                const data = Object.fromEntries(formData.entries());
 
-            roommatePrompt.classList.add('hidden');
-            noMoreMatchesPrompt.classList.add('hidden');
-            roommateMatchesLoader.classList.remove('hidden');
-            roommateMatchCardDisplay.innerHTML = '';
-            swipeButtonsContainer.classList.add('hidden');
-
-            try {
-                const result = await fetch('/api/find_roommate_matches/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify({})
-                });
-                const data = await result.json();
-
-                roommateMatchesLoader.classList.add('hidden');
-
-                if (data.status === 'success' && data.data && data.data.matches) {
-                    currentMatches = data.data.matches;
-                    currentMatchIndex = 0;
-                    if (currentMatches.length > 0) {
-                        displayCurrentMatch();
+                try {
+                    const response = await fetch('/api/submit_complaint/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showToast(result.message, 'success');
+                        complaintForm.reset(); // Clear form
+                        if (refinedTextOutput) refinedTextOutput.classList.add('hidden'); // Hide refined text
                     } else {
-                        noMoreMatchesPrompt.classList.remove('hidden');
+                        showToast(result.message || 'Failed to submit complaint.', 'error');
+                        console.error('Error submitting complaint:', result.errors);
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    showToast('Network error. Please try again.', 'error');
+                }
+            });
+        }
+
+        // --- Community Forums Modal Logic ---
+        const createPostBtn = document.getElementById('create-post-btn');
+        const forumPostModal = document.getElementById('forum-post-modal');
+        const closeForumPostModalBtn = document.getElementById('close-forum-post-modal-btn');
+        const forumPostForm = document.getElementById('forum-post-form');
+        const generateForumIdeaBtn = document.getElementById('generate-forum-idea-btn');
+        const forumIdeaLoader = document.getElementById('forum-idea-loader');
+        const forumIdeaOutput = document.getElementById('forum-idea-output');
+        const forumIdeaContent = document.getElementById('forum-idea-content');
+        const useForumIdeaBtn = document.getElementById('use-forum-idea-btn');
+        const postTitle = document.getElementById('post_title');
+        const postContent = document.getElementById('post_content');
+        const recentForumPostsList = document.getElementById('recent-forum-posts-list');
+
+        async function fetchRecentForumPosts() {
+            try {
+                const response = await fetch('/api/forum_posts/');
+                const result = await response.json();
+                if (result.status === 'success') {
+                    recentForumPostsList.innerHTML = ''; // Clear existing
+                    if (result.data.posts.length > 0) {
+                        result.data.posts.forEach(post => {
+                            const postItem = document.createElement('div');
+                            postItem.className = 'bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100';
+                            postItem.innerHTML = `
+                                <p class="font-semibold text-gray-800">${post.title} - <span class="text-indigo-600">${post.category}</span></p>
+                                <p class="text-sm text-gray-600 mt-1">"${post.content.substring(0, 100)}..."</p>
+                                <p class="text-xs text-gray-400 mt-2">By ${post.user__username} on ${new Date(post.created_at).toLocaleDateString()}</p>
+                            `;
+                            recentForumPostsList.appendChild(postItem);
+                        });
+                    } else {
+                        recentForumPostsList.innerHTML = '<p class="text-center text-gray-500 py-4">No posts yet.</p>';
                     }
                 } else {
-                    showToast(data.message || 'Failed to find matches.', 'error');
-                    roommatePrompt.classList.remove('hidden');
+                    recentForumPostsList.innerHTML = `<p class="text-center text-red-500 py-4">Failed to load posts: ${result.message || 'Unknown error'}</p>`;
                 }
             } catch (error) {
-                console.error('Network error:', error);
-                roommateMatchesLoader.classList.add('hidden');
-                showToast('Network error. Please try again.', 'error');
-                roommatePrompt.classList.remove('hidden');
+                console.error('Error fetching forum posts:', error);
+                recentForumPostsList.innerHTML = '<p class="text-center text-red-500 py-4">Network error loading posts.</p>';
             }
         }
 
-        async function animateAndAdvance(direction) {
-            const currentCard = roommateMatchCardDisplay.querySelector('.roommate-match-card');
-            if (currentCard) {
-                if (direction === 'like') {
-                    const likedMatchData = currentMatches[currentMatchIndex];
-                    const dataToSend = {
-                        name: likedMatchData.name || '',
-                        age: parseInt(likedMatchData.age) || null,
-                        gender: likedMatchData.gender || '',
-                        location: likedMatchData.location || '',
-                        budget: parseInt(likedMatchData.budget) || null,
-                        bio: likedMatchData.bio || '',
-                        compatibility_score: parseInt(likedMatchData.compatibility_score) || null,
-                        avatar_url: likedMatchData.avatar_url || ''
-                    };
-
-                    try {
-                        const saveResponse = await fetch('/api/save_liked_profile/', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': '{{ csrf_token }}'
-                            },
-                            body: JSON.stringify(dataToSend)
-                        });
-                        const saveResult = await saveResponse.json();
-                        if (saveResult.status === 'success') {
-                            showToast(saveResult.message, 'success');
-                            currentCard.classList.add('swiping-right');
-                            currentCard.addEventListener('transitionend', () => {
-                                currentMatchIndex++;
-                                displayCurrentMatch();
-                            }, { once: true });
-                        } else {
-                            showToast(saveResult.message || 'Failed to save liked profile.', 'error');
-                            console.error('Error saving liked profile:', saveResult.errors);
-                        }
-                    } catch (error) {
-                        console.error('Network error saving liked profile:', error);
-                        showToast('Network error saving liked profile. Please try again.', 'error');
-                    }
-                } else { // If skipping
-                    currentCard.classList.add('swiping-left');
-                    currentCard.addEventListener('transitionend', () => {
-                        currentMatchIndex++;
-                        displayCurrentMatch();
-                    }, { once: true });
+        if (createPostBtn) {
+            createPostBtn.addEventListener('click', () => {
+                if (forumPostModal) {
+                    forumPostModal.classList.remove('hidden');
+                    forumPostModal.classList.add('flex');
                 }
-            }
-        }
-
-        if (findMatchesBtn) {
-            findMatchesBtn.addEventListener('click', fetchRoommateMatches);
-        }
-
-        if (findMatchesBtnInner) {
-            findMatchesBtnInner.addEventListener('click', fetchRoommateMatches);
-        }
-
-        if (resetMatchesBtn) {
-            resetMatchesBtn.addEventListener('click', fetchRoommateMatches);
-        }
-
-        if (skipMatchBtn) {
-            skipMatchBtn.addEventListener('click', () => animateAndAdvance('skip'));
-        }
-
-        if (likeMatchBtn) {
-            likeMatchBtn.addEventListener('click', () => animateAndAdvance('like'));
-        }
-
-        // --- Generic Activity/Service Details Modal Logic ---
-        const activityDetailsModal = document.getElementById('activity-details-modal');
-        const closeActivityModalBtn = document.getElementById('close-activity-modal-btn');
-        const activityModalContent = document.getElementById('activity-modal-content');
-
-        function displayActivityDetails(activityType, details) {
-            if (!activityModalContent || !activityDetailsModal) return;
-
-            activityModalContent.innerHTML = '';
-            let contentHtml = `<h3 class="text-2xl font-bold text-gray-900 mb-4">${activityType} Details</h3>`;
-
-            if (activityType === 'Liked Profile') {
-                contentHtml += `
-                    <img src="${details.avatar_url}" alt="${details.name}" class="mx-auto mb-4 w-24 h-24 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/96x96/cccccc/ffffff?text=User'">
-                    <h4 class="text-xl font-bold text-gray-900 mb-2">${details.name}, ${details.age || 'N/A'}</h4>
-                    <p class="text-md text-gray-700 mb-4">${details.gender || 'N/A'} | ${details.location || 'N/A'}</p>
-                    <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-money-bill-wave"></i><span class="font-semibold">Budget:</span> £${details.budget || 'N/A'} / month</div>
-                        <div class="detail-item"><i class="fas fa-user-friends"></i><span class="font-semibold">Compatibility:</span> <span class="compatibility-score-modal">${details.compatibility_score || 'N/A'}%</span></div>
-                        <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> ${details.bio || 'No bio provided.'}</div>
-                    </div>
-                `;
-            } else if (activityType === 'Rent Check') {
-                contentHtml += `
-                    <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Postcode:</span> ${details.postcode}</div>
-                        <div class="detail-item"><i class="fas fa-bed"></i><span class="font-semibold">Bedrooms:</span> ${details.bedrooms}</div>
-                        <div class="detail-item"><i class="fas fa-gbp-sign"></i><span class="font-semibold">Estimated Rent:</span> £${details.estimated_rent} / month</div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Checked At:</span> ${new Date(details.checked_at).toLocaleString()}</div>
-                    </div>
-                `;
-            } else if (activityType === 'Review') {
-                contentHtml += `
-                    <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-user-tie"></i><span class="font-semibold">Landlord:</span> ${details.landlord_name}</div>
-                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Property:</span> ${details.property_address}</div>
-                        <div class="detail-item"><i class="fas fa-star"></i><span class="font-semibold">Rating:</span> ${details.rating} Stars</div>
-                        <div class="detail-item"><i class="fas fa-comment-alt"></i><span class="font-semibold">Comments:</span> <p>${details.comments}</p></div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Reviewed At:</span> ${new Date(details.reviewed_at).toLocaleString()}</div>
-                        <div class="detail-item"><i class="fas fa-user"></i><span class="font-semibold">Reviewer:</span> ${details.reviewer}</div>
-                    </div>
-                `;
-            } else if (activityType === 'Complaint') {
-                contentHtml += `
-                    <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-exclamation-triangle"></i><span class="font-semibold">Issue Type:</span> ${details.issue_type}</div>
-                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Property:</span> ${details.property_address}</div>
-                        <div class="detail-item"><i class="fas fa-user-tie"></i><span class="font-semibold">Landlord (Optional):</span> ${details.landlord_name || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Description:</span> <p>${details.description}</p></div>
-                        <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Status:</span> ${details.status}</div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Submitted At:</span> ${new Date(details.submitted_at).toLocaleString()}</div>
-                    </div>
-                `;
-            } else if (activityType === 'Forum Post') {
-                contentHtml += `
-                    <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-heading"></i><span class="font-semibold">Title:</span> ${details.title}</div>
-                        <div class="detail-item"><i class="fas fa-tags"></i><span class="font-semibold">Category:</span> ${details.category}</div>
-                        <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Content:</span> <p>${details.content}</p></div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Posted At:</span> ${new Date(details.created_at).toLocaleString()}</div>
-                        <div class="detail-item"><i class="fas fa-user"></i><span class="font-semibold">Author:</span> ${details.author}</div>
-                    </div>
-                `;
-            } else if (activityType === 'Contract Analysis') {
-                contentHtml += `
-                    <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Analyzed At:</span> ${new Date(details.analyzed_at).toLocaleString()}</div>
-                        <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Original Text:</span> <p class="whitespace-pre-wrap text-sm max-h-40 overflow-y-auto border p-2 rounded">${details.original_text}</p></div>
-                        <div class="detail-item"><i class="fas fa-robot"></i><span class="font-semibold">AI Analysis:</span> <p class="whitespace-pre-wrap text-sm max-h-60 overflow-y-auto border p-2 rounded">${details.analysis_result}</p></div>
-                    </div>
-                `;
-            } else if (activityType === 'Rent Declaration Check') {
-                contentHtml += `
-                    <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Postcode:</span> ${details.postcode}</div>
-                        <div class="detail-item"><i class="fas fa-bed"></i><span class="font-semibold">Bedrooms:</span> ${details.bedrooms}</div>
-                        <div class="detail-item"><i class="fas fa-pound-sign"></i><span class="font-semibold">Actual Rent Paid:</span> £${details.actual_rent_paid} / month</div>
-                        <div class="detail-item"><i class="fas fa-city"></i><span class="font-semibold">Council Tax Band:</span> ${details.council_tax_band}</div>
-                        <div class="detail-item"><i class="fas fa-calculator"></i><span class="font-semibold">Estimated Council Tax:</span> £${details.estimated_council_tax || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-exclamation-circle"></i><span class="font-semibold">Discrepancy Found:</span> <span class="${details.discrepancy_found ? 'text-red-600 font-bold' : 'text-green-600 font-bold'}">${details.discrepancy_found ? 'Yes' : 'No'}</span></div>
-                        <div class="detail-item"><i class="fas fa-robot"></i><span class="font-semibold">AI Analysis:</span> <p>${details.analysis_result || 'No detailed analysis available.'}</p></div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Checked At:</span> ${new Date(details.checked_at).toLocaleString()}</div>
-                    </div>
-                `;
-            }
-            else {
-                contentHtml += `<p class="text-center text-gray-500">Details for this activity type are not available.</p>`;
-            }
-
-            activityModalContent.innerHTML = contentHtml;
-            activityDetailsModal.classList.remove('hidden');
-            activityDetailsModal.classList.add('flex');
-        }
-
-        if (closeActivityModalBtn) {
-            closeActivityModalBtn.addEventListener('click', () => {
-                activityDetailsModal.classList.add('hidden');
-                activityDetailsModal.classList.remove('flex');
             });
         }
 
-
-        // --- Event listener for clicking on Activity/Service items ---
-        document.addEventListener('click', (event) => {
-            const activityItem = event.target.closest('.activity-item[data-activity-details]');
-            const serviceResultCard = event.target.closest('.service-result-card[data-activity-details]');
-
-            if (activityItem) {
-                const activityType = activityItem.dataset.activityType;
-                const scriptTag = activityItem.querySelector('script[type="application/json"]');
-                let details;
-                if (scriptTag) {
-                    try {
-                        details = JSON.parse(scriptTag.textContent);
-                    } catch (e) {
-                        console.error('Error parsing activity details from script tag:', e);
-                        showToast('Error loading activity details.', 'error');
-                        return;
-                    }
-                } else {
-                    try {
-                        details = JSON.parse(activityItem.dataset.activityDetails);
-                    } catch (e) {
-                        console.error('Error parsing activity details from data attribute:', e);
-                        showToast('Error loading activity details.', 'error');
-                        return;
-                    }
+        if (closeForumPostModalBtn) {
+            closeForumPostModalBtn.addEventListener('click', () => {
+                if (forumPostModal) {
+                    forumPostModal.classList.add('hidden');
+                    forumPostModal.classList.remove('flex');
                 }
-                displayActivityDetails(activityType, details);
-            } else if (serviceResultCard) {
-                const activityType = serviceResultCard.dataset.activityType;
-                const details = JSON.parse(serviceResultCard.dataset.activityDetails);
-                displayActivityDetails(activityType, details);
-            }
-        });
+            });
+        }
 
-        // Tab switching logic for My Services section
-        document.addEventListener('DOMContentLoaded', () => {
-            const mainContentTabButtons = document.querySelectorAll('#my-services-section .main-content-tab-button');
-            const mainContentTabContents = document.querySelectorAll('.main-content-tab-content');
+        if (generateForumIdeaBtn) {
+            generateForumIdeaBtn.addEventListener('click', async () => {
+                const topic = document.getElementById('post_category').value;
+                if (forumIdeaOutput) forumIdeaOutput.classList.add('hidden');
+                if (forumIdeaLoader) forumIdeaLoader.classList.remove('hidden');
 
-            mainContentTabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const targetTabId = button.dataset.tabId;
-
-                    mainContentTabButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-
-                    mainContentTabContents.forEach(content => {
-                        if (content.id === targetTabId) {
-                            content.classList.remove('hidden');
-                        } else {
-                            content.classList.add('hidden');
-                        }
+                try {
+                    const response = await fetch('/api/generate_forum_idea/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ topic: topic })
                     });
-                });
+                    const result = await response.json();
+
+                    if (forumIdeaLoader) forumIdeaLoader.classList.add('hidden');
+                    if (forumIdeaOutput) forumIdeaOutput.classList.remove('hidden');
+
+                    if (result.status === 'success') {
+                        if (forumIdeaContent) forumIdeaContent.textContent = result.data.idea_text;
+                    } else {
+                        if (forumIdeaContent) forumIdeaContent.textContent = result.message || 'Failed to generate idea.';
+                        showToast(result.message || 'Failed to generate idea.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    if (forumIdeaLoader) forumIdeaLoader.classList.add('hidden');
+                    if (forumIdeaOutput) forumIdeaOutput.classList.remove('hidden');
+                    if (forumIdeaContent) forumIdeaContent.textContent = 'Network error. Please try again.';
+                    showToast('Network error. Please try again.', 'error');
+                }
             });
-        });
+        }
+
+        if (useForumIdeaBtn) {
+            useForumIdeaBtn.addEventListener('click', () => {
+                const ideaText = forumIdeaContent.textContent;
+                // Assuming ideaText might contain title and content separated, e.g., "Title: ...\nContent: ..."
+                const titleMatch = ideaText.match(/Title:\s*(.*?)[\n\r]/i);
+                const contentMatch = ideaText.match(/Content:\s*([\s\S]*)/i);
+
+                if (titleMatch && postTitle) {
+                    postTitle.value = titleMatch[1].trim();
+                }
+                if (contentMatch && postContent) {
+                    postContent.value = contentMatch[1].trim();
+                } else if (postContent) {
+                    // Fallback if no explicit "Content:" found, put whole idea in content
+                    postContent.value = ideaText;
+                }
+                if (forumIdeaOutput) forumIdeaOutput.classList.add('hidden');
+            });
+        }
+
+        if (forumPostForm) {
+            forumPostForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(forumPostForm);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch('/api/submit_forum_post/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showToast(result.message, 'success');
+                        forumPostForm.reset(); // Clear form
+                        if (forumIdeaOutput) forumIdeaOutput.classList.add('hidden'); // Hide idea
+                        if (forumPostModal) {
+                            forumPostModal.classList.add('hidden'); // Close modal
+                            forumPostModal.classList.remove('flex');
+                        }
+                        fetchRecentForumPosts(); // Reload posts
+                    } else {
+                        showToast(result.message || 'Failed to submit post.', 'error');
+                        console.error('Error submitting post:', result.errors);
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    showToast('Network error. Please try again.', 'error');
+                }
+            });
+            fetchRecentForumPosts(); // Load posts on modal open
+        }
+
+        // --- Legal AI Logic ---
+        const askLegalAiBtn = document.getElementById('ask-legal-ai-btn');
+        const legalAiModal = document.getElementById('legal-ai-modal');
+        const closeLegalAiModalBtn = document.getElementById('close-legal-ai-modal-btn');
+        const submitLegalQueryBtn = document.getElementById('submit-legal-query-btn');
+        const legalQueryInput = document.getElementById('legal-query-input');
+        const legalAiLoader = document.getElementById('legal-ai-loader');
+        const legalAiOutput = document.getElementById('legal-ai-output');
+        const legalAiContent = document.getElementById('legal-ai-content');
+
+        if (askLegalAiBtn) {
+            askLegalAiBtn.addEventListener('click', () => {
+                if (legalAiModal) {
+                    legalAiModal.classList.remove('hidden');
+                    legalAiModal.classList.add('flex');
+                }
+                if (legalAiOutput) legalAiOutput.classList.add('hidden'); // Hide previous output
+                if (legalQueryInput) legalQueryInput.value = ''; // Clear previous query
+            });
+        }
+
+        if (closeLegalAiModalBtn) {
+            closeLegalAiModalBtn.addEventListener('click', () => {
+                if (legalAiModal) {
+                    legalAiModal.classList.add('hidden');
+                    legalAiModal.classList.remove('flex');
+                }
+            });
+        }
+
+        if (submitLegalQueryBtn) {
+            submitLegalQueryBtn.addEventListener('click', async () => {
+                const query = legalQueryInput.value;
+                if (!query.trim()) {
+                    showToast('Please enter your question.', 'error');
+                    return;
+                }
+
+                if (legalAiOutput) legalAiOutput.classList.add('hidden');
+                if (legalAiLoader) legalAiLoader.classList.remove('hidden');
+
+                try {
+                    // Using a placeholder API endpoint for legal AI, replace with your actual endpoint
+                    const response = await fetch('/api/refine_text/', { /* Reusing refine_text for demo */
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ text: `Answer this UK rental law question: "${query}". Keep it concise and state it's not legal advice.` })
+                    });
+                    const result = await response.json();
+
+                    if (legalAiLoader) legalAiLoader.classList.add('hidden');
+                    if (legalAiOutput) legalAiOutput.classList.remove('hidden');
+
+                    if (result.status === 'success') {
+                        if (legalAiContent) legalAiContent.textContent = result.data.refined_text;
+                    } else {
+                        if (legalAiContent) legalAiContent.textContent = result.message || 'Failed to get answer.';
+                        showToast(result.message || 'Failed to get answer.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    if (legalAiLoader) legalAiLoader.classList.add('hidden');
+                    if (legalAiOutput) legalAiOutput.classList.remove('hidden');
+                    if (legalAiContent) legalAiContent.textContent = 'Network error. Please try again.';
+                    showToast('Network error. Please try again.', 'error');
+                }
+            });
+        }
+
+        // --- NEW: Rental Contract Analyzer Logic ---
+        const rentalContractModal = document.getElementById('rental-contract-modal');
+        const rentalContractForm = document.getElementById('rental-contract-form');
+        const contractTextarea = document.getElementById('contract_text');
+        const contractAnalysisLoader = document.getElementById('contract-analysis-loader');
+        const contractAnalysisOutput = document.getElementById('contract-analysis-output');
+        const analysisContent = document.getElementById('analysis-content'); // Renamed for clarity
+
+        if (rentalContractForm) {
+            rentalContractForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const contractText = contractTextarea.value.trim();
+
+                if (!contractText) {
+                    showToast('Please paste your contract text to analyze.', 'error');
+                    return;
+                }
+                if (contractText.length < 100) { // Minimum length for meaningful analysis
+                    showToast('Please provide more text for a meaningful analysis (min 100 characters).', 'error');
+                    return;
+                }
+
+                if (contractAnalysisOutput) contractAnalysisOutput.classList.add('hidden');
+                if (contractAnalysisLoader) contractAnalysisLoader.classList.remove('hidden');
+                const submitBtn = rentalContractForm.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Analyzing...';
+
+
+                try {
+                    const response = await fetch('/api/analyze_contract/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ contract_text: contractText })
+                    });
+                    const result = await response.json();
+
+                    if (contractAnalysisLoader) contractAnalysisLoader.classList.add('hidden');
+                    if (contractAnalysisOutput) contractAnalysisOutput.classList.remove('hidden');
+
+                    if (result.status === 'success' && result.data && result.data.analysis_result) {
+                        // Replace newlines with <br> for proper display of markdown-like output
+                        if (analysisContent) analysisContent.innerHTML = result.data.analysis_result.replace(/\n/g, '<br>');
+                        showToast(result.message, 'success');
+                    } else {
+                        if (analysisContent) analysisContent.innerHTML = `<p class="text-red-500">${result.message || 'Failed to analyze contract.'}</p>`;
+                        showToast(result.message || 'Failed to analyze contract.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    if (contractAnalysisLoader) contractAnalysisLoader.classList.add('hidden');
+                    if (contractAnalysisOutput) contractAnalysisOutput.classList.remove('hidden');
+                    if (analysisContent) analysisContent.innerHTML = '<p class="text-red-500">Network error. Please try again.</p>';
+                    showToast('Network error. Please try again.', 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Analyze Contract <i class="fas fa-robot ml-2"></i>';
+                }
+            });
+        }
+
+        // --- NEW: Rent Declaration Check Logic ---
+        const rentDeclarationModal = document.getElementById('rent-declaration-modal');
+        const rentDeclarationForm = document.getElementById('rent-declaration-form');
+        const declarationAnalysisLoader = document.getElementById('declaration-analysis-loader');
+        const declarationAnalysisOutput = document.getElementById('declaration-analysis-output');
+        const declarationAnalysisContent = document.getElementById('declaration-analysis-content'); // Renamed for clarity
+
+        if (rentDeclarationForm) {
+            rentDeclarationForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(rentDeclarationForm);
+                const data = Object.fromEntries(formData.entries());
+
+                // Basic validation for required fields
+                if (!data.postcode || !data.bedrooms || !data.actual_rent_paid || !data.council_tax_band) {
+                    showToast('Please fill in all required fields for the Rent Declaration Check.', 'error');
+                    return;
+                }
+
+                declarationAnalysisOutput.classList.add('hidden');
+                declarationAnalysisLoader.classList.remove('hidden');
+                const submitBtn = rentDeclarationForm.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Checking...';
+
+                try {
+                    const response = await fetch('/api/check_rent_declaration/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+
+                    declarationAnalysisLoader.classList.add('hidden');
+                    declarationAnalysisOutput.classList.remove('hidden');
+
+                    if (result.status === 'success' && result.data) {
+                        let analysisHtml = `
+                            <p class="mb-2"><span class="font-semibold">Estimated Council Tax:</span> £${result.data.estimated_council_tax || 'N/A'}</p>
+                            <p class="mb-2"><span class="font-semibold">Common Rent for this Band/Area:</span> £${result.data.common_rent_for_band_area || 'N/A'}</p>
+                            <p class="mb-4"><span class="font-semibold">Discrepancy Found:</span> <span class="${result.data.discrepancy_found ? 'text-red-600 font-bold' : 'text-green-600 font-bold'}">${result.data.discrepancy_found ? 'Yes' : 'No'}</span></p>
+                            <p class="font-semibold">AI Analysis:</p>
+                            <p>${result.data.analysis_result || 'No detailed analysis available.'}</p>
+                        `;
+                        declarationAnalysisContent.innerHTML = analysisHtml;
+                        showToast(result.message, 'success');
+                    } else {
+                        declarationAnalysisContent.innerHTML = `<p class="text-red-500">${result.message || 'Failed to perform rent declaration check.'}</p>`;
+                        showToast(result.message || 'Failed to perform rent declaration check.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    declarationAnalysisLoader.classList.add('hidden');
+                    declarationAnalysisOutput.classList.remove('hidden');
+                    declarationAnalysisContent.innerHTML = '<p class="text-red-500">Network error. Please try again.</p>';
+                    showToast('Network error. Please try again.', 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Check for Discrepancy <i class="fas fa-magnifying-glass-dollar ml-2"></i>';
+                }
+            });
+        }
+
     </script>
     <script src="{% static 'fairrent_app/js/main.js' %}"></script>
 </body>
