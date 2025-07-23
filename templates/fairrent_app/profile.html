@@ -993,7 +993,7 @@
                         {% for activity in recent_activities %}
                             <div class="activity-item cursor-pointer"
                                 data-activity-type="{{ activity.type }}"
-                                data-activity-details-id="activity_details_{{ forloop.counter }}"
+                                data-activity-details-id="activity_details_tab_{{ forloop.counter }}"
                                 data-redirect-url="{% if activity.redirect_url %}{{ activity.redirect_url }}{% endif %}"
                                 >
                                 <div class="content flex items-start">
@@ -1006,7 +1006,7 @@
                                     </div>
                                 </div>
                                 {# Store activity details in a script tag for safe JSON parsing #}
-                                <script type="application/json" id="activity_details_{{ forloop.counter }}">
+                                <script type="application/json" id="activity_details_tab_{{ forloop.counter }}">
                                     {{ activity.details|json_script:"activity_details_data" }}
                                 </script>
                             </div>
@@ -1331,64 +1331,16 @@
         <p id="alert-message"></p>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Global Firebase variables
-        let app;
-        let db;
-        let auth;
-        let userId = null; // Will be set after auth
-        let currentChatUnsubscribe = null; // To manage chat listeners
-
-        // Firebase Configuration (provided by Canvas environment)
-        // IMPORTANT: These variables are expected to be injected by the Render environment.
-        // If they are not present, Firebase will not initialize.
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Use default-app-id if not defined
-
-        // Initialize Firebase and authenticate
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (Object.keys(firebaseConfig).length > 0) {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        console.log("Firebase user authenticated:", userId);
-                    } else {
-                        try {
-                            // If no user, sign in anonymously
-                            const anonymousUser = await signInAnonymously(auth);
-                            userId = anonymousUser.user.uid;
-                            console.log("Signed in anonymously:", userId);
-                        } catch (error) {
-                            console.error("Firebase Anonymous Auth Error:", error);
-                            showToast("Failed to authenticate with Firebase. Chat may not work.", "error");
-                        }
-                    }
-                });
-
-                // Attempt custom token sign-in if available
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    try {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                        console.log("Signed in with custom token.");
-                    } catch (error) {
-                        console.error("Firebase Custom Token Auth Error:", error);
-                        showToast("Failed to authenticate with custom token. Chat may not work.", "error");
-                    }
-                }
-            } else {
-                console.warn("Firebase config not found. Chat functionality will be disabled.");
-                showToast("Firebase not configured. Chat functionality disabled.", "error");
-            }
-        });
+    <script>
+        // Global variable for current user's UID (Django PK)
+        // This will be set from a Django template variable if the user is authenticated.
+        // For anonymous users, it will remain null or a temporary ID.
+        let currentUserId = "{{ request.user.pk|default:'null' }}";
+        if (currentUserId === 'null') {
+            currentUserId = null; // Ensure it's a proper null if not authenticated
+        } else {
+            currentUserId = String(currentUserId); // Ensure it's a string
+        }
 
         // Helper function to show toast notifications
         function showToast(message, type = 'success') {
@@ -1773,6 +1725,7 @@
         // Store chat partner details
         let chatPartnerUid = null;
         let chatPartnerName = '';
+        let chatPollingInterval = null; // To store the interval ID for polling
 
         function displayActivityDetails(activityType, details, redirectUrl = null, chatUid = null) {
             if (!activityModalContent || !activityDetailsModal) return;
@@ -1887,7 +1840,8 @@
             }
 
             // Handle chat button visibility
-            if (activityType === 'Liked Profile' && chatUid && userId && chatUid !== userId) {
+            // Only show chat button if current user is authenticated and not trying to chat with self
+            if (chatUid && currentUserId && chatUid !== currentUserId) {
                 modalStartChatBtn.classList.remove('hidden');
             } else {
                 modalStartChatBtn.classList.add('hidden');
@@ -1909,7 +1863,7 @@
         // --- Event listener for clicking on Activity/Service items ---
         document.addEventListener('click', (event) => {
             const activityItem = event.target.closest('.activity-item[data-activity-details-id]');
-            const serviceResultCard = event.target.closest('.service-result-card[data-service-details-id]'); // Changed to service-details-id
+            const serviceResultCard = event.target.closest('.service-result-card[data-service-details-id]');
 
             if (activityItem) {
                 const activityType = activityItem.dataset.activityType;
@@ -1936,7 +1890,7 @@
                 }
             } else if (serviceResultCard) {
                 const activityType = serviceResultCard.dataset.activityType;
-                const scriptId = serviceResultCard.dataset.serviceDetailsId; // Get ID from new attribute
+                const scriptId = serviceResultCard.dataset.serviceDetailsId;
                 const scriptTag = document.getElementById(scriptId);
                 let details;
 
@@ -1982,9 +1936,169 @@
             });
         });
 
-        // Removed the previous myServicesHeaderBtn logic as it's now handled by headerNavButtons loop
-        // and the general switchContentSection function.
 
+        // --- Chat Functionality (Django Polling) ---
+        const chatModal = document.getElementById('chat-modal');
+        const closeChatModalBtn = document.getElementById('close-chat-modal-btn');
+        const chatPartnerNameSpan = document.getElementById('chat-partner-name');
+        const chatMessagesDiv = document.getElementById('chat-messages');
+        const chatMessageInput = document.getElementById('chat-message-input');
+        const sendChatMessageBtn = document.getElementById('send-chat-message-btn');
+
+        let chatPartnerUid = null;
+        let chatPartnerName = '';
+        let chatPollingInterval = null; // To store the interval ID for polling
+
+        // Event listener for "Start Chat" button in activity details modal
+        if (modalStartChatBtn) {
+            modalStartChatBtn.addEventListener('click', () => {
+                if (!currentUserId) { // Check if the current user is authenticated
+                    showToast("Please log in to start a chat.", "error");
+                    return;
+                }
+                if (chatPartnerUid && chatPartnerUid !== currentUserId) {
+                    activityDetailsModal.classList.add('hidden'); // Close activity modal
+                    activityDetailsModal.classList.remove('flex');
+                    openChat(chatPartnerUid, chatPartnerName);
+                } else {
+                    showToast("Cannot start chat. Invalid chat partner or self-chat.", "error");
+                    console.error("Attempted to start chat with invalid partner:", chatPartnerUid, "current user:", currentUserId);
+                }
+            });
+        }
+
+        if (closeChatModalBtn) {
+            closeChatModalBtn.addEventListener('click', closeChat);
+        }
+
+        if (sendChatMessageBtn) {
+            sendChatMessageBtn.addEventListener('click', sendMessage);
+        }
+
+        if (chatMessageInput) {
+            chatMessageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
+
+        async function fetchMessages() {
+            if (!currentUserId || !chatPartnerUid) {
+                console.warn("Cannot fetch messages: currentUserId or chatPartnerUid is missing.");
+                return;
+            }
+            try {
+                const response = await fetch(`/api/chat/get_messages/${chatPartnerUid}/`);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    chatMessagesDiv.innerHTML = ''; // Clear existing messages
+                    data.messages.forEach(msg => {
+                        const messageElement = document.createElement('div');
+                        messageElement.className = `chat-message ${msg.sender_uid === currentUserId ? 'sent' : 'received'}`;
+                        
+                        // Create a span for the timestamp and make it smaller and grey
+                        const timestampSpan = document.createElement('span');
+                        timestampSpan.className = 'text-xs text-gray-500 ml-2';
+                        // Format timestamp if available
+                        if (msg.timestamp) {
+                            const date = new Date(msg.timestamp);
+                            timestampSpan.textContent = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        }
+
+                        // Create a span for the message text
+                        const messageTextSpan = document.createElement('span');
+                        messageTextSpan.textContent = msg.message;
+
+                        messageElement.appendChild(messageTextSpan);
+                        messageElement.appendChild(timestampSpan); // Append timestamp after message
+
+                        chatMessagesDiv.appendChild(messageElement);
+                    });
+                    // Scroll to bottom
+                    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+                } else {
+                    showToast(data.message || 'Failed to load messages.', 'error');
+                }
+            } catch (error) {
+                console.error('Error fetching messages:', error);
+                showToast('Network error fetching messages.', 'error');
+            }
+        }
+
+        function openChat(targetUid, targetName) {
+            if (!currentUserId) {
+                showToast("You must be logged in to chat.", "error");
+                return;
+            }
+            chatPartnerUid = targetUid;
+            chatPartnerName = targetName;
+            chatPartnerNameSpan.textContent = targetName;
+            chatModal.classList.remove('hidden');
+            chatModal.classList.add('flex');
+            chatMessagesDiv.innerHTML = '<div class="text-center text-gray-500">Loading messages...</div>'; // Clear and show loading
+
+            // Start polling for new messages every 2 seconds
+            if (chatPollingInterval) {
+                clearInterval(chatPollingInterval);
+            }
+            chatPollingInterval = setInterval(fetchMessages, 2000); // Poll every 2 seconds
+            fetchMessages(); // Fetch immediately on open
+        }
+
+        function closeChat() {
+            chatModal.classList.add('hidden');
+            chatModal.classList.remove('flex');
+            if (chatPollingInterval) {
+                clearInterval(chatPollingInterval); // Stop polling
+                chatPollingInterval = null;
+            }
+            chatMessagesDiv.innerHTML = ''; // Clear messages
+            chatMessageInput.value = ''; // Clear input
+            chatPartnerUid = null;
+            chatPartnerName = '';
+        }
+
+        async function sendMessage() {
+            if (!currentUserId) {
+                showToast("You must be logged in to send messages.", "error");
+                return;
+            }
+            if (!chatPartnerUid) {
+                showToast("No chat partner selected.", "error");
+                return;
+            }
+
+            const messageText = chatMessageInput.value.trim();
+            if (messageText === '') {
+                return; // Don't send empty messages
+            }
+
+            try {
+                const response = await fetch('/api/chat/send_message/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        receiver_uid: chatPartnerUid,
+                        message: messageText
+                    })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    chatMessageInput.value = ''; // Clear input after sending
+                    fetchMessages(); // Immediately refresh messages after sending
+                } else {
+                    showToast(result.message || 'Failed to send message.', 'error');
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showToast('Network error sending message. Please try again.', 'error');
+            }
+        }
     </script>
     <!-- Assuming main.js exists and contains additional scripts, if any. -->
     <!-- If main.js is critical, ensure it's loaded AFTER the inline script that sets up global functions/listeners -->

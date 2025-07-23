@@ -136,7 +136,8 @@ class RentCheck(models.Model):
 class LikedProfile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='liked_profiles')
     # NEW: Store the Firebase UID of the liked user for chat functionality
-    liked_user_uid = models.CharField(max_length=255, blank=True, null=True, help_text="Firebase UID of the liked user, if applicable.")
+    # Changed to CharField as it will store Django PK for real users or UUID string for AI profiles
+    liked_user_uid = models.CharField(max_length=255, blank=True, null=True, unique=True, help_text="Unique ID (Django PK or UUID) of the liked user.")
     liked_user_name = models.CharField(max_length=255)
     liked_user_age = models.IntegerField(null=True, blank=True)
     liked_user_gender = models.CharField(max_length=100, blank=True)
@@ -181,3 +182,18 @@ class RentDeclarationCheck(models.Model):
 
     def __str__(self):
         return f"Rent Declaration Check for {self.postcode} by {self.user.username}"
+
+# NEW: ChatMessage Model for direct messaging
+class ChatMessage(models.Model):
+    # Use CharField for sender_uid and receiver_uid to accommodate both Django PKs (strings) and AI UUIDs
+    sender_uid = models.CharField(max_length=255, db_index=True)
+    receiver_uid = models.CharField(max_length=255, db_index=True)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['timestamp'] # Order messages by time
+
+    def __str__(self):
+        return f"From {self.sender_uid} to {self.receiver_uid}: {self.message[:50]}..."
+

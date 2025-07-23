@@ -38,6 +38,10 @@ urlpatterns = [
     path('api/find_roommate_matches/', views.find_roommate_matches_api, name='api_find_roommate_matches'),
     path('api/save_liked_profile/', views.save_liked_profile, name='api_save_liked_profile'),
 
+    # NEW: Chat APIs
+    path('api/chat/send_message/', views.send_chat_message, name='api_send_chat_message'),
+    path('api/chat/get_messages/<str:partner_uid>/', views.get_chat_messages, name='api_get_chat_messages'),
+
     # Utility APIs
     path('api/address_suggestions/', views.get_address_suggestions, name='api_address_suggestions'),
     path('api/check_rent_declaration/', views.check_rent_declaration_api, name='check_rent_declaration_api'),

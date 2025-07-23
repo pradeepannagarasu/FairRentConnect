@@ -20,7 +20,7 @@ import logging
 import uuid # Import uuid for generating unique IDs for AI profiles
 from decimal import Decimal # Import Decimal to handle precise numbers
 
-from .models import Complaint, LandlordReview, RoommateProfile, ForumPost, ForumReply, RentCheck, LikedProfile, RentalContract, RentDeclarationCheck # Import all models
+from .models import Complaint, LandlordReview, RoommateProfile, ForumPost, ForumReply, RentCheck, LikedProfile, RentalContract, RentDeclarationCheck, ChatMessage # Import all models
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
