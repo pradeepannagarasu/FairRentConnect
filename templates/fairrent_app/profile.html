@@ -277,7 +277,7 @@
         }
 
         @media (max-width: 900px) {
-            .main-content { margin-left: 0; padding-top: 8rem; padding-left: 1.5rem; padding-right: 1.5rem; } /* Increased padding-top */
+            .main-content { margin-left: 0; padding-top: 7rem; padding-left: 1.5rem; padding-right: 1.5rem; } /* Increased padding-top */
             .sidebar { position: fixed; left: 0; top: 0; height: 100vh; z-index: 1001; width: 85vw; max-width: 320px; } /* Wider for better content display */
             .sidebar.hidden-mobile {
                 transform: translateX(-100%);
@@ -304,7 +304,7 @@
 
         @media (max-width: 600px) {
             body { font-size: 14px; }
-            .main-content { padding: 1rem; padding-top: 7rem; } /* Increased padding-top */
+            .main-content { padding: 1rem; padding-top: 6rem; } /* Increased padding-top */
             .sidebar { border-radius: 0; width: 100vw; max-width: none; } /* Full width on very small screens */
             .sidebar-logo { font-size: 1.6rem; margin: 1.5rem; }
             .dashboard-header { font-size: 1.8rem; margin-bottom: 0.75rem;}
@@ -490,7 +490,7 @@
         /* --- Roommate Card (Enhanced for Mobile) --- */
         .roommate-match-container {
             position: relative;
-            min-height: 550px; /* Increased min-height */
+            min-height: 550px; /* Increased min-height to ensure space for card + buttons */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -498,13 +498,14 @@
             border-radius: 1.25rem; /* Consistent with new card radius */
             border: 1px solid var(--border-subtle);
             overflow: hidden; /* Important for card animation */
+            padding-bottom: 80px; /* Added padding to ensure swipe buttons are not clipped by card */
         }
 
         .roommate-match-card {
-            position: absolute;
-            width: 90%; /* Slightly narrower for better mobile fit */
-            max-width: 450px; /* Adjusted max-width */
-            height: auto;
+            /* Removed position: absolute; to allow natural flow */
+            width: 95%; /* Wider for better content display */
+            max-width: 480px; /* Increased max-width for better desktop look */
+            height: auto; /* Let content dictate height */
             padding: 2.5rem; /* Increased padding */
             text-align: center;
             background-color: var(--bg-card);
@@ -514,6 +515,8 @@
             transform-origin: center bottom;
             will-change: transform, opacity;
             border: 1px solid var(--border-subtle);
+            margin: auto; /* Center the card horizontally */
+            flex-shrink: 0; /* Prevent card from shrinking */
         }
 
         .roommate-match-card.swiping-right {
@@ -568,10 +571,9 @@
             text-align: center;
             margin-bottom: 2rem; /* More space */
             white-space: normal; /* Ensure text wraps */
-            overflow: hidden; /* Hide overflow by default */
-            text-overflow: ellipsis; /* Add ellipsis if text overflows */
             max-height: 120px; /* Limit height for scrollable bio */
             overflow-y: auto; /* Enable vertical scrolling for bio */
+            /* Removed text-overflow: ellipsis; and overflow: hidden; to allow full scroll */
         }
 
         .match-detail-item {
@@ -600,7 +602,10 @@
             justify-content: center;
             gap: 2rem; /* Increased gap for better spacing */
             margin-top: 2.5rem; /* More space */
-            position: relative;
+            position: absolute; /* Position relative to roommate-match-container */
+            bottom: 20px; /* Adjust as needed to place below card */
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 30;
         }
 
@@ -858,8 +863,8 @@
             </nav>
         </div>
         <div class="sidebar-footer">
-            <!-- Homepage link: Changed to absolute URL to avoid admin path issues -->
-            <a href="/" class="flex items-center" >
+            <!-- Homepage link: Changed to use Django's url tag for robustness -->
+            <a href="{% url 'fairrent_app:index' %}" class="flex items-center" >
                 <i class="fas fa-arrow-circle-left"></i> Homepage
             </a>
             <a href="{% url 'fairrent_app:logout' %}" class="flex items-center">
@@ -978,13 +983,13 @@
                         <i class="fas fa-edit mr-2"></i>{% if user_roommate_profile %}Edit Profile{% else %}Create Profile{% endif %}
                     </button>
                 </div>
-                <div id="roommate-match-container" class="relative min-h-[400px] bg-gray-50 rounded-xl border border-gray-200 overflow-hidden flex items-center justify-center">
+                <div id="roommate-match-container" class="relative min-h-[400px] bg-gray-50 rounded-xl border border-gray-200 overflow-hidden flex flex-col items-center justify-center">
                     <div id="roommate-matches-loader" class="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-90 rounded-xl hidden z-20">
                         <div class="spinner w-16 h-16 border-6 border-gray-200 rounded-full mb-4"></div>
                         <p class="text-gray-700 font-medium text-lg">Finding your perfect matches with AI...</p>
                     </div>
                     
-                    <div id="roommate-match-card-display" class="absolute inset-0 flex items-center justify-center z-10">
+                    <div id="roommate-match-card-display" class="flex flex-col items-center justify-center w-full h-full relative">
                         <!-- Dynamic match cards will be loaded here -->
                     </div>
 
@@ -1558,6 +1563,7 @@
         function displayCurrentMatch() {
             if (!roommateMatchCardDisplay || !roommatePrompt || !noMoreMatchesPrompt || !swipeButtonsContainer) return;
 
+            // Clear previous content
             roommateMatchCardDisplay.innerHTML = '';
             roommatePrompt.classList.add('hidden');
             noMoreMatchesPrompt.classList.add('hidden');
@@ -1565,6 +1571,7 @@
             if (currentMatchIndex < currentMatches.length) {
                 const match = currentMatches[currentMatchIndex];
                 console.log("Displaying match:", match); // Log the match object for debugging
+
                 // Ensure all fields have fallbacks for display, and handle "undefined" string specifically
                 const name = (match.name && match.name !== 'undefined') ? match.name : 'Unknown User';
                 const age = (match.age && match.age !== 'undefined') ? `${match.age}` : 'N/A';
@@ -1574,7 +1581,7 @@
                 const avatarUrl = (match.avatar_url && match.avatar_url !== 'undefined') ? match.avatar_url : 'https://placehold.co/110x110/cccccc/ffffff?text=User'; // Fallback placeholder
 
                 const matchCard = document.createElement('div');
-                matchCard.className = 'roommate-match-card glass-card';
+                matchCard.className = 'roommate-match-card glass-card'; // Apply styling
                 matchCard.innerHTML = `
                     <img src="${avatarUrl}" alt="${name}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/110x110/cccccc/ffffff?text=User'">
                     <h4 class="text-3xl font-bold text-gray-900">${name}, ${age}</h4>
