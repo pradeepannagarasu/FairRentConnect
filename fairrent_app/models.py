@@ -34,6 +34,9 @@ class RoommateProfile(models.Model):
     budget = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
+    # ADDED: created_at and updated_at fields for RoommateProfile
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name or self.user.username}'s Roommate Profile"
