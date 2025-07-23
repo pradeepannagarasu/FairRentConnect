@@ -277,7 +277,7 @@
         }
 
         @media (max-width: 900px) {
-            .main-content { margin-left: 0; padding-top: 6rem; padding-left: 1.5rem; padding-right: 1.5rem; } /* Adjust padding for mobile toggle */
+            .main-content { margin-left: 0; padding-top: 8rem; padding-left: 1.5rem; padding-right: 1.5rem; } /* Increased padding-top */
             .sidebar { position: fixed; left: 0; top: 0; height: 100vh; z-index: 1001; width: 85vw; max-width: 320px; } /* Wider for better content display */
             .sidebar.hidden-mobile {
                 transform: translateX(-100%);
@@ -304,7 +304,7 @@
 
         @media (max-width: 600px) {
             body { font-size: 14px; }
-            .main-content { padding: 1rem; padding-top: 5rem; }
+            .main-content { padding: 1rem; padding-top: 7rem; } /* Increased padding-top */
             .sidebar { border-radius: 0; width: 100vw; max-width: none; } /* Full width on very small screens */
             .sidebar-logo { font-size: 1.6rem; margin: 1.5rem; }
             .dashboard-header { font-size: 1.8rem; margin-bottom: 0.75rem;}
@@ -568,8 +568,10 @@
             text-align: center;
             margin-bottom: 2rem; /* More space */
             white-space: normal; /* Ensure text wraps */
-            overflow: visible; /* Ensure content is not hidden */
-            text-overflow: clip; /* Prevent ellipsis */
+            overflow: hidden; /* Hide overflow by default */
+            text-overflow: ellipsis; /* Add ellipsis if text overflows */
+            max-height: 120px; /* Limit height for scrollable bio */
+            overflow-y: auto; /* Enable vertical scrolling for bio */
         }
 
         .match-detail-item {
@@ -914,7 +916,7 @@
                     <div class="grid grid-cols-2 gap-4 text-center">
                         <div class="p-4 bg-blue-50 rounded-lg shadow-sm">
                             <p class="text-3xl font-bold text-blue-600">{{ user_rent_checks|length }}</p>
-                            <p class="text-gray-600 text-sm">Reviews Submitted</p>
+                            <p class="text-gray-600 text-sm">Rent Checks</p>
                         </div>
                         <div class="p-4 bg-green-50 rounded-lg shadow-sm">
                             <p class="text-3xl font-bold text-green-600">{{ user_reviews|length }}</p>
@@ -1562,13 +1564,14 @@
 
             if (currentMatchIndex < currentMatches.length) {
                 const match = currentMatches[currentMatchIndex];
-                // Ensure all fields have fallbacks for display
-                const name = match.name || 'Unknown User';
-                const age = match.age ? `${match.age}` : 'N/A';
-                const location = match.location || 'N/A';
-                const compatibilityScore = match.compatibility_score ? `${match.compatibility_score}` : 'N/A';
-                const bio = match.bio || 'No bio provided for this user.';
-                const avatarUrl = match.avatar_url || 'https://placehold.co/110x110/cccccc/ffffff?text=User'; // Fallback placeholder
+                console.log("Displaying match:", match); // Log the match object for debugging
+                // Ensure all fields have fallbacks for display, and handle "undefined" string specifically
+                const name = (match.name && match.name !== 'undefined') ? match.name : 'Unknown User';
+                const age = (match.age && match.age !== 'undefined') ? `${match.age}` : 'N/A';
+                const location = (match.location && match.location !== 'undefined') ? match.location : 'N/A';
+                const compatibilityScore = (match.compatibility_score && match.compatibility_score !== 'undefined') ? `${match.compatibility_score}` : 'N/A';
+                const bio = (match.bio && match.bio !== 'undefined') ? match.bio : 'No bio provided for this user.';
+                const avatarUrl = (match.avatar_url && match.avatar_url !== 'undefined') ? match.avatar_url : 'https://placehold.co/110x110/cccccc/ffffff?text=User'; // Fallback placeholder
 
                 const matchCard = document.createElement('div');
                 matchCard.className = 'roommate-match-card glass-card';
