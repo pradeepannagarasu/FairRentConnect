@@ -337,410 +337,7 @@
             padding-right: 3rem;
         }
 
-        /* --- Activity Feed Items --- */
-        .activity-item {
-            position: relative;
-            padding-left: 3rem; /* More space for dot */
-            border-left: 2px solid var(--border-subtle);
-            padding-bottom: 1.5rem; /* Increased padding */
-            margin-bottom: 1.5rem; /* Increased margin */
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .activity-item:last-child {
-            border-left: none;
-            padding-bottom: 0;
-            margin-bottom: 0;
-        }
-
-        .activity-item::before {
-            content: '';
-            position: absolute;
-            left: -0.6rem; /* Adjust position of dot */
-            top: 0.5rem; /* Adjusted vertical position */
-            width: 1.2rem; /* Larger dot */
-            height: 1.2rem;
-            border-radius: 50%;
-            background: var(--primary-blue); /* Primary blue dot */
-            border: 4px solid var(--bg-page); /* Background color border */
-            z-index: 1;
-        }
-
-        .activity-item .content {
-            background-color: var(--bg-card);
-            border-radius: 1rem; /* More rounded */
-            padding: 1.25rem; /* More padding */
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition-ease);
-            border: 1px solid var(--border-subtle);
-        }
-
-        .activity-item:hover .content {
-            box-shadow: var(--shadow-md);
-            transform: translateY(-3px);
-        }
-
-        .activity-item .activity-icon {
-            width: 2.5rem; /* Larger icon wrapper */
-            height: 2.5rem;
-            min-width: 2.5rem;
-            min-height: 2.5rem;
-            border-radius: 0.75rem; /* More rounded */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem; /* Larger icon */
-            margin-right: 1rem; /* More space */
-        }
-        /* Specific colors for activity icons */
-        .bg-red-100 { background-color: #fee2e2; } .text-red-600 { color: #dc2626; }
-        .bg-green-100 { background-color: #d1fae5; } .text-green-600 { color: #059669; }
-        .bg-blue-100 { background-color: #dbeafe; } .text-blue-600 { color: #2563eb; }
-        .bg-yellow-100 { background-color: #fef3c7; } .text-yellow-600 { color: #d97706; }
-        .bg-pink-100 { background-color: #fce7f3; } .text-pink-500 { color: #ec4899; }
-        .bg-indigo-100 { background-color: #e0e7ff; } .text-indigo-600 { color: #4f46e5; }
-        .bg-teal-100 { background-color: #ccfbf1; } .text-teal-600 { color: #0d9488; }
-        .bg-orange-100 { background-color: #ffedd5; } .text-orange-600 { color: #ea580c; }
-
-
-        /* --- Roommate Card (Enhanced for Mobile) --- */
-        .roommate-match-container {
-            position: relative;
-            min-height: 550px; /* Increased min-height to ensure space for card + buttons */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--secondary-gray); /* Light gray background for the container */
-            border-radius: 1.25rem; /* Consistent with new card radius */
-            border: 1px solid var(--border-subtle);
-            overflow: hidden; /* Important for card animation */
-            padding-bottom: 80px; /* Added padding to ensure swipe buttons are not clipped by card */
-        }
-
-        .roommate-match-card {
-            /* Removed position: absolute; to allow natural flow */
-            width: 95%; /* Wider for better content display */
-            max-width: 480px; /* Increased max-width for better desktop look */
-            height: auto; /* Let content dictate height */
-            padding: 2.5rem; /* Increased padding */
-            text-align: center;
-            background-color: var(--bg-card);
-            border-radius: 1.25rem;
-            box-shadow: var(--shadow-md);
-            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2), opacity 0.5s ease-out, box-shadow 0.4s ease;
-            transform-origin: center bottom;
-            will-change: transform, opacity;
-            border: 1px solid var(--border-subtle);
-            margin: auto; /* Center the card horizontally */
-            flex-shrink: 0; /* Prevent card from shrinking */
-        }
-
-        .roommate-match-card.swiping-right {
-            transform: translateX(200%) rotate(45deg);
-            opacity: 0;
-        }
-
-        .roommate-match-card.swiping-left {
-            transform: translateX(-200%) rotate(-45deg);
-            opacity: 0;
-        }
-
-        .roommate-match-card img {
-            width: 110px; /* Slightly larger avatar */
-            height: 110px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 1.5rem; /* More space */
-            border: 4px solid var(--primary-blue); /* Primary blue border */
-            box-shadow: var(--shadow-sm);
-        }
-
-        .roommate-match-card h4 {
-            font-size: 2.5rem; /* Larger heading size */
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 0.75rem;
-        }
-
-        .roommate-match-card p.text-lg { /* Targeting location/general text */
-            font-size: 1.05rem;
-            color: var(--text-medium);
-            margin-bottom: 1.25rem;
-        }
-
-        .compatibility-score {
-            font-size: 3.2rem; /* Larger score */
-            font-weight: 900;
-            background: linear-gradient(45deg, var(--primary-blue), var(--primary-dark-blue)); /* Blue gradient for score */
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: -0.05em;
-            margin-top: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .roommate-match-card p.text-gray-700 { /* Targeting bio text */
-            font-size: 1rem; /* Clearer bio for readability */
-            color: var(--text-medium);
-            line-height: 1.6;
-            text-align: center;
-            margin-bottom: 2rem; /* More space */
-            white-space: normal; /* Ensure text wraps */
-            max-height: 120px; /* Limit height for scrollable bio */
-            overflow-y: auto; /* Enable vertical scrolling for bio */
-            /* Removed text-overflow: ellipsis; and overflow: hidden; to allow full scroll */
-        }
-
-        .match-detail-item {
-            display: flex;
-            align-items: flex-start; /* Align icon to top of text */
-            margin-bottom: 0.8rem; /* More space */
-            font-size: 1rem;
-            color: var(--text-medium);
-        }
-
-        .match-detail-item i {
-            margin-right: 1rem; /* More space */
-            color: var(--primary-blue); /* Icons match primary blue */
-            width: 1.3rem; /* Larger icon */
-            text-align: center;
-            flex-shrink: 0;
-            padding-top: 0.1rem;
-        }
-        .match-detail-item span {
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .swipe-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 2rem; /* Increased gap for better spacing */
-            margin-top: 2.5rem; /* More space */
-            position: absolute; /* Position relative to roommate-match-container */
-            bottom: 20px; /* Adjust as needed to place below card */
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 30;
-        }
-
-        .swipe-button {
-            width: 65px; /* Larger buttons */
-            height: 65px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.2rem; /* Larger icon size */
-            cursor: pointer;
-            transition: var(--transition-ease);
-            box-shadow: var(--shadow-md);
-            border: 3px solid transparent; /* Thicker border */
-        }
-
-        .swipe-button:hover {
-            transform: scale(1.15); /* More pronounced scale */
-            box-shadow: var(--shadow-lg);
-        }
-
-        .swipe-button.skip {
-            background-color: #ef4444; /* Red for skip */
-            color: white;
-            border-color: #dc2626;
-        }
-
-        .swipe-button.like {
-            background-color: var(--primary-blue); /* Primary blue for like */
-            color: white;
-            border-color: var(--primary-dark-blue);
-        }
-
-        /* --- Tag Input for Lifestyle Preferences --- */
-        .tag-input-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem; /* Spacing between tags */
-            padding: 0.75rem;
-            border: 1px solid var(--border-subtle);
-            border-radius: 0.75rem;
-            background-color: var(--secondary-gray);
-        }
-
-        .tag {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            background-color: #e0e7ff; /* Light blue background for unselected */
-            color: #3b82f6; /* Blue text */
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            border: 1px solid #93c5fd;
-        }
-
-        .tag:hover {
-            background-color: #bfdbfe; /* Slightly darker blue on hover */
-            transform: translateY(-2px);
-        }
-
-        .tag.selected {
-            background-color: var(--primary-blue); /* Primary blue for selected */
-            color: white;
-            border-color: var(--primary-dark-blue);
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* --- Tabbed Content Styles --- */
-        .main-content-tabs {
-            display: flex;
-            border-bottom: 2px solid var(--border-subtle); /* Thicker, more prominent border */
-            margin-bottom: 2rem; /* More space */
-            overflow-x: auto; /* Allow horizontal scroll on small screens */
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .main-content-tab-button {
-            padding: 1rem 1.5rem; /* Increased padding */
-            font-weight: 600;
-            color: var(--text-light);
-            transition: var(--transition-ease);
-            cursor: pointer;
-            border-bottom: 3px solid transparent; /* Thicker border for active state */
-            margin-bottom: -2px; /* Align border */
-            white-space: nowrap; /* Prevent wrapping */
-            font-size: 1.05rem;
-        }
-
-        .main-content-tab-button:hover {
-            color: var(--primary-blue);
-        }
-
-        .main-content-tab-button.active {
-            color: var(--primary-blue);
-            border-color: var(--primary-blue);
-            font-weight: 700;
-        }
-
-        /* --- Modals --- */
-        .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.7); /* Darker, more opaque backdrop */
-            backdrop-filter: blur(10px); /* More blur */
-            -webkit-backdrop-filter: blur(10px);
-            transition: backdrop-filter 0.3s ease-out;
-        }
-
-        .activity-detail-modal-content .detail-item {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 1rem; /* More space */
-            font-size: 1rem;
-            color: var(--text-medium);
-        }
-
-        .activity-detail-modal-content .detail-item i {
-            margin-right: 1rem; /* More space */
-            color: var(--primary-blue); /* Icons match primary blue */
-            width: 1.2rem;
-            text-align: center;
-            flex-shrink: 0;
-            padding-top: 0.1rem;
-        }
-        .activity-detail-modal-content .detail-item span {
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-        .activity-detail-modal-content .detail-item p {
-            margin-top: 0.1rem;
-            font-size: 0.95rem;
-            color: var(--text-medium);
-        }
-        /* Fix for Recent Activity Details - Ensure text wraps and is visible */
-        .activity-detail-modal-content p.whitespace-pre-wrap {
-            white-space: pre-wrap; /* Preserve whitespace and allow wrapping */
-            word-break: break-word; /* Break long words */
-            max-height: 250px; /* Increased limit height for scroll */
-            overflow-y: auto; /* Enable scroll if content overflows */
-            background-color: var(--secondary-gray); /* Light background for code/long text blocks */
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid var(--border-subtle);
-        }
-        .compatibility-score-modal {
-            font-weight: 700;
-            background: linear-gradient(45deg, var(--primary-blue), var(--primary-dark-blue));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-
-        /* --- Specific Card Styles (kept for consistency with old code) --- */
-        .rent-checker-result-card {
-            background: linear-gradient(135deg, #e0f7fa, #b2ebf2); /* Lighter, softer blue gradient */
-            border: 1px solid #80deea;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition-ease);
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-        .rent-checker-result-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-        }
-        .rent-checker-result-card .icon-wrapper {
-            width: 3.2rem; /* Slightly larger icon wrapper */
-            height: 3.2rem;
-            min-width: 3.2rem;
-            min-height: 3.2rem;
-            border-radius: 0.75rem;
-            background-color: var(--primary-blue);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6rem; /* Larger icon */
-            box-shadow: var(--shadow-sm);
-        }
-        .rent-checker-result-card .details {
-            flex-grow: 1;
-        }
-        .rent-checker-result-card .details p {
-            margin-bottom: 0.3rem;
-            font-size: 0.98rem; /* Slightly larger text */
-            color: var(--text-medium);
-        }
-        .rent-checker-result-card .details .highlight {
-            font-weight: 700;
-            color: var(--primary-dark-blue);
-        }
-        .rent-checker-result-card .details .timestamp {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            margin-top: 0.6rem;
-        }
-
-        /* Small icon wrapper for service results */
-        .icon-wrapper-small {
-            width: 2.5rem;
-            height: 2.5rem;
-            min-width: 2.5rem;
-            min-height: 2.5rem;
-            border-radius: 0.6rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* Chat Modal Specific Styles */
+        /* --- Chat Modal Specific Styles --- */
         .chat-modal-content {
             display: flex;
             flex-direction: column;
@@ -1023,7 +620,7 @@
                                 data-activity-type="Rent Check"
                                 data-service-details-id="service_details_rent_check_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper bg-blue-100 text-blue-600">
+                                <div class="icon-wrapper-small bg-blue-100 text-blue-600">
                                     <i class="fas fa-gbp-sign"></i>
                                 </div>
                                 <div class="details">
@@ -1335,12 +932,12 @@
         // Global variable for current user's UID (Django PK)
         // This will be set from a Django template variable if the user is authenticated.
         // For anonymous users, it will remain null or a temporary ID.
-        let currentUserId = "{{ request.user.pk|default:'null' }}";
-        if (currentUserId === 'null') {
-            currentUserId = null; // Ensure it's a proper null if not authenticated
-        } else {
-            currentUserId = String(currentUserId); // Ensure it's a string
-        }
+        const currentUserId = "{{ request.user.pk|default:'null' }}"; 
+        // These variables are intentionally NOT declared with let/const here to avoid redeclaration errors.
+        // They will be implicitly global if not already declared in a broader scope.
+        var chatPartnerUid = null;
+        var chatPartnerName = '';
+        var chatPollingInterval = null;
 
         // Helper function to show toast notifications
         function showToast(message, type = 'success') {
@@ -1808,7 +1405,7 @@
                     <div class="text-left space-y-3">
                         <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Analyzed At:</span> ${formatDate(details.analyzed_at)}</div>
                         <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Original Text:</span> <p class="whitespace-pre-wrap text-sm max-h-40 overflow-y-auto border p-2 rounded">${details.original_text || 'No original text provided.'}</p></div>
-                        <div class="detail-item"><i class="fas fa-robot"></i><span class="font-semibold">AI Analysis:</span> <p class="whitespace-pre-wrap text-sm max-h-60 overflow-y-auto border p-2 rounded">${details.analysis_result || 'No detailed analysis available.'}</p></div>
+                        <div class="detail-item"><i class="fas fa-robot"></i><span class="font-semibold">AI Analysis:</span> <p class="whitespace-pre-wrap">${details.analysis_result || 'No detailed analysis available.'}</p></div>
                     </div>
                 `;
             } else if (activityType === 'Rent Declaration Check') {
@@ -1938,6 +1535,64 @@
 
 
         // --- Chat Functionality (Django Polling) ---
+        // Removed Firebase SDK imports as we are using Django polling
+        // import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        // import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase variables (no longer needed for Django polling chat)
+        // let app;
+        // let db;
+        // let auth;
+        // let userId = null; // Will be set after auth
+        // let currentChatUnsubscribe = null; // To manage chat listeners
+
+        // Firebase Configuration (no longer needed for Django polling chat)
+        // const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        // const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // Initialize Firebase and authenticate (no longer needed for Django polling chat)
+        /*
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (Object.keys(firebaseConfig).length > 0) {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("Firebase user authenticated:", userId);
+                    } else {
+                        try {
+                            // If no user, sign in anonymously
+                            const anonymousUser = await signInAnonymously(auth);
+                            userId = anonymousUser.user.uid;
+                            console.log("Signed in anonymously:", userId);
+                        } catch (error) {
+                            console.error("Firebase Anonymous Auth Error:", error);
+                            showToast("Failed to authenticate with Firebase. Chat may not work.", "error");
+                        }
+                    }
+                });
+
+                // Attempt custom token sign-in if available
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    try {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                        console.log("Signed in with custom token.");
+                    } catch (error) {
+                        console.error("Firebase Custom Token Auth Error:", error);
+                        showToast("Failed to authenticate with custom token. Chat may not work.", "error");
+                    }
+                }
+            } else {
+                console.warn("Firebase config not found. Chat functionality will be disabled.");
+                showToast("Firebase not configured. Chat functionality disabled.", "error");
+            }
+        });
+        */
+
         const chatModal = document.getElementById('chat-modal');
         const closeChatModalBtn = document.getElementById('close-chat-modal-btn');
         const chatPartnerNameSpan = document.getElementById('chat-partner-name');
@@ -1945,9 +1600,11 @@
         const chatMessageInput = document.getElementById('chat-message-input');
         const sendChatMessageBtn = document.getElementById('send-chat-message-btn');
 
-        let chatPartnerUid = null;
-        let chatPartnerName = '';
-        let chatPollingInterval = null; // To store the interval ID for polling
+        // These are now declared once globally using 'var' to avoid redeclaration errors
+        // if the script is somehow re-evaluated in the same global scope.
+        var chatPartnerUid = null;
+        var chatPartnerName = '';
+        var chatPollingInterval = null;
 
         // Event listener for "Start Chat" button in activity details modal
         if (modalStartChatBtn) {
