@@ -7,7 +7,6 @@
     <title>Roomto.Live Dashboard</title>
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{% static 'fairrent_app/favicon.ico' %}">
-    `<a href="{% url 'fairrent_app:index' %}" class="btn-secondary ... " data-content-target="dashboard-home">`
     <!-- Tailwind CSS for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font for a clean, modern look -->
@@ -44,10 +43,10 @@
 
         /* --- Main Content Styles (Adjusted for No Sidebar) --- */
         .main-content {
-            margin-left: 0; /* No sidebar, so no left margin */
+            /* Removed margin-left as there's no sidebar */
             padding: 2.5rem 3rem; /* Generous padding on all sides */
             min-height: 100vh;
-            transition: margin-left var(--transition-ease);
+            /* Removed transition for margin-left as it's no longer dynamic */
         }
 
         /* Top Header Styling */
@@ -1090,7 +1089,7 @@
                                     "property_address": "{{ complaint.property_address|escapejs }}",
                                     "landlord_name": "{{ complaint.landlord_name|default:''|escapejs }}",
                                     "description": "{{ complaint.description|escapejs }}",
-                                    "status": "{{ complaint.get_status_type_display|escapejs }}", {# Corrected from get_status_display to get_status_type_display #}
+                                    "status": "{{ complaint.get_status_display|escapejs }}", 
                                     "submitted_at": "{{ complaint.submitted_at|date:"Y-m-d H:i:s" }}"
                                 }
                             </script>
