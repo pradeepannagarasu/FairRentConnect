@@ -5,150 +5,87 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Roomto.Live Dashboard</title>
-    <!-- Tailwind CSS for utility classes -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font for a clean, modern look -->
+    <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Font Awesome for icons -->
+    <!-- Font Awesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom Styles for Dashboard Theme -->
     <style>
-        /* --- Root Variables for Refined Professional Theme --- */
         :root {
-            --primary-blue: #2563eb; /* Stronger, more vibrant blue */
-            --primary-dark-blue: #1d4ed8; /* Darker primary for accents */
-            --secondary-gray: #f3f4f6; /* Very light gray for backgrounds */
-            --text-dark: #111827; /* Near black for main text */
-            --text-medium: #4b5563; /* Medium gray for secondary text */
-            --text-light: #6b7280; /* Lighter gray for subtle text */
-            --bg-page: #f9fafb; /* Overall page background */
-            --bg-card: #ffffff; /* Pure white for cards */
-            --border-subtle: #e5e7eb; /* Light border color */
+            --primary-blue: #2563eb;
+            --primary-dark-blue: #1d4ed8;
+            --secondary-gray: #f3f4f6;
+            --text-dark: #111827;
+            --text-medium: #4b5563;
+            --text-light: #6b7280;
+            --bg-page: #f9fafb;
+            --bg-card: #ffffff;
+            --border-subtle: #e5e7eb;
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --transition-ease: all 0.2s ease-in-out;
         }
-
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-page);
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
             color: var(--text-dark);
-            overflow-x: hidden; /* Prevent horizontal scroll issues */
+            overflow-x: hidden;
         }
-
-        /* --- Sidebar Styles --- */
         .sidebar {
-            background-color: var(--text-dark); /* Dark background for sidebar */
+            background-color: var(--text-dark);
             color: var(--secondary-gray);
-            width: 280px; /* Slightly wider sidebar for more space */
+            width: 280px;
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
             z-index: 100;
-            box-shadow: var(--shadow-lg); /* More pronounced shadow */
+            box-shadow: var(--shadow-lg);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             transition: transform var(--transition-ease);
-            will-change: transform;
         }
-
         .sidebar.hidden-mobile {
             transform: translateX(-100%);
         }
-
         .sidebar-logo {
-            font-size: 2rem; /* Larger, more impactful logo */
-            font-weight: 900; /* Extra bold */
-            margin: 2.5rem 2rem 2rem 2rem; /* Generous padding */
-            color: var(--primary-blue); /* Primary blue for logo accent */
-            letter-spacing: -0.5px; /* Tighter letter spacing for modern feel */
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 2.5rem 2rem 2rem 2rem;
+            color: var(--primary-blue);
             display: flex;
             align-items: center;
-            gap: 12px; /* More space between icon and text */
+            gap: 12px;
         }
-        .sidebar-logo svg {
-            color: var(--primary-blue); /* Ensure SVG matches logo text color */
-        }
-
-        .sidebar nav {
-            flex: 1;
-        }
-
-        .sidebar ul {
-            list-style: none;
-            padding: 0 1.5rem; /* Consistent padding */
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem; /* Increased gap between menu items */
-        }
-
-        .sidebar li {
-            border-radius: 0.75rem; /* More rounded corners for softness */
-            transition: background var(--transition-ease), color var(--transition-ease), transform var(--transition-ease);
-        }
-
+        .sidebar-logo svg { color: var(--primary-blue); }
+        .sidebar nav { flex: 1; }
+        .sidebar ul { list-style: none; padding: 0 1.5rem; margin: 0; display: flex; flex-direction: column; gap: 0.75rem; }
         .sidebar a {
             display: flex;
             align-items: center;
-            gap: 1.25rem; /* More space between icon and text */
+            gap: 1.25rem;
             text-decoration: none;
-            font-size: 1.05rem; /* Slightly larger font size for readability */
+            font-size: 1.05rem;
             font-weight: 600;
             color: var(--secondary-gray);
-            padding: 0.9rem 1.25rem; /* More vertical padding */
+            padding: 0.9rem 1.25rem;
             border-radius: 0.75rem;
             transition: var(--transition-ease);
-            position: relative;
-            outline: none;
         }
-
-        .sidebar a.active,
-        .sidebar a:focus,
-        .sidebar a:hover {
+        .sidebar a.active, .sidebar a:hover {
             background-color: var(--primary-blue);
-            color: var(--bg-card) !important; /* White text */
-            box-shadow: var(--shadow-md); /* Clearer shadow on hover/active */
-            transform: translateX(8px); /* More noticeable slide effect */
+            color: var(--bg-card) !important;
+            box-shadow: var(--shadow-md);
+            transform: translateX(8px);
         }
-        .sidebar a i {
-            font-size: 1.2rem; /* Larger icons */
-        }
-
-        .sidebar-footer {
-            padding: 2rem; /* More padding for footer */
-            border-top: 1px solid rgba(255, 255, 255, 0.15); /* Slightly more visible border */
-            font-size: 0.95rem;
-            opacity: 0.9;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem; /* Space between footer links */
-        }
-        .sidebar-footer a {
-            padding: 0.6rem 0; /* Adjusted padding for footer links */
-            font-size: 1rem; /* Consistent font size for footer links */
-            color: var(--secondary-gray);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: color var(--transition-ease);
-        }
-        .sidebar-footer a:hover {
-            color: var(--primary-blue); /* Highlight color for footer links */
-            background: none;
-            transform: none;
-            box-shadow: none;
-        }
-        .sidebar-footer a i {
-            font-size: 1.1rem;
-        }
-
-        /* --- Sidebar Toggle (Hamburger) --- */
+        .sidebar a i { font-size: 1.2rem; }
+        .sidebar-footer { padding: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.15); }
+        .sidebar-footer a { color: var(--secondary-gray); display: flex; align-items: center; gap: 1rem; transition: color var(--transition-ease); }
+        .sidebar-footer a:hover { color: var(--primary-blue); background: none; transform: none; box-shadow: none; }
         .sidebar-toggle {
             display: none;
             position: fixed;
@@ -158,328 +95,42 @@
             background-color: var(--primary-blue);
             color: var(--bg-card);
             border: none;
-            font-size: 1.9rem; /* Larger, more clickable icon */
+            font-size: 1.9rem;
             padding: 0.7rem 0.9rem;
-            border-radius: 0.75rem; /* More rounded corners */
+            border-radius: 0.75rem;
             cursor: pointer;
             box-shadow: var(--shadow-md);
-            transition: var(--transition-ease);
-            outline: none;
         }
-
-        .sidebar-toggle:focus {
-            outline: 3px solid var(--primary-dark-blue); /* Thicker focus ring */
-            outline-offset: 3px;
-        }
-        .sidebar-toggle:hover {
-            background-color: var(--primary-dark-blue);
-            transform: translateY(-3px) scale(1.02); /* More pronounced lift and slight scale */
-        }
-
-        /* --- Main Content Styles --- */
         .main-content {
-            margin-left: 280px; /* Adjust margin to match wider sidebar */
-            padding: 2.5rem 3rem; /* Generous padding on all sides */
+            margin-left: 280px;
+            padding: 2.5rem 3rem;
             min-height: 100vh;
             transition: margin-left var(--transition-ease);
         }
-
-        .dashboard-header {
-            font-size: 3rem; /* Larger, more prominent heading */
-            font-weight: 900;
-            margin-bottom: 1.5rem; /* Adjust spacing */
-            letter-spacing: -1px; /* Tighter for modern look */
-            color: var(--text-dark);
-            animation: slide-in 1s cubic-bezier(.45,1.6,.8,1.2) .2s both;
-        }
-        .dashboard-header + p { /* Description paragraph below header */
-            font-size: 1.1rem;
-            color: var(--text-medium);
-            margin-bottom: 2.5rem; /* More space below description */
-        }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Larger min-width for cards */
-            gap: 2rem; /* Increased gap for more breathing room */
-        }
-
+        .dashboard-header { font-size: 3rem; font-weight: 900; margin-bottom: 1.5rem; letter-spacing: -1px; }
+        .dashboard-header + p { font-size: 1.1rem; color: var(--text-medium); margin-bottom: 2.5rem; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
         .dashboard-card {
             background-color: var(--bg-card);
-            border-radius: 1.25rem; /* Even more rounded corners */
-            box-shadow: var(--shadow-md); /* Consistent shadow */
-            padding: 2rem; /* Generous padding */
-            transition: var(--transition-ease);
-            position: relative;
-            overflow: hidden;
-            animation: fade-up 0.7s cubic-bezier(.45,1.6,.8,1.2) both;
-            border: 1px solid var(--border-subtle); /* Subtle border */
-        }
-
-        .dashboard-card:hover {
-            box-shadow: var(--shadow-lg); /* More pronounced lift */
-            transform: translateY(-7px) scale(1.01); /* Deeper lift and slight scale */
-        }
-
-        .dashboard-card .card-title {
-            font-size: 1.35rem; /* Larger title */
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: var(--primary-blue);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem; /* More space */
-        }
-        .dashboard-card .card-title i {
-            color: var(--primary-dark-blue);
-        }
-
-        .dashboard-card .card-value {
-            font-size: 3rem; /* Much larger value */
-            font-weight: 900;
-            margin-bottom: 0.4rem;
-            color: var(--text-dark);
-            letter-spacing: -0.5px;
-        }
-
-        .dashboard-card .card-desc {
-            color: var(--text-light);
-            font-size: 0.95rem; /* Slightly larger description text */
-        }
-
-        /* --- Animations --- */
-        @keyframes fade-up {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slide-in {
-            0% { opacity: 0; transform: translateX(-20px); }
-            100% { opacity: 1; transform: translateX(0); }
-        }
-
-        /* --- Responsive Styles --- */
-        @media (max-width: 1200px) {
-            .main-content { margin-left: 250px; padding: 2rem 2.5rem; } /* Adjusted padding */
-            .sidebar { width: 250px;}
-            .sidebar-logo { font-size: 1.8rem; margin: 2rem 1.5rem 1.5rem 1.5rem; }
-            .sidebar a { font-size: 1rem; padding: 0.8rem 1rem; gap: 1rem; }
-            .sidebar a i { font-size: 1.1rem; }
-            .sidebar-footer { padding: 1.5rem; gap: 0.5rem; }
-            .sidebar-footer a { font-size: 0.95rem; gap: 0.75rem; }
-            .dashboard-header { font-size: 2.5rem; }
-            .dashboard-header + p { font-size: 1rem; }
-            .cards-grid { gap: 1.5rem; }
-            .dashboard-card { padding: 1.8rem; }
-            .dashboard-card .card-title { font-size: 1.2rem; }
-            .dashboard-card .card-value { font-size: 2.5rem; }
-            .dashboard-card .card-desc { font-size: 0.9rem; }
-            .roommate-match-card { max-width: 90%; } /* Ensure it doesn't get too wide on smaller tablets */
-        }
-
-        @media (max-width: 900px) {
-            /* Increased padding-top on body to clear fixed sidebar-toggle */
-            body { padding-top: 8rem; } /* Added padding to body */
-            .main-content { margin-left: 0; padding-left: 1.5rem; padding-right: 1.5rem; padding-top: 0; } /* Remove main-content top padding as body handles it */
-            .sidebar { position: fixed; left: 0; top: 0; height: 100vh; z-index: 1001; width: 85vw; max-width: 320px; } /* Wider for better content display */
-            .sidebar.hidden-mobile {
-                transform: translateX(-100%);
-            }
-            .sidebar-toggle { display: block; }
-            .overlay {
-                display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5); /* Darker overlay */
-                z-index: 1000; /* Above content, below sidebar */
-                transition: opacity .3s ease-in-out;
-            }
-            .overlay.hidden { opacity: 0; pointer-events: none; } /* Fade out overlay */
-            .content-area {
-                margin-left: 0 !important;
-                width: 100%;
-            }
-            .dashboard-header { font-size: 2.2rem; margin-bottom: 1rem;}
-            .dashboard-header + p { font-size: 0.95rem; margin-bottom: 1.5rem; }
-            .dashboard-card { padding: 1.5rem; }
-            .dashboard-card .card-title { font-size: 1.1rem; }
-            .dashboard-card .card-value { font-size: 2.2rem; }
-            .dashboard-card .card-desc { font-size: 0.85rem; }
-            .roommate-match-card { max-width: 90%; } /* Ensure it doesn't get too wide on smaller tablets */
-        }
-
-        @media (max-width: 600px) {
-            body { font-size: 14px; padding-top: 7rem; } /* Added padding to body */
-            .main-content { padding: 1rem; padding-top: 0; } /* Remove main-content top padding as body handles it */
-            .sidebar { border-radius: 0; width: 100vw; max-width: none; } /* Full width on very small screens */
-            .sidebar-logo { font-size: 1.6rem; margin: 1.5rem; }
-            .dashboard-header { font-size: 1.8rem; margin-bottom: 0.75rem;}
-            .dashboard-header + p { font-size: 0.85rem; margin-bottom: 1rem; }
-            .dashboard-card { padding: 1rem; }
-            .cards-grid { gap: 1rem; }
-            .roommate-match-card { width: 98%; padding: 1.5rem; } /* Maximize space on small phones */
-            .roommate-match-card h4 { font-size: 1.8rem; }
-            .roommate-match-card p.text-lg { font-size: 0.9rem; }
-            .compatibility-score { font-size: 2.2rem; }
-            .roommate-match-card p.text-gray-700 { font-size: 0.85rem; }
-            .swipe-buttons { gap: 1rem; margin-top: 1.5rem; }
-            .swipe-button { width: 50px; height: 50px; font-size: 1.6rem; }
-            .activity-item { padding-left: 2rem; padding-bottom: 1rem; margin-bottom: 1rem; }
-            .activity-item::before { left: -0.4rem; width: 0.8rem; height: 0.8rem; }
-            .activity-item .activity-icon { width: 2rem; height: 2rem; font-size: 1rem; margin-right: 0.5rem; }
-            .main-content-tab-button { padding: 0.6rem 0.8rem; font-size: 0.9rem; }
-        }
-
-        /* --- Custom styles from profile.html, adapted for new theme --- */
-        .glass-card {
-            background: var(--bg-card); /* Use pure white for clean look */
-            backdrop-filter: none; /* Remove blur for simpler design */
-            -webkit-backdrop-filter: none;
-            border-radius: 1.25rem; /* Consistent with new card radius */
-            border: 1px solid var(--border-subtle);
+            border-radius: 1.25rem;
             box-shadow: var(--shadow-md);
-            transition: var(--transition-ease);
-        }
-
-        .glass-card:hover {
-            transform: translateY(-7px) scale(1.01); /* Consistent with new card hover */
-            box-shadow: var(--shadow-lg);
-        }
-
-        .gradient-text {
-            background: linear-gradient(90deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%); /* Blue gradient */
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .btn-hover-effect {
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .btn-hover-effect::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, var(--primary-dark-blue), var(--primary-blue)); /* Blue gradient for buttons */
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .btn-hover-effect:hover::before {
-            opacity: 1;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-blue);
-            color: white;
-            padding: 0.9rem 1.8rem; /* Increased padding */
-            border-radius: 0.75rem; /* More rounded */
-            font-weight: 600;
-            transition: var(--transition-ease);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-dark-blue);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn-secondary {
-            background-color: var(--secondary-gray);
-            color: var(--primary-blue);
-            padding: 0.9rem 1.8rem; /* Increased padding */
-            border-radius: 0.75rem; /* More rounded */
-            font-weight: 600;
-            transition: var(--transition-ease);
-            border: 1px solid var(--border-subtle);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .btn-secondary:hover {
-            background-color: #d1d5db; /* Slightly darker gray */
-            color: var(--primary-dark-blue);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .spinner {
-            border-top-color: var(--primary-blue);
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1rem center;
-            background-size: 1.5em 1.5em;
-            padding-right: 3rem;
-        }
-
-        /* --- Activity Feed Items --- */
-        .activity-item {
-            position: relative;
-            padding-left: 3rem; /* More space for dot */
-            border-left: 2px solid var(--border-subtle);
-            padding-bottom: 1.5rem; /* Increased padding */
-            margin-bottom: 1.5rem; /* Increased margin */
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .activity-item:last-child {
-            border-left: none;
-            padding-bottom: 0;
-            margin-bottom: 0;
-        }
-
-        .activity-item::before {
-            content: '';
-            position: absolute;
-            left: -0.6rem; /* Adjust position of dot */
-            top: 0.5rem; /* Adjusted vertical position */
-            width: 1.2rem; /* Larger dot */
-            height: 1.2rem;
-            border-radius: 50%;
-            background: var(--primary-blue); /* Primary blue dot */
-            border: 4px solid var(--bg-page); /* Background color border */
-            z-index: 1;
-        }
-
-        .activity-item .content {
-            background-color: var(--bg-card);
-            border-radius: 1rem; /* More rounded */
-            padding: 1.25rem; /* More padding */
-            box-shadow: var(--shadow-sm);
+            padding: 2rem;
             transition: var(--transition-ease);
             border: 1px solid var(--border-subtle);
         }
-
-        .activity-item:hover .content {
-            box-shadow: var(--shadow-md);
-            transform: translateY(-3px);
-        }
-
-        .activity-item .activity-icon {
-            width: 2.5rem; /* Larger icon wrapper */
-            height: 2.5rem;
-            border-radius: 0.75rem; /* More rounded */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem; /* Larger icon */
-            margin-right: 1rem; /* More space */
-        }
-        /* Specific colors for activity icons */
+        .dashboard-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-7px) scale(1.01); }
+        .dashboard-card .card-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 1rem; color: var(--primary-blue); display: flex; align-items: center; gap: 0.75rem; }
+        .btn-primary { background-color: var(--primary-blue); color: white; padding: 0.9rem 1.8rem; border-radius: 0.75rem; font-weight: 600; transition: var(--transition-ease); box-shadow: var(--shadow-md); }
+        .btn-primary:hover { background-color: var(--primary-dark-blue); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+        .btn-secondary { background-color: var(--secondary-gray); color: var(--primary-blue); padding: 0.9rem 1.8rem; border-radius: 0.75rem; font-weight: 600; transition: var(--transition-ease); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm); }
+        .btn-secondary:hover { background-color: #d1d5db; color: var(--primary-dark-blue); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .gradient-text { background: linear-gradient(90deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .activity-item { position: relative; padding-left: 3rem; border-left: 2px solid var(--border-subtle); padding-bottom: 1.5rem; margin-bottom: 1.5rem; cursor: pointer; }
+        .activity-item:last-child { border-left: none; padding-bottom: 0; margin-bottom: 0; }
+        .activity-item::before { content: ''; position: absolute; left: -0.6rem; top: 0.5rem; width: 1.2rem; height: 1.2rem; border-radius: 50%; background: var(--primary-blue); border: 4px solid var(--bg-page); z-index: 1; }
+        .activity-item .content { background-color: var(--bg-card); border-radius: 1rem; padding: 1.25rem; box-shadow: var(--shadow-sm); transition: var(--transition-ease); border: 1px solid var(--border-subtle); }
+        .activity-item:hover .content { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+        .activity-icon { width: 2.5rem; height: 2.5rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-right: 1rem; }
         .bg-red-100 { background-color: #fee2e2; } .text-red-600 { color: #dc2626; }
         .bg-green-100 { background-color: #d1fae5; } .text-green-600 { color: #059669; }
         .bg-blue-100 { background-color: #dbeafe; } .text-blue-600 { color: #2563eb; }
@@ -488,342 +139,40 @@
         .bg-indigo-100 { background-color: #e0e7ff; } .text-indigo-600 { color: #4f46e5; }
         .bg-teal-100 { background-color: #ccfbf1; } .text-teal-600 { color: #0d9488; }
         .bg-orange-100 { background-color: #ffedd5; } .text-orange-600 { color: #ea580c; }
-
-
-        /* --- Roommate Card (Enhanced for Mobile) --- */
-        .roommate-match-container {
-            position: relative;
-            min-height: 550px; /* Increased min-height to ensure space for card + buttons */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--secondary-gray); /* Light gray background for the container */
-            border-radius: 1.25rem; /* Consistent with new card radius */
-            border: 1px solid var(--border-subtle);
-            overflow: hidden; /* Important for card animation */
-            padding-bottom: 80px; /* Added padding to ensure swipe buttons are not clipped by card */
-        }
-
-        .roommate-match-card {
-            /* Removed position: absolute; to allow natural flow */
-            width: 95%; /* Wider for better content display */
-            max-width: 480px; /* Increased max-width for better desktop look */
-            height: auto; /* Let content dictate height */
-            padding: 2.5rem; /* Increased padding */
-            text-align: center;
-            background-color: var(--bg-card);
-            border-radius: 1.25rem;
-            box-shadow: var(--shadow-md);
-            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2), opacity 0.5s ease-out, box-shadow 0.4s ease;
-            transform-origin: center bottom;
-            will-change: transform, opacity;
-            border: 1px solid var(--border-subtle);
-            margin: auto; /* Center the card horizontally */
-            flex-shrink: 0; /* Prevent card from shrinking */
-        }
-
-        .roommate-match-card.swiping-right {
-            transform: translateX(200%) rotate(45deg);
-            opacity: 0;
-        }
-
-        .roommate-match-card.swiping-left {
-            transform: translateX(-200%) rotate(-45deg);
-            opacity: 0;
-        }
-
-        .roommate-match-card img {
-            width: 110px; /* Slightly larger avatar */
-            height: 110px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 1.5rem; /* More space */
-            border: 4px solid var(--primary-blue); /* Primary blue border */
-            box-shadow: var(--shadow-sm);
-        }
-
-        .roommate-match-card h4 {
-            font-size: 2.5rem; /* Larger heading size */
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 0.75rem;
-        }
-
-        .roommate-match-card p.text-lg { /* Targeting location/general text */
-            font-size: 1.05rem;
-            color: var(--text-medium);
-            margin-bottom: 1.25rem;
-        }
-
-        .compatibility-score {
-            font-size: 3.2rem; /* Larger score */
-            font-weight: 900;
-            background: linear-gradient(45deg, var(--primary-blue), var(--primary-dark-blue)); /* Blue gradient for score */
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: -0.05em;
-            margin-top: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .roommate-match-card p.text-gray-700 { /* Targeting bio text */
-            font-size: 1rem; /* Clearer bio for readability */
-            color: var(--text-medium);
-            line-height: 1.6;
-            text-align: center;
-            margin-bottom: 2rem; /* More space */
-            white-space: normal; /* Ensure text wraps */
-            max-height: 120px; /* Limit height for scrollable bio */
-            overflow-y: auto; /* Enable vertical scrolling for bio */
-            /* Removed text-overflow: ellipsis; and overflow: hidden; to allow full scroll */
-        }
-
-        .match-detail-item {
-            display: flex;
-            align-items: flex-start; /* Align icon to top of text */
-            margin-bottom: 0.8rem; /* More space */
-            font-size: 1rem;
-            color: var(--text-medium);
-        }
-
-        .match-detail-item i {
-            margin-right: 1rem; /* More space */
-            color: var(--primary-blue); /* Icons match primary blue */
-            width: 1.3rem; /* Larger icon */
-            text-align: center;
-            flex-shrink: 0;
-            padding-top: 0.1rem;
-        }
-        .match-detail-item span {
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .swipe-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 2rem; /* Increased gap for better spacing */
-            margin-top: 2.5rem; /* More space */
-            position: absolute; /* Position relative to roommate-match-container */
-            bottom: 20px; /* Adjust as needed to place below card */
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 30;
-        }
-
-        .swipe-button {
-            width: 65px; /* Larger buttons */
-            height: 65px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.2rem; /* Larger icon size */
-            cursor: pointer;
-            transition: var(--transition-ease);
-            box-shadow: var(--shadow-md);
-            border: 3px solid transparent; /* Thicker border */
-        }
-
-        .swipe-button:hover {
-            transform: scale(1.15); /* More pronounced scale */
-            box-shadow: var(--shadow-lg);
-        }
-
-        .swipe-button.skip {
-            background-color: #ef4444; /* Red for skip */
-            color: white;
-            border-color: #dc2626;
-        }
-
-        .swipe-button.like {
-            background-color: var(--primary-blue); /* Primary blue for like */
-            color: white;
-            border-color: var(--primary-dark-blue);
-        }
-
-        /* --- Tag Input for Lifestyle Preferences --- */
-        .tag-input-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem; /* Spacing between tags */
-            padding: 0.75rem;
-            border: 1px solid var(--border-subtle);
-            border-radius: 0.75rem;
-            background-color: var(--secondary-gray);
-        }
-
-        .tag {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            background-color: #e0e7ff; /* Light blue background for unselected */
-            color: #3b82f6; /* Blue text */
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            border: 1px solid #93c5fd;
-        }
-
-        .tag:hover {
-            background-color: #bfdbfe; /* Slightly darker blue on hover */
-            transform: translateY(-2px);
-        }
-
-        .tag.selected {
-            background-color: var(--primary-blue); /* Primary blue for selected */
-            color: white;
-            border-color: var(--primary-dark-blue);
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* --- Tabbed Content Styles --- */
-        .main-content-tabs {
-            display: flex;
-            border-bottom: 2px solid var(--border-subtle); /* Thicker, more prominent border */
-            margin-bottom: 2rem; /* More space */
-            overflow-x: auto; /* Allow horizontal scroll on small screens */
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .main-content-tab-button {
-            padding: 1rem 1.5rem; /* Increased padding */
-            font-weight: 600;
-            color: var(--text-light);
-            transition: var(--transition-ease);
-            cursor: pointer;
-            border-bottom: 3px solid transparent; /* Thicker border for active state */
-            margin-bottom: -2px; /* Align border */
-            white-space: nowrap; /* Prevent wrapping */
-            font-size: 1.05rem;
-        }
-
-        .main-content-tab-button:hover {
-            color: var(--primary-blue);
-        }
-
-        .main-content-tab-button.active {
-            color: var(--primary-blue);
-            border-color: var(--primary-blue);
-            font-weight: 700;
-        }
-
-        /* --- Modals --- */
-        .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.7); /* Darker, more opaque backdrop */
-            backdrop-filter: blur(10px); /* More blur */
-            -webkit-backdrop-filter: blur(10px);
-            transition: backdrop-filter 0.3s ease-out;
-        }
-
-        .activity-detail-modal-content .detail-item {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 1rem; /* More space */
-            font-size: 1rem;
-            color: var(--text-medium);
-        }
-
-        .activity-detail-modal-content .detail-item i {
-            margin-right: 1rem; /* More space */
-            color: var(--primary-blue); /* Icons match primary blue */
-            width: 1.2rem;
-            text-align: center;
-            flex-shrink: 0;
-            padding-top: 0.1rem;
-        }
-        .activity-detail-modal-content .detail-item span {
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-        .activity-detail-modal-content .detail-item p {
-            margin-top: 0.1rem;
-            font-size: 0.95rem;
-            color: var(--text-medium);
-        }
-        /* Fix for Recent Activity Details - Ensure text wraps and is visible */
-        .activity-detail-modal-content p.whitespace-pre-wrap {
-            white-space: pre-wrap; /* Preserve whitespace and allow wrapping */
-            word-break: break-word; /* Break long words */
-            max-height: 250px; /* Increased limit height for scroll */
-            overflow-y: auto; /* Enable scroll if content overflows */
-            background-color: var(--secondary-gray); /* Light background for code/long text blocks */
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid var(--border-subtle);
-        }
-        .compatibility-score-modal {
-            font-weight: 700;
-            background: linear-gradient(45deg, var(--primary-blue), var(--primary-dark-blue));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-
-        /* --- Specific Card Styles (kept for consistency with old code) --- */
-        .rent-checker-result-card {
-            background: linear-gradient(135deg, #e0f7fa, #b2ebf2); /* Lighter, softer blue gradient */
-            border: 1px solid #80deea;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition-ease);
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-        .rent-checker-result-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-        }
-        .rent-checker-result-card .icon-wrapper {
-            width: 3.2rem; /* Slightly larger icon wrapper */
-            height: 3.2rem;
-            min-width: 3.2rem;
-            min-height: 3.2rem;
-            border-radius: 0.75rem;
-            background-color: var(--primary-blue);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6rem; /* Larger icon */
-            box-shadow: var(--shadow-sm);
-        }
-        .rent-checker-result-card .details {
-            flex-grow: 1;
-        }
-        .rent-checker-result-card .details p {
-            margin-bottom: 0.3rem;
-            font-size: 0.98rem; /* Slightly larger text */
-            color: var(--text-medium);
-        }
-        .rent-checker-result-card .details .highlight {
-            font-weight: 700;
-            color: var(--primary-dark-blue);
-        }
-        .rent-checker-result-card .details .timestamp {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            margin-top: 0.6rem;
-        }
-
-        /* Small icon wrapper for service results */
-        .icon-wrapper-small {
-            width: 2.5rem;
-            height: 2.5rem;
-            min-width: 2.5rem;
-            min-height: 2.5rem;
-            border-radius: 0.6rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            box-shadow: var(--shadow-sm);
+        .roommate-match-container { position: relative; min-height: 550px; display: flex; align-items: center; justify-content: center; background-color: var(--secondary-gray); border-radius: 1.25rem; border: 1px solid var(--border-subtle); overflow: hidden; }
+        .roommate-match-card { width: 95%; max-width: 480px; height: auto; padding: 2.5rem; text-align: center; background-color: var(--bg-card); border-radius: 1.25rem; box-shadow: var(--shadow-md); transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2), opacity 0.5s ease-out; transform-origin: center bottom; border: 1px solid var(--border-subtle); margin: auto; }
+        .roommate-match-card.swiping-right { transform: translateX(200%) rotate(45deg); opacity: 0; }
+        .roommate-match-card.swiping-left { transform: translateX(-200%) rotate(-45deg); opacity: 0; }
+        .compatibility-score { font-size: 3.2rem; font-weight: 900; background: linear-gradient(45deg, var(--primary-blue), var(--primary-dark-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; margin: 1.5rem 0 2rem 0; }
+        .swipe-buttons { display: flex; justify-content: center; gap: 2rem; margin-top: 2.5rem; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 30; }
+        .swipe-button { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; cursor: pointer; transition: var(--transition-ease); box-shadow: var(--shadow-md); }
+        .swipe-button:hover { transform: scale(1.15); box-shadow: var(--shadow-lg); }
+        .swipe-button.skip { background-color: #ef4444; color: white; }
+        .swipe-button.like { background-color: var(--primary-blue); color: white; }
+        .tag-input-container { display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--border-subtle); border-radius: 0.75rem; background-color: var(--secondary-gray); }
+        .tag { display: inline-flex; align-items: center; padding: 0.5rem 1rem; border-radius: 0.5rem; background-color: #e0e7ff; color: #3b82f6; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease-in-out; border: 1px solid #93c5fd; }
+        .tag:hover { background-color: #bfdbfe; transform: translateY(-2px); }
+        .tag.selected { background-color: var(--primary-blue); color: white; border-color: var(--primary-dark-blue); box-shadow: var(--shadow-sm); }
+        .main-content-tabs { display: flex; border-bottom: 2px solid var(--border-subtle); margin-bottom: 2rem; overflow-x: auto; }
+        .main-content-tab-button { padding: 1rem 1.5rem; font-weight: 600; color: var(--text-light); transition: var(--transition-ease); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; font-size: 1.05rem; }
+        .main-content-tab-button:hover { color: var(--primary-blue); }
+        .main-content-tab-button.active { color: var(--primary-blue); border-color: var(--primary-blue); font-weight: 700; }
+        .modal-backdrop { background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .activity-detail-modal-content .detail-item { display: flex; align-items: flex-start; margin-bottom: 1rem; font-size: 1rem; color: var(--text-medium); }
+        .activity-detail-modal-content .detail-item i { margin-right: 1rem; color: var(--primary-blue); width: 1.2rem; text-align: center; flex-shrink: 0; padding-top: 0.1rem; }
+        .activity-detail-modal-content .detail-item span { font-weight: 600; color: var(--text-dark); }
+        .activity-detail-modal-content p.whitespace-pre-wrap { white-space: pre-wrap; word-break: break-word; max-height: 250px; overflow-y: auto; background-color: var(--secondary-gray); padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border-subtle); }
+        .compatibility-score-modal { font-weight: 700; background: linear-gradient(45deg, var(--primary-blue), var(--primary-dark-blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .service-result-card { border-radius: 1rem; padding: 1.5rem; box-shadow: var(--shadow-sm); transition: var(--transition-ease); }
+        .service-result-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+        @media (max-width: 900px) {
+            body { padding-top: 5rem; }
+            .main-content { margin-left: 0; padding: 1rem; padding-top: 1rem;}
+            .sidebar { z-index: 1001; width: 85vw; max-width: 320px; }
+            .sidebar-toggle { display: block; }
+            .overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; }
+            .overlay.hidden { display: none; }
+            .dashboard-header { font-size: 2.2rem; }
         }
     </style>
 </head>
@@ -836,194 +185,120 @@
     <div class="overlay hidden" id="sidebarOverlay"></div>
 
     <!-- Sidebar -->
-    <aside class="sidebar hidden-mobile" id="sidebar" tabindex="0" aria-label="Main Navigation">
+    <aside class="sidebar" id="sidebar" tabindex="-1" aria-label="Main Navigation">
         <div>
             <div class="sidebar-logo">
-                <!-- Original SVG Logo from existing code, color adjusted by CSS variable -->
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                </svg>
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 <span>Roomto.Live</span>
             </div>
             <nav aria-label="Sidebar">
                 <ul>
-                    <li>
-                        <a href="#" class="sidebar-nav-item active" data-content-target="dashboard-home">
-                            <i class="fas fa-home"></i>Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="sidebar-nav-item" data-content-target="roommate-finder-section">
-                            <i class="fas fa-users"></i>Roommate Finder
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="sidebar-nav-item" data-content-target="my-services-section">
-                            <i class="fas fa-tools"></i>My Services
-                        </a>
-                    </li>
+                    <li><a href="#" class="sidebar-nav-item" data-content-target="dashboard-home"><i class="fas fa-home"></i>Dashboard</a></li>
+                    <li><a href="#" class="sidebar-nav-item" data-content-target="roommate-finder-section"><i class="fas fa-users"></i>Roommate Finder</a></li>
+                    <li><a href="#" class="sidebar-nav-item" data-content-target="my-services-section"><i class="fas fa-tools"></i>My Services</a></li>
                 </ul>
             </nav>
         </div>
         <div class="sidebar-footer">
-            <!-- Homepage link REMOVED from here -->
-            <a href="{% url 'fairrent_app:logout' %}" class="flex items-center">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
+            <a href="{% url 'fairrent_app:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
-        <!-- Mobile Header for Sidebar Toggle -->
-        <div class="lg:hidden flex justify-between items-center mb-6">
-            <!-- Removed redundant H1 here, as the main dashboard header is below -->
-        </div>
-
-        <!-- Dashboard Header and New Top-Right Buttons -->
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8">
             <div>
                 <h1 class="dashboard-header">Welcome, <span class="gradient-text">{{ user.username }}</span>!</h1>
-                <p class="text-lg text-gray-600 mb-4 sm:mb-0">Here's a quick overview of your Roomto.Live activity.</p>
+                <p class="text-lg text-gray-600 mb-4 sm:mb-0">Here's a quick overview of your activity.</p>
             </div>
             <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-4 sm:mt-0">
-                <a href="{% url 'fairrent_app:index' %}" class="btn-secondary flex items-center justify-center btn-hover-effect">
-                    <i class="fas fa-home mr-2"></i>Homepage
-                </a>
-                <a href="#" class="btn-primary flex items-center justify-center btn-hover-effect" data-content-target="my-services-section" id="my-services-header-btn">
-                    <i class="fas fa-tools mr-2"></i>My Services
-                </a>
+                <a href="{% url 'fairrent_app:index' %}" class="btn-secondary flex items-center justify-center"><i class="fas fa-home mr-2"></i>Homepage</a>
+                <a href="#" class="btn-primary flex items-center justify-center" data-content-target="my-services-section" id="my-services-header-btn"><i class="fas fa-tools mr-2"></i>My Services</a>
             </div>
         </div>
 
-
-        <!-- Content Sections (Dynamically Swapped) -->
-        <section id="dashboard-home" class="content-section active space-y-8">
+        <!-- Dashboard Home Section -->
+        <section id="dashboard-home" class="content-section space-y-8">
             <div class="cards-grid">
-                <!-- User Info Card (Compact) -->
-                <div class="dashboard-card glass-card animate-fade-in delay-100">
-                    <h3 class="card-title"><i class="fas fa-user-circle"></i> Your Profile Overview</h3>
-                    <div class="flex items-center mb-5">
-                        <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mr-4 shadow-inner">
-                            <i class="fas fa-user fa-2x"></i>
-                        </div>
-                        <div>
-                            <p class="text-xl font-bold text-gray-900">{{ user.username }}</p>
-                            <p class="text-sm text-gray-500">{{ user.email }}</p>
-                        </div>
-                    </div>
+                <!-- User Info Card -->
+                <div class="dashboard-card">
+                    <h3 class="card-title"><i class="fas fa-user-circle"></i> Your Profile</h3>
                     <div class="text-base text-gray-600 space-y-2 border-t pt-5 mt-5 border-gray-100">
-                        <p class="flex items-center"><i class="fas fa-calendar-alt w-5 mr-3 text-gray-400"></i>Joined {{ user.date_joined|date:"F Y" }}</p>
+                        <p><i class="fas fa-user w-5 mr-3 text-gray-400"></i>{{ user.username }}</p>
+                        <p><i class="fas fa-envelope w-5 mr-3 text-gray-400"></i>{{ user.email }}</p>
                         {% if user_roommate_profile %}
-                            <p class="flex items-center"><i class="fas fa-venus-mars w-5 mr-3 text-gray-400"></i>Gender: {{ user_roommate_profile.get_gender_display|default:'N/A' }}</p>
-                            <p class="flex items-center"><i class="fas fa-money-bill-wave w-5 mr-3 text-gray-400"></i>Budget: £{{ user_roommate_profile.budget|default:'N/A' }}</p>
-                            <p class="flex items-center"><i class="fas fa-map-marker-alt w-5 mr-3 text-gray-400"></i>Location: {{ user_roommate_profile.location|default:'N/A' }}</p>
+                            <p><i class="fas fa-money-bill-wave w-5 mr-3 text-gray-400"></i>Budget: £{{ user_roommate_profile.budget|default:'N/A' }}</p>
+                            <p><i class="fas fa-map-marker-alt w-5 mr-3 text-gray-400"></i>Location: {{ user_roommate_profile.location|default:'N/A' }}</p>
                         {% else %}
-                            <p class="text-sm text-red-500">Profile not complete. Please create your profile!</p>
+                            <p class="text-sm text-red-500">Complete your profile to find roommates!</p>
                         {% endif %}
                     </div>
-                    <button id="edit-profile-btn-dashboard-home" class="btn-secondary w-full mt-6 flex items-center justify-center btn-hover-effect">
-                        <i class="fas fa-edit mr-2"></i>{% if user_roommate_profile %}Edit Profile{% else %}Create Profile{% endif %}
-                    </button>
+                    <button id="edit-profile-btn-dashboard-home" class="btn-secondary w-full mt-6"><i class="fas fa-edit mr-2"></i>{% if user_roommate_profile %}Edit Profile{% else %}Create Profile{% endif %}</button>
                 </div>
-
-                <!-- Quick Stats Card -->
-                <div class="dashboard-card glass-card animate-fade-in delay-200 col-span-1 md:col-span-1 lg:col-span-2">
+                <!-- Quick Stats -->
+                <div class="dashboard-card col-span-1 md:col-span-1 lg:col-span-2">
                     <h3 class="card-title"><i class="fas fa-chart-bar"></i> Quick Stats</h3>
-                    <div class="grid grid-cols-2 gap-4 text-center">
-                        <div class="p-4 bg-blue-50 rounded-lg shadow-sm">
-                            <p class="text-3xl font-bold text-blue-600">{{ user_rent_checks|length }}</p>
-                            <p class="text-gray-600 text-sm">Rent Checks</p>
-                        </div>
-                        <div class="p-4 bg-green-50 rounded-lg shadow-sm">
-                            <p class="text-3xl font-bold text-green-600">{{ user_reviews|length }}</p>
-                            <p class="text-gray-600 text-sm">Reviews Submitted</p>
-                        </div>
-                        <div class="p-4 bg-red-50 rounded-lg shadow-sm">
-                            <p class="text-3xl font-bold text-red-600">{{ user_complaints|length }}</p>
-                            <p class="text-gray-600 text-sm">Complaints Filed</p>
-                        </div>
-                        <div class="p-4 bg-purple-50 rounded-lg shadow-sm">
-                            <p class="text-3xl font-bold text-purple-600">{{ user_liked_profiles|length }}</p>
-                            <p class="text-gray-600 text-sm">Profiles Liked</p>
-                        </div>
-                        <!-- NEW: Contract Analyses Stat -->
-                        <div class="p-4 bg-teal-50 rounded-lg shadow-sm">
-                            <p class="text-3xl font-bold text-teal-600">{{ user_rental_contracts|length }}</p>
-                            <p class="text-gray-600 text-sm">Contracts Analyzed</p>
-                        </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
+                        <div class="p-4 bg-blue-50 rounded-lg"><p class="text-3xl font-bold text-blue-600">{{ user_rent_checks|length }}</p><p class="text-gray-600 text-sm">Rent Checks</p></div>
+                        <div class="p-4 bg-green-50 rounded-lg"><p class="text-3xl font-bold text-green-600">{{ user_reviews|length }}</p><p class="text-gray-600 text-sm">Reviews</p></div>
+                        <div class="p-4 bg-red-50 rounded-lg"><p class="text-3xl font-bold text-red-600">{{ user_complaints|length }}</p><p class="text-gray-600 text-sm">Complaints</p></div>
+                        <div class="p-4 bg-purple-50 rounded-lg"><p class="text-3xl font-bold text-purple-600">{{ user_liked_profiles|length }}</p><p class="text-gray-600 text-sm">Liked Profiles</p></div>
+                        <div class="p-4 bg-teal-50 rounded-lg"><p class="text-3xl font-bold text-teal-600">{{ user_rental_contracts|length }}</p><p class="text-gray-600 text-sm">Contracts Analyzed</p></div>
+                        <div class="p-4 bg-orange-50 rounded-lg"><p class="text-3xl font-bold text-orange-600">{{ user_forum_posts|length }}</p><p class="text-gray-600 text-sm">Forum Posts</p></div>
                     </div>
                 </div>
             </div>
-
-            <!-- Recent Activity Card (Full Width) -->
-            <div class="dashboard-card glass-card animate-fade-in delay-300">
+            <!-- Recent Activity -->
+            <div class="dashboard-card">
                 <h3 class="card-title"><i class="fas fa-history"></i> Recent Activity</h3>
                 <div id="recent-activity-list" class="space-y-3">
-                    {% if recent_activities %}
-                        {% for activity in recent_activities %}
-                            <div class="activity-item cursor-pointer"
-                                data-activity-type="{{ activity.type }}"
-                                data-activity-details-id="activity_details_{{ forloop.counter }}">
-                                <div class="content flex items-start">
-                                    <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
-                                        <i class="fas fa-{{ activity.icon }}"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-800 font-medium">{{ activity.description }}</p>
-                                        <p class="text-sm text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</p>
-                                    </div>
+                    {% for activity in recent_activities %}
+                        <div class="activity-item" data-activity-type="{{ activity.type }}" data-activity-details-id="activity_details_{{ forloop.counter }}">
+                            <div class="content flex items-start">
+                                <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600"><i class="fas fa-{{ activity.icon }}"></i></div>
+                                <div>
+                                    <p class="text-gray-800 font-medium">{{ activity.description }}</p>
+                                    <p class="text-sm text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</p>
                                 </div>
                             </div>
-                            {# Store activity details in a script tag for safe JSON parsing #}
-                            <script type="application/json" id="activity_details_{{ forloop.counter }}">
-                                {{ activity.details|json_script:"activity_details_data" }}
-                            </script>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-center text-gray-500 py-4">No recent activity to display.</p>
-                    {% endif %}
+                        </div>
+                        <script type="application/json" id="activity_details_{{ forloop.counter }}">{{ activity.details_json|safe }}</script>
+                    {% empty %}
+                        <p class="text-center text-gray-500 py-4">No recent activity.</p>
+                    {% endfor %}
                 </div>
             </div>
         </section>
 
-        <!-- Roommate Finder Section (Full Page View) -->
-        <section id="roommate-finder-section" class="content-section hidden space-y-8 animate-fade-in">
-            <div class="glass-card p-8">
+        <!-- Roommate Finder Section -->
+        <section id="roommate-finder-section" class="content-section hidden space-y-8">
+            <div class="dashboard-card p-8">
                 <div class="flex justify-between items-center mb-8">
                     <div>
                         <h3 class="text-3xl font-bold text-gray-900">AI Roommate Finder</h3>
                         <p class="text-gray-500 mt-1">Discover compatible roommates with our smart AI.</p>
                     </div>
-                    <button id="edit-profile-btn-roommate-section" class="btn-primary flex items-center btn-hover-effect">
-                        <i class="fas fa-edit mr-2"></i>{% if user_roommate_profile %}Edit Profile{% else %}Create Profile{% endif %}
-                    </button>
+                    <button id="edit-profile-btn-roommate-section" class="btn-primary"><i class="fas fa-edit mr-2"></i>{% if user_roommate_profile %}Edit Profile{% else %}Create Profile{% endif %}</button>
                 </div>
-                <div id="roommate-match-container" class="relative min-h-[400px] bg-gray-50 rounded-xl border border-gray-200 overflow-hidden flex flex-col items-center justify-center">
-                    <div id="roommate-matches-loader" class="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-90 rounded-xl hidden z-20">
-                        <div class="spinner w-16 h-16 border-6 border-gray-200 rounded-full mb-4"></div>
-                        <p class="text-gray-700 font-medium text-lg">Finding your perfect matches with AI...</p>
+                <div id="roommate-match-container">
+                    <div id="roommate-matches-loader" class="absolute inset-0 flex flex-col items-center justify-center bg-white/90 rounded-xl hidden z-20">
+                        <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                        <p class="text-gray-700 font-medium text-lg">Finding your perfect matches...</p>
                     </div>
-                    
-                    <div id="roommate-match-card-display" class="flex flex-col items-center justify-center w-full h-full relative">
-                        <!-- Dynamic match cards will be loaded here -->
-                    </div>
-
+                    <div id="roommate-match-card-display" class="flex flex-col items-center justify-center w-full h-full"></div>
                     <div id="roommate-prompt" class="text-center p-6 w-full h-full flex flex-col items-center justify-center z-10">
                         <i class="fas fa-users text-6xl text-gray-400 mb-6"></i>
                         <p class="mt-4 font-semibold text-gray-700 text-xl">Your potential matches will appear here.</p>
-                        <p class="text-gray-500 mt-2 text-lg">{% if user.is_authenticated and user_roommate_profile %}Click "Find Matches" to begin your search!{% else %}Create your profile to get started and find your ideal roommate.{% endif %}</p>
-                        {% if user.is_authenticated and user_roommate_profile %}<button id="find-matches-btn-inner" class="mt-8 btn-primary text-lg btn-hover-effect"><i class="fas fa-search mr-3"></i>Find Matches</button>{% endif %}
+                        <p class="text-gray-500 mt-2 text-lg">{% if user.is_authenticated and user_roommate_profile %}Click "Find Matches" to begin!{% else %}Create your profile to get started.{% endif %}</p>
+                        {% if user.is_authenticated and user_roommate_profile %}<button id="find-matches-btn-inner" class="mt-8 btn-primary text-lg"><i class="fas fa-search mr-3"></i>Find Matches</button>{% endif %}
                     </div>
-
-                    <div id="no-more-matches-prompt" class="hidden text-center p-6 w-full h-full flex flex-col items-center justify-content-center z-10">
+                    <div id="no-more-matches-prompt" class="hidden text-center p-6 w-full h-full flex flex-col items-center justify-center z-10">
                         <i class="fas fa-heart-broken text-6xl text-gray-400 mb-6"></i>
                         <p class="mt-4 font-semibold text-gray-700 text-xl">No more matches for now!</p>
-                        <p class="text-gray-500 mt-2 text-lg">Check back later or refine your profile to discover new connections.</p>
-                        <button id="reset-matches-btn" class="mt-8 btn-secondary text-lg btn-hover-effect"><i class="fas fa-redo mr-3"></i>Restart Matches</button>
+                        <p class="text-gray-500 mt-2 text-lg">Check back later or refine your profile.</p>
+                        <button id="reset-matches-btn" class="mt-8 btn-secondary text-lg"><i class="fas fa-redo mr-3"></i>Restart Search</button>
                     </div>
                 </div>
-                
                 <div id="swipe-buttons-container" class="swipe-buttons hidden z-30">
                     <button id="skip-match-btn" class="swipe-button skip"><i class="fas fa-times"></i></button>
                     <button id="like-match-btn" class="swipe-button like"><i class="fas fa-check"></i></button>
@@ -1031,293 +306,97 @@
             </div>
         </section>
 
-        <!-- My Services & Activity Tabs -->
-        <section id="my-services-section" class="content-section hidden space-y-8 animate-fade-in">
-            <div class="glass-card p-6">
+        <!-- My Services Section -->
+        <section id="my-services-section" class="content-section hidden space-y-8">
+            <div class="dashboard-card p-6">
                 <h3 class="card-title"><i class="fas fa-clipboard-list"></i> My Services & Activity</h3>
-                
-                <div class="main-content-tabs flex border-b-2 border-gray-200 mb-6">
+                <div class="main-content-tabs">
                     <button class="main-content-tab-button active" data-tab-id="my-recent-activity-tab">Recent Activity</button>
                     <button class="main-content-tab-button" data-tab-id="my-service-results-tab">My Service Results</button>
                 </div>
-
                 <div id="my-recent-activity-tab" class="main-content-tab-content space-y-3">
-                    {% if recent_activities %}
-                        {% for activity in recent_activities %}
-                            <div class="activity-item cursor-pointer"
-                                data-activity-type="{{ activity.type }}"
-                                data-activity-details-id="activity_details_tab_{{ forloop.counter }}">
-                                <div class="content flex items-start">
-                                    <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
-                                        <i class="fas fa-{{ activity.icon }}"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-800 font-medium">{{ activity.description }}</p>
-                                        <p class="text-sm text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</p>
-                                    </div>
+                     {% for activity in recent_activities %}
+                        <div class="activity-item" data-activity-type="{{ activity.type }}" data-activity-details-id="activity_details_tab_{{ forloop.counter }}">
+                            <div class="content flex items-start">
+                                <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600"><i class="fas fa-{{ activity.icon }}"></i></div>
+                                <div>
+                                    <p class="text-gray-800 font-medium">{{ activity.description }}</p>
+                                    <p class="text-sm text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</p>
                                 </div>
                             </div>
-                            {# Store activity details in a script tag for safe JSON parsing #}
-                            <script type="application/json" id="activity_details_tab_{{ forloop.counter }}">
-                                {{ activity.details|json_script:"activity_details_data" }}
-                            </script>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-center text-gray-500 py-4">No recent activity to display.</p>
-                    {% endif %}
+                        </div>
+                        <script type="application/json" id="activity_details_tab_{{ forloop.counter }}">{{ activity.details_json|safe }}</script>
+                    {% empty %}
+                        <p class="text-center text-gray-500 py-4">No recent activity.</p>
+                    {% endfor %}
                 </div>
-
-                <div id="my-service-results-tab" class="main-content-tab-content hidden space-y-3"> {# Initially hidden #}
-                    {% if user_rent_checks or user_reviews or user_complaints or user_forum_posts or user_liked_profiles or user_rental_contracts or user_rent_declaration_checks %}
-                        {% for rent_result in user_rent_checks %}
-                            <div class="service-result-card cursor-pointer rent-checker-result-card"
-                                data-activity-type="Rent Check"
-                                data-activity-details='{
-                                        "postcode": "{{ rent_result.postcode }}",
-                                        "bedrooms": "{{ rent_result.bedrooms }}",
-                                        "estimated_rent": "{{ rent_result.estimated_rent|floatformat:0 }}",
-                                        "checked_at": "{{ rent_result.checked_at|date:"Y-m-d H:i:s" }}"
-                                    }'>
-                                <div class="icon-wrapper bg-blue-100 text-blue-600">
-                                    <i class="fas fa-gbp-sign"></i>
-                                </div>
-                                <div class="details">
-                                    <p>Rent Check for <span class="highlight">{{ rent_result.postcode }}</span> ({{ rent_result.bedrooms }} bed)</p>
-                                    <p>Estimated Rent: <span class="highlight">£{{ rent_result.estimated_rent|floatformat:0 }}</span></p>
-                                    <p class="timestamp">Checked on {{ rent_result.checked_at|date:"M d, Y" }}</p>
-                                </div>
+                <div id="my-service-results-tab" class="main-content-tab-content hidden space-y-3">
+                     {% for result in all_service_results %}
+                        <div class="service-result-card cursor-pointer p-4 flex items-center border rounded-lg" data-activity-type="{{ result.type }}" data-activity-details='{{ result.details_json|safe }}'>
+                            <div class="activity-icon bg-{{ result.color }}-100 text-{{ result.color }}-600"><i class="fas fa-{{ result.icon }}"></i></div>
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ result.title }}</p>
+                                <p class="text-sm text-gray-600">{{ result.summary }}</p>
+                                <p class="text-xs text-gray-400 mt-1">{{ result.timestamp|date:"M d, Y" }}</p>
                             </div>
-                        {% endfor %}
-
-                        {% for review in user_reviews %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Review"
-                                data-activity-details='{
-                                        "landlord_name": "{{ review.landlord_name|escapejs }}",
-                                        "property_address": "{{ review.property_address|escapejs }}",
-                                        "rating": {{ review.rating }},
-                                        "comments": "{{ review.comments|escapejs }}",
-                                        "reviewed_at": "{{ review.reviewed_at|date:"Y-m-d H:i:s" }}",
-                                        "reviewer": "{{ review.user.username|escapejs }}"
-                                    }'>
-                                <div class="icon-wrapper-small bg-green-100 text-green-600 mr-4">
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-800">Your Review for <span class="font-bold">{{ review.landlord_name }}</span> ({{ review.property_address }})</p>
-                                    <p class="text-gray-700">Rating: <span class="font-bold text-green-600">{{ review.rating }} Stars</span></p>
-                                    <p class="text-sm text-gray-500">"{{ review.comments|truncatechars:100 }}"</p>
-                                    <p class="text-sm text-gray-500">Submitted on {{ review.reviewed_at|date:"M d, Y" }}</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                        {% for complaint in user_complaints %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Complaint"
-                                data-activity-details='{
-                                        "issue_type": "{{ complaint.get_issue_type_display|escapejs }}",
-                                        "property_address": "{{ complaint.property_address|escapejs }}",
-                                        "landlord_name": "{{ complaint.landlord_name|default:''|escapejs }}",
-                                        "description": "{{ complaint.description|escapejs }}",
-                                        "status": "{{ complaint.get_status_display|escapejs }}",
-                                        "submitted_at": "{{ complaint.submitted_at|date:"Y-m-d H:i:s" }}"
-                                    }'>
-                                <div class="icon-wrapper-small bg-red-100 text-red-600 mr-4">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-800">Complaint: <span class="font-bold">{{ complaint.get_issue_type_display }}</span> (<span class="font-bold">{{ complaint.property_address }}</span>)</p>
-                                    <p class="text-gray-700">Status: <span class="text-orange-500 font-semibold">{{ complaint.get_status_display }}</span></p>
-                                    <p class="text-sm text-gray-500">Submitted on {{ complaint.submitted_at|date:"M d, Y" }}</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                        {% for post in user_forum_posts %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Forum Post"
-                                data-activity-details='{
-                                        "title": "{{ post.title|escapejs }}",
-                                        "content": "{{ post.content|escapejs }}",
-                                        "category": "{{ post.get_category_display|escapejs }}",
-                                        "created_at": "{{ post.created_at|date:"Y-m-d H:i:s" }}",
-                                        "author": "{{ post.user.username|escapejs }}"
-                                    }'>
-                                <div class="icon-wrapper-small bg-yellow-100 text-yellow-600 mr-4">
-                                    <i class="fas fa-comments"></i>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-800">Forum Post: <span class="font-bold">"{{ post.title }}"</span></p>
-                                    <p class="text-gray-700">Category: <span class="font-bold">{{ post.get_category_display }}</span></p>
-                                    <p class="text-sm text-gray-500">Posted on {{ post.created_at|date:"M d, Y" }}</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                        {% for liked_profile in user_liked_profiles %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Liked Profile"
-                                data-activity-details='{
-                                        "name": "{{ liked_profile.liked_user_name|escapejs }}",
-                                        "age": {{ liked_profile.liked_user_age|default:"null" }},
-                                        "gender": "{{ liked_profile.liked_user_gender|escapejs }}",
-                                        "location": "{{ liked_profile.liked_user_location|escapejs }}",
-                                        "budget": {{ liked_profile.liked_user_budget|default:"null" }},
-                                        "bio": "{{ liked_profile.liked_user_bio|escapejs }}",
-                                        "compatibility_score": {{ liked_profile.liked_user_compatibility_score|default:"null" }},
-                                        "avatar_url": "{{ liked_profile.liked_user_avatar_url|escapejs }}"
-                                    }'>
-                                <div class="icon-wrapper-small bg-pink-100 text-pink-500 mr-4">
-                                    <i class="fas fa-heart"></i>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-800">Liked Profile: <span class="font-bold">{{ liked_profile.liked_user_name }}</span></p>
-                                    <p class="text-gray-700">Compatibility: <span class="font-bold text-blue-600">{{ liked_profile.liked_user_compatibility_score|default:'N/A' }}%</span></p>
-                                    <p class="text-sm text-gray-500">Liked on {{ liked_profile.liked_at|date:"M d, Y" }}</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                        {% for contract in user_rental_contracts %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Contract Analysis"
-                                data-activity-details='{
-                                        "original_text": "{{ contract.original_text|escapejs }}",
-                                        "analysis_result": "{{ contract.analysis_result|escapejs }}",
-                                        "analyzed_at": "{{ contract.analyzed_at|date:"Y-m-d H:i:s" }}"
-                                    }'>
-                                <div class="icon-wrapper-small bg-teal-100 text-teal-600 mr-4">
-                                    <i class="fas fa-file-contract"></i>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-800">Contract Analysis</p>
-                                    <p class="text-gray-700">Analyzed on <span class="font-bold">{{ contract.analyzed_at|date:"M d, Y" }}</span></p>
-                                    <p class="text-sm text-gray-500">Preview: "{{ contract.original_text|truncatechars:100 }}"</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                        {% for declaration_check in user_rent_declaration_checks %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Rent Declaration Check"
-                                data-activity-details='{
-                                        "postcode": "{{ declaration_check.postcode|escapejs }}",
-                                        "bedrooms": "{{ declaration_check.bedrooms|escapejs }}",
-                                        "actual_rent_paid": "{{ declaration_check.actual_rent_paid }}",
-                                        "council_tax_band": "{{ declaration_check.council_tax_band|escapejs }}",
-                                        "estimated_council_tax": "{{ declaration_check.estimated_council_tax|default:"null" }}",
-                                        "discrepancy_found": {{ declaration_check.discrepancy_found|lower }},
-                                        "analysis_result": "{{ declaration_check.analysis_result|escapejs }}",
-                                        "checked_at": "{{ declaration_check.checked_at|date:"Y-m-d H:i:s" }}"
-                                    }'>
-                                <div class="icon-wrapper-small bg-orange-100 text-orange-600 mr-4">
-                                    <i class="fas fa-file-invoice-dollar"></i>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-800">Rent Declaration Check for <span class="font-bold">{{ declaration_check.postcode }}</span></p>
-                                    <p class="text-gray-700">Discrepancy: <span class="font-bold {% if declaration_check.discrepancy_found %}text-red-600{% else %}text-green-600{% endif %}">{{ declaration_check.discrepancy_found|yesno:"Found,None" }}</span></p>
-                                    <p class="text-sm text-gray-500">Checked on {{ declaration_check.checked_at|date:"M d, Y" }}</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                    {% else %}
-                        <p class="text-center text-gray-500 py-2">No service results to display yet.</p>
-                    {% endif %}
+                        </div>
+                     {% empty %}
+                        <p class="text-center text-gray-500 py-4">No service results yet.</p>
+                     {% endfor %}
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Roommate Profile Edit Modal -->
-    <div id="profile-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full p-8">
-            <button type="button" id="close-profile-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
-                <i class="fas fa-times fa-lg"></i>
-            </button>
+    <!-- Modals -->
+    <div id="profile-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative p-8">
+            <button type="button" id="close-profile-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times fa-lg"></i></button>
             <form id="roommate-profile-form" class="space-y-6">
-                <h3 id="profile-modal-title" class="text-3xl font-bold mb-6 text-gray-900">Your Roommate Profile</h3>
+                <h3 class="text-3xl font-bold text-gray-900">Your Roommate Profile</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="age" class="block text-sm font-medium text-gray-700 mb-1">Age</label>
-                        <input type="number" id="age" name="age" value="{{ user_roommate_profile.age|default:'' }}"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
-                               min="18" max="99" placeholder="e.g., 25">
+                        <input type="number" id="age" name="age" value="{{ user_roommate_profile.age|default:'' }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" min="18" max="99" placeholder="e.g., 25">
                     </div>
                     <div>
                         <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                        <select id="gender" name="gender"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
-                            <option value="">Select Gender</option>
+                        <select id="gender" name="gender" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3">
                             <option value="male" {% if user_roommate_profile.gender == 'male' %}selected{% endif %}>Male</option>
                             <option value="female" {% if user_roommate_profile.gender == 'female' %}selected{% endif %}>Female</option>
                             <option value="other" {% if user_roommate_profile.gender == 'other' %}selected{% endif %}>Other</option>
                         </select>
                     </div>
                     <div>
-                        <label for="sleep_schedule" class="block text-sm font-medium text-gray-700 mb-1">Sleep Schedule</label>
-                        <select id="sleep_schedule" name="sleep_schedule"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
-                            <option value="">Select Schedule</option>
-                            <option value="early_bird" {% if user_roommate_profile.sleep_schedule == 'early_bird' %}selected{% endif %}>Early Bird</option>
-                            <option value="night_owl" {% if user_roommate_profile.sleep_schedule == 'night_owl' %}selected{% endif %}>Night Owl</option>
-                            <option value="flexible" {% if user_roommate_profile.sleep_schedule == 'flexible' %}selected{% endif %}>Flexible</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="cleanliness" class="block text-sm font-medium text-gray-700 mb-1">Cleanliness</label>
-                        <select id="cleanliness" name="cleanliness"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
-                            <option value="">Select Cleanliness</option>
-                            <option value="very_tidy" {% if user_roommate_profile.cleanliness == 'very_tidy' %}selected{% endif %}>Very Tidy</option>
-                            <option value="average" {% if user_roommate_profile.cleanliness == 'average' %}selected{% endif %}>Average</option>
-                            <option value="relaxed" {% if user_roommate_profile.cleanliness == 'relaxed' %}selected{% endif %}>Relaxed</option>
-                        </select>
-                    </div>
-                    <div>
                         <label for="budget" class="block text-sm font-medium text-gray-700 mb-1">Max Budget (£/month)</label>
-                        <input type="number" id="budget" name="budget" value="{{ user_roommate_profile.budget|default:'' }}"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
-                               min="100" max="5000" placeholder="e.g., 800">
+                        <input type="number" id="budget" name="budget" value="{{ user_roommate_profile.budget|default:'' }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" min="100" placeholder="e.g., 800">
                     </div>
                     <div>
                         <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Desired Location</label>
-                        <input type="text" id="location" name="location" value="{{ user_roommate_profile.location|default:'' }}"
-                               placeholder="e.g., East London"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
+                        <input type="text" id="location" name="location" value="{{ user_roommate_profile.location|default:'' }}" placeholder="e.g., East London" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3">
                     </div>
                 </div>
-                <div class="mt-4">
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Lifestyle Preferences</label>
-                    <div id="lifestyle-preferences-tags" class="tag-input-container">
-                        <!-- Tags will be injected here by JavaScript -->
-                    </div>
+                    <div id="lifestyle-preferences-tags" class="tag-input-container"></div>
                     <input type="hidden" id="lifestyle_preferences_hidden" name="lifestyle_preferences" value="{{ user_roommate_profile.lifestyle_preferences|default:'' }}">
                 </div>
-                <div class="mt-4">
+                <div>
                     <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                    <textarea id="bio" name="bio" rows="4"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
-                               placeholder="Tell us about yourself and what you're looking for... (max 500 words)">{{ user_roommate_profile.bio|default:'' }}</textarea>
+                    <textarea id="bio" name="bio" rows="4" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" placeholder="Tell us about yourself...">{{ user_roommate_profile.bio|default:'' }}</textarea>
                 </div>
                 <div class="mt-8 flex justify-end space-x-4">
-                    <button type="button" id="profile-form-cancel-btn" class="btn-secondary btn-hover-effect">Cancel</button>
-                    <button type="submit" class="btn-primary btn-hover-effect">Save Profile</button>
+                    <button type="button" id="profile-form-cancel-btn" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Profile</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Generic Activity/Service Details Modal -->
-    <div id="activity-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="activity-modal-title">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 relative transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
-            <button type="button" id="close-activity-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
-                <i class="fas fa-times fa-lg"></i>
-            </button>
-            <div id="activity-modal-content" class="text-left activity-detail-modal-content">
-                <!-- Activity/Service details will be injected here by JavaScript -->
-            </div>
+    <div id="activity-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 relative">
+            <button type="button" id="close-activity-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times fa-lg"></i></button>
+            <div id="activity-modal-content" class="text-center activity-detail-modal-content"></div>
         </div>
     </div>
 
@@ -1326,642 +405,7 @@
         <p id="alert-message"></p>
     </div>
 
-    <script>
-        // Helper function to show toast notifications
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('alert-toast');
-            const msgElement = document.getElementById('alert-message');
-            msgElement.textContent = message;
-            
-            toast.className = 'fixed bottom-5 right-5 z-50 p-4 rounded-lg text-white transition-transform transform';
-            if (type === 'success') {
-                toast.classList.add('bg-green-500');
-            } else if (type === 'error') {
-                toast.classList.add('bg-red-500');
-            } else {
-                toast.classList.add('bg-gray-700');
-            }
-            
-            toast.classList.remove('translate-y-20'); // Show toast
-            setTimeout(() => {
-                toast.classList.add('translate-y-20'); // Hide toast
-            }, 3000);
-        }
-
-        // --- Dashboard Navigation Logic ---
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const navLinks = document.querySelectorAll('.sidebar nav a');
-        const contentSections = document.querySelectorAll('.content-section');
-
-        // Open sidebar on mobile
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.remove('hidden-mobile');
-            sidebar.classList.add('open-mobile');
-            sidebarOverlay.classList.remove('hidden');
-            sidebarToggle.setAttribute('aria-expanded', 'true');
-            sidebar.focus();
-        });
-
-        // Close sidebar when clicking overlay or pressing Escape
-        sidebarOverlay.addEventListener('click', closeSidebar);
-        sidebar.addEventListener('keydown', e => {
-            if (e.key === "Escape") closeSidebar();
-        });
-
-        function closeSidebar() {
-            sidebar.classList.add('hidden-mobile');
-            sidebar.classList.remove('open-mobile');
-            sidebarOverlay.classList.add('hidden');
-            sidebarToggle.setAttribute('aria-expanded', 'false');
-        }
-
-        // Responsive behavior
-        function handleResize() {
-            if (window.innerWidth > 900) {
-                sidebar.classList.remove('hidden-mobile');
-                sidebar.classList.remove('open-mobile');
-                sidebarOverlay.classList.add('hidden');
-                sidebarToggle.setAttribute('aria-expanded', 'true');
-                document.getElementById('mainContent').style.marginLeft = '280px'; // Match new sidebar width
-            } else {
-                sidebar.classList.add('hidden-mobile');
-                sidebar.classList.remove('open-mobile');
-                sidebarOverlay.classList.add('hidden');
-                sidebarToggle.setAttribute('aria-expanded', 'false');
-                document.getElementById('mainContent').style.marginLeft = '0';
-            }
-        }
-        window.addEventListener('resize', handleResize);
-        window.addEventListener('DOMContentLoaded', handleResize);
-
-
-        // Switch content sections based on sidebar navigation
-        navLinks.forEach(item => {
-            item.addEventListener('click', (e) => {
-                const targetId = item.dataset.contentTarget;
-                if (targetId) {
-                    e.preventDefault(); // Prevent default link behavior for internal navigation
-                    navLinks.forEach(nav => nav.classList.remove('active'));
-                    item.classList.add('active');
-
-                    contentSections.forEach(section => section.classList.add('hidden'));
-                    const targetSection = document.getElementById(targetId);
-                    if (targetSection) {
-                        targetSection.classList.remove('hidden');
-                    }
-
-                    if (window.innerWidth <= 900) {
-                        closeSidebar();
-                    }
-                }
-            });
-        });
-
-        // Initialize active sidebar item and content section on load
-        document.addEventListener('DOMContentLoaded', () => {
-            const initialSectionId = window.location.hash ? window.location.hash.substring(1) : 'dashboard-home';
-            const initialNavItem = document.querySelector(`.sidebar-nav-item[data-content-target="${initialSectionId}"]`);
-            const initialContentSection = document.getElementById(initialSectionId);
-
-            if (initialNavItem) {
-                initialNavItem.classList.add('active');
-            } else {
-                document.querySelector('.sidebar-nav-item[data-content-target="dashboard-home"]').classList.add('active');
-            }
-
-            if (initialContentSection) {
-                initialContentSection.classList.remove('hidden');
-            } else {
-                document.getElementById('dashboard-home').classList.remove('hidden');
-            }
-        });
-
-
-        // --- Roommate Profile Modal Logic ---
-        const profileModal = document.getElementById('profile-modal');
-        const editProfileBtnDashboardHome = document.getElementById('edit-profile-btn-dashboard-home');
-        const editProfileBtnRoommateSection = document.getElementById('edit-profile-btn-roommate-section');
-        const closeProfileModalBtn = document.getElementById('close-profile-modal-btn');
-        const profileFormCancelBtn = document.getElementById('profile-form-cancel-btn');
-        const roommateProfileForm = document.getElementById('roommate-profile-form');
-        const lifestylePreferencesTagsContainer = document.getElementById('lifestyle-preferences-tags');
-        const lifestylePreferencesHiddenInput = document.getElementById('lifestyle_preferences_hidden');
-        const profileLocationInput = document.getElementById('location');
-
-        // Pre-defined lifestyle preferences
-        const ALL_LIFESTYLE_PREFERENCES = [
-            'Quiet', 'Social', 'Pet-Friendly', 'Clean', 'Messy', 'Early Bird',
-            'Night Owl', 'Studious', 'Party-goer', 'Vegetarian', 'Vegan',
-            'Cooks Often', 'Rarely Cooks', 'Non-Smoker', 'Smoker', 'Introvert', 'Extrovert'
-        ];
-
-        // Function to render lifestyle preference tags
-        function renderLifestylePreferenceTags(selectedPreferences = []) {
-            if (!lifestylePreferencesTagsContainer) return;
-            lifestylePreferencesTagsContainer.innerHTML = ''; // Clear existing tags
-            ALL_LIFESTYLE_PREFERENCES.forEach(pref => {
-                const tag = document.createElement('span');
-                tag.className = 'tag';
-                tag.textContent = pref;
-                if (selectedPreferences.includes(pref)) {
-                    tag.classList.add('selected');
-                }
-                tag.addEventListener('click', () => {
-                    tag.classList.toggle('selected');
-                    updateLifestylePreferencesHiddenInput();
-                });
-                lifestylePreferencesTagsContainer.appendChild(tag);
-            });
-        }
-
-        // Function to update the hidden input based on selected tags
-        function updateLifestylePreferencesHiddenInput() {
-            if (!lifestylePreferencesTagsContainer || !lifestylePreferencesHiddenInput) return;
-            const selectedTags = Array.from(lifestylePreferencesTagsContainer.querySelectorAll('.tag.selected')).map(tag => tag.textContent);
-            lifestylePreferencesHiddenInput.value = selectedTags.join(', ');
-        }
-
-        // Event listeners for opening profile modal from different buttons
-        const openProfileModal = () => {
-            const currentPrefsString = lifestylePreferencesHiddenInput ? lifestylePreferencesHiddenInput.value : '';
-            const currentPrefsArray = currentPrefsString.split(',').map(item => item.trim()).filter(item => item.length > 0);
-            renderLifestylePreferenceTags(currentPrefsArray);
-            if (profileModal) {
-                profileModal.classList.remove('hidden');
-                profileModal.classList.add('flex');
-            }
-        };
-        if (editProfileBtnDashboardHome) {
-            editProfileBtnDashboardHome.addEventListener('click', openProfileModal);
-        }
-        if (editProfileBtnRoommateSection) {
-            editProfileBtnRoommateSection.addEventListener('click', openProfileModal);
-        }
-
-        if (closeProfileModalBtn) {
-            closeProfileModalBtn.addEventListener('click', () => {
-                if (profileModal) {
-                    profileModal.classList.add('hidden');
-                    profileModal.classList.remove('flex');
-                }
-            });
-        }
-
-        if (profileFormCancelBtn) {
-            profileFormCancelBtn.addEventListener('click', () => {
-                if (profileModal) {
-                    profileModal.classList.add('hidden');
-                    profileModal.classList.remove('flex');
-                }
-            });
-        }
-
-        if (roommateProfileForm) {
-            roommateProfileForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const submitBtn = roommateProfileForm.querySelector('button[type="submit"]');
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
-
-                const formData = new FormData(roommateProfileForm);
-                const data = Object.fromEntries(formData.entries());
-                data.age = data.age ? parseInt(data.age) : null;
-                data.budget = data.budget ? parseInt(data.budget) : null;
-
-                try {
-                    const response = await fetch('/api/save_roommate_profile/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': '{{ csrf_token }}'
-                        },
-                        body: JSON.stringify(data)
-                    });
-                    const result = await response.json();
-                    if (result.status === 'success') {
-                        showToast(result.message, 'success');
-                        if (profileModal) {
-                            profileModal.classList.add('hidden');
-                            profileModal.classList.remove('flex');
-                        }
-                        location.reload();
-                    } else {
-                        showToast(result.message || 'Failed to save profile.', 'error');
-                        if (profileModal) {
-                            profileModal.classList.remove('hidden');
-                            profileModal.classList.add('flex');
-                        }
-                    }
-                } catch (error) {
-                    console.error('Network error:', error);
-                    showToast('Network error. Please try again.', 'error');
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Save Profile';
-                }
-            });
-        }
-
-
-        // --- Roommate Match Finder Logic (Swipe UI) ---
-        const findMatchesBtn = document.getElementById('find-matches-btn'); // This might be null if not present in the HTML
-        const roommateMatchesLoader = document.getElementById('roommate-matches-loader');
-        const roommateMatchCardDisplay = document.getElementById('roommate-match-card-display');
-        const roommatePrompt = document.getElementById('roommate-prompt');
-        const noMoreMatchesPrompt = document.getElementById('no-more-matches-prompt');
-        const resetMatchesBtn = document.getElementById('reset-matches-btn');
-        const swipeButtonsContainer = document.getElementById('swipe-buttons-container');
-        const skipMatchBtn = document.getElementById('skip-match-btn');
-        const likeMatchBtn = document.getElementById('like-match-btn');
-        const findMatchesBtnInner = document.getElementById('find-matches-btn-inner');
-
-        let currentMatches = [];
-        let currentMatchIndex = 0;
-
-        function displayCurrentMatch() {
-            if (!roommateMatchCardDisplay || !roommatePrompt || !noMoreMatchesPrompt || !swipeButtonsContainer) return;
-
-            // Clear previous content
-            roommateMatchCardDisplay.innerHTML = '';
-            roommatePrompt.classList.add('hidden');
-            noMoreMatchesPrompt.classList.add('hidden');
-
-            if (currentMatchIndex < currentMatches.length) {
-                const match = currentMatches[currentMatchIndex];
-                console.log("Displaying match:", match); // Log the match object for debugging
-
-                // Ensure all fields have fallbacks for display, and handle "undefined" string specifically
-                const name = (match.name && match.name !== 'undefined') ? match.name : 'Unknown User';
-                const age = (match.age && match.age !== 'undefined') ? `${match.age}` : 'N/A';
-                const location = (match.location && match.location !== 'undefined') ? match.location : 'N/A';
-                const compatibilityScore = (match.compatibility_score && match.compatibility_score !== 'undefined') ? `${match.compatibility_score}` : 'N/A';
-                const bio = (match.bio && match.bio !== 'undefined') ? match.bio : 'No bio provided for this user.';
-                const avatarUrl = (match.avatar_url && match.avatar_url !== 'undefined') ? match.avatar_url : 'https://placehold.co/110x110/cccccc/ffffff?text=User'; // Fallback placeholder
-
-                const matchCard = document.createElement('div');
-                matchCard.className = 'roommate-match-card glass-card'; // Apply styling
-                matchCard.innerHTML = `
-                    <img src="${avatarUrl}" alt="${name}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/110x110/cccccc/ffffff?text=User'">
-                    <h4 class="text-3xl font-bold text-gray-900">${name}, ${age}</h4>
-                    <p class="text-lg text-gray-600 mb-2">${location}</p>
-                    <div class="compatibility-score">${compatibilityScore}% Match</div>
-                    <p class="text-gray-700 text-base italic leading-relaxed mt-2">
-                        ${bio}
-                    </p>
-                    <button class="match-details-btn btn-secondary mt-4 btn-hover-effect" data-match='${JSON.stringify(match)}'>View Details</button>
-                `;
-                roommateMatchCardDisplay.appendChild(matchCard);
-                swipeButtonsContainer.classList.remove('hidden');
-
-                matchCard.querySelector('.match-details-btn').addEventListener('click', (e) => {
-                    // Use the original match object for detailed view to avoid issues with stringified data
-                    displayActivityDetails('Liked Profile', match);
-                });
-
-            } else {
-                roommateMatchCardDisplay.innerHTML = '';
-                swipeButtonsContainer.classList.add('hidden');
-                noMoreMatchesPrompt.classList.remove('hidden');
-            }
-        }
-
-        async function fetchRoommateMatches() {
-            if (!roommatePrompt || !noMoreMatchesPrompt || !roommateMatchesLoader || !roommateMatchCardDisplay || !swipeButtonsContainer) return;
-
-            roommatePrompt.classList.add('hidden');
-            noMoreMatchesPrompt.classList.add('hidden');
-            roommateMatchesLoader.classList.remove('hidden');
-            roommateMatchCardDisplay.innerHTML = '';
-            swipeButtonsContainer.classList.add('hidden');
-
-            try {
-                const result = await fetch('/api/find_roommate_matches/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify({})
-                });
-                const data = await result.json();
-
-                roommateMatchesLoader.classList.add('hidden');
-
-                if (data.status === 'success' && data.data && data.data.matches) {
-                    currentMatches = data.data.matches;
-                    currentMatchIndex = 0;
-                    if (currentMatches.length > 0) {
-                        displayCurrentMatch();
-                    } else {
-                        noMoreMatchesPrompt.classList.remove('hidden');
-                    }
-                } else {
-                    showToast(data.message || 'Failed to find matches.', 'error');
-                    roommatePrompt.classList.remove('hidden');
-                }
-            } catch (error) {
-                console.error('Network error:', error);
-                roommateMatchesLoader.classList.add('hidden');
-                showToast('Network error. Please try again.', 'error');
-                roommatePrompt.classList.remove('hidden');
-            }
-        }
-
-        async function animateAndAdvance(direction) {
-            const currentCard = roommateMatchCardDisplay.querySelector('.roommate-match-card');
-            if (currentCard) {
-                if (direction === 'like') {
-                    const likedMatchData = currentMatches[currentMatchIndex];
-                    // Ensure numbers are sent as numbers, not strings or undefined
-                    const dataToSend = {
-                        name: likedMatchData.name || '',
-                        age: likedMatchData.age !== undefined && likedMatchData.age !== null ? parseInt(likedMatchData.age) : null,
-                        gender: likedMatchData.gender || '',
-                        location: likedMatchData.location || '',
-                        budget: likedMatchData.budget !== undefined && likedMatchData.budget !== null ? parseInt(likedMatchData.budget) : null,
-                        bio: likedMatchData.bio || '',
-                        compatibility_score: likedMatchData.compatibility_score !== undefined && likedMatchData.compatibility_score !== null ? parseInt(likedMatchData.compatibility_score) : null,
-                        avatar_url: likedMatchData.avatar_url || ''
-                    };
-
-                    try {
-                        const saveResponse = await fetch('/api/save_liked_profile/', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': '{{ csrf_token }}'
-                            },
-                            body: JSON.stringify(dataToSend)
-                        });
-                        const saveResult = await saveResponse.json();
-                        if (saveResult.status === 'success') {
-                            showToast(saveResult.message, 'success');
-                            currentCard.classList.add('swiping-right');
-                            currentCard.addEventListener('transitionend', () => {
-                                currentMatchIndex++;
-                                displayCurrentMatch();
-                            }, { once: true });
-                        } else {
-                            showToast(saveResult.message || 'Failed to save liked profile.', 'error');
-                            console.error('Error saving liked profile:', saveResult.errors);
-                        }
-                    } catch (error) {
-                        console.error('Network error saving liked profile:', error);
-                        showToast('Network error saving liked profile. Please try again.', 'error');
-                    }
-                } else { // If skipping
-                    currentCard.classList.add('swiping-left');
-                    currentCard.addEventListener('transitionend', () => {
-                        currentMatchIndex++;
-                        displayCurrentMatch();
-                    }, { once: true });
-                }
-            }
-        }
-
-        // Only add event listener if the button exists (it's inside a conditional Django block)
-        if (findMatchesBtn) {
-            findMatchesBtn.addEventListener('click', fetchRoommateMatches);
-        }
-
-        if (findMatchesBtnInner) {
-            findMatchesBtnInner.addEventListener('click', fetchRoommateMatches);
-        }
-
-        if (resetMatchesBtn) {
-            resetMatchesBtn.addEventListener('click', fetchRoommateMatches);
-        }
-
-        if (skipMatchBtn) {
-            skipMatchBtn.addEventListener('click', () => animateAndAdvance('skip'));
-        }
-
-        if (likeMatchBtn) {
-            likeMatchBtn.addEventListener('click', () => animateAndAdvance('like'));
-        }
-
-        // --- Generic Activity/Service Details Modal Logic ---
-        const activityDetailsModal = document.getElementById('activity-details-modal');
-        const closeActivityModalBtn = document.getElementById('close-activity-modal-btn');
-        const activityModalContent = document.getElementById('activity-modal-content');
-
-        function displayActivityDetails(activityType, details) {
-            if (!activityModalContent || !activityDetailsModal) return;
-
-            activityModalContent.innerHTML = '';
-            let contentHtml = `<h3 class="text-2xl font-bold text-gray-900 mb-4">${activityType} Details</h3>`;
-
-            // Helper to format date strings
-            const formatDate = (dateString) => {
-                if (!dateString) return 'N/A';
-                try {
-                    return new Date(dateString).toLocaleString();
-                } catch (e) {
-                    return dateString; // Return original if parsing fails
-                }
-            };
-
-            // Helper to format currency
-            const formatCurrency = (value) => {
-                if (value === null || value === undefined || isNaN(parseFloat(value))) return 'N/A';
-                return `£${parseFloat(value).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
-            };
-
-            if (activityType === 'Liked Profile') {
-                contentHtml += `
-                    <img src="${details.avatar_url || 'https://placehold.co/112x112/cccccc/ffffff?text=User'}" alt="${details.name || 'User'}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/112x112/cccccc/ffffff?text=User'">
-                    <h4 class="text-xl font-bold text-gray-900 mb-2">${details.name || 'Unknown User'}, ${details.age || 'N/A'}</h4>
-                    <p class="text-md text-gray-700 mb-4">${details.gender || 'N/A'} | ${details.location || 'N/A'}</p>
-                    <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-money-bill-wave"></i><span class="font-semibold">Budget:</span> ${formatCurrency(details.budget)} / month</div>
-                        <div class="detail-item"><i class="fas fa-user-friends"></i><span class="font-semibold">Compatibility:</span> <span class="compatibility-score-modal">${details.compatibility_score || 'N/A'}%</span></div>
-                        <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> <p class="whitespace-pre-wrap">${details.bio || 'No bio provided for this user.'}</p></div>
-                    </div>
-                `;
-            } else if (activityType === 'Rent Check') {
-                contentHtml += `
-                    <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Postcode:</span> ${details.postcode || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-bed"></i><span class="font-semibold">Bedrooms:</span> ${details.bedrooms || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-gbp-sign"></i><span class="font-semibold">Estimated Rent:</span> ${formatCurrency(details.estimated_rent)} / month</div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Checked At:</span> ${formatDate(details.checked_at)}</div>
-                    </div>
-                `;
-            } else if (activityType === 'Review') {
-                contentHtml += `
-                    <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-user-tie"></i><span class="font-semibold">Landlord:</span> ${details.landlord_name || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Property:</span> ${details.property_address || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-star"></i><span class="font-semibold">Rating:</span> ${details.rating || 'N/A'} Stars</div>
-                        <div class="detail-item"><i class="fas fa-comment-alt"></i><span class="font-semibold">Comments:</span> <p class="whitespace-pre-wrap">${details.comments || 'No comments provided.'}</p></div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Reviewed At:</span> ${formatDate(details.reviewed_at)}</div>
-                        <div class="detail-item"><i class="fas fa-user"></i><span class="font-semibold">Reviewer:</span> ${details.reviewer || 'N/A'}</div>
-                    </div>
-                `;
-            } else if (activityType === 'Complaint') {
-                contentHtml += `
-                    <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-exclamation-triangle"></i><span class="font-semibold">Issue Type:</span> ${details.issue_type || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Property:</span> ${details.property_address || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-user-tie"></i><span class="font-semibold">Landlord (Optional):</span> ${details.landlord_name || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Description:</span> <p class="whitespace-pre-wrap">${details.description || 'No description provided.'}</p></div>
-                        <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Status:</span> ${details.status || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Submitted At:</span> ${formatDate(details.submitted_at)}</div>
-                    </div>
-                `;
-            } else if (activityType === 'Forum Post') {
-                contentHtml += `
-                    <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-heading"></i><span class="font-semibold">Title:</span> ${details.title || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-tags"></i><span class="font-semibold">Category:</span> ${details.category || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Content:</span> <p class="whitespace-pre-wrap">${details.content || 'No content provided.'}</p></div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Posted At:</span> ${formatDate(details.created_at)}</div>
-                        <div class="detail-item"><i class="fas fa-user"></i><span class="font-semibold">Author:</span> ${details.author || 'N/A'}</div>
-                    </div>
-                `;
-            } else if (activityType === 'Contract Analysis') {
-                contentHtml += `
-                    <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Analyzed At:</span> ${formatDate(details.analyzed_at)}</div>
-                        <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Original Text:</span> <p class="whitespace-pre-wrap text-sm max-h-40 overflow-y-auto border p-2 rounded">${details.original_text || 'No original text provided.'}</p></div>
-                        <div class="detail-item"><i class="fas fa-robot"></i><span class="font-semibold">AI Analysis:</span> <p class="whitespace-pre-wrap text-sm max-h-60 overflow-y-auto border p-2 rounded">${details.analysis_result || 'No detailed analysis available.'}</p></div>
-                    </div>
-                `;
-            } else if (activityType === 'Rent Declaration Check') {
-                contentHtml += `
-                    <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Postcode:</span> ${details.postcode || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-bed"></i><span class="font-semibold">Bedrooms:</span> ${details.bedrooms || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-pound-sign"></i><span class="font-semibold">Actual Rent Paid:</span> ${formatCurrency(details.actual_rent_paid)} / month</div>
-                        <div class="detail-item"><i class="fas fa-city"></i><span class="font-semibold">Council Tax Band:</span> ${details.council_tax_band || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-calculator"></i><span class="font-semibold">Estimated Council Tax:</span> ${formatCurrency(details.estimated_council_tax)}</div>
-                        <div class="detail-item"><i class="fas fa-exclamation-circle"></i><span class="font-semibold">Discrepancy Found:</span> <span class="${details.discrepancy_found ? 'text-red-600 font-bold' : 'text-green-600 font-bold'}">${details.discrepancy_found ? 'Yes' : 'No'}</span></div>
-                        <div class="detail-item"><i class="fas fa-robot"></i><span class="font-semibold">AI Analysis:</span> <p class="whitespace-pre-wrap">${details.analysis_result || 'No detailed analysis available.'}</p></div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Checked At:</span> ${formatDate(details.checked_at)}</div>
-                    </div>
-                `;
-            }
-            else {
-                contentHtml += `<p class="text-center text-gray-500">Details for this activity type are not available.</p>`;
-            }
-
-            activityModalContent.innerHTML = contentHtml;
-            activityDetailsModal.classList.remove('hidden');
-            activityDetailsModal.classList.add('flex');
-        }
-
-        if (closeActivityModalBtn) {
-            closeActivityModalBtn.addEventListener('click', () => {
-                activityDetailsModal.classList.add('hidden');
-                activityDetailsModal.classList.remove('flex');
-            });
-        }
-
-
-        // --- Event listener for clicking on Activity/Service items ---
-        document.addEventListener('click', (event) => {
-            const activityItem = event.target.closest('.activity-item[data-activity-details-id]');
-            const serviceResultCard = event.target.closest('.service-result-card[data-activity-details]');
-
-            if (activityItem) {
-                const activityType = activityItem.dataset.activityType;
-                const scriptId = activityItem.dataset.activityDetailsId;
-                const scriptTag = document.getElementById(scriptId);
-                let details;
-
-                if (scriptTag) {
-                    try {
-                        // The content of the script tag is the JSON string
-                        details = JSON.parse(scriptTag.textContent);
-                    } catch (e) {
-                        console.error('Error parsing JSON from script tag:', e);
-                        showToast('Error loading activity details (script tag parse error).', 'error');
-                        return;
-                    }
-                } else {
-                    console.warn('Script tag not found for ID:', scriptId);
-                    showToast('Error loading activity details (script tag missing).', 'error');
-                    return;
-                }
-                
-                if (details) {
-                    displayActivityDetails(activityType, details);
-                } else {
-                    showToast('Activity details are empty or invalid.', 'error');
-                }
-
-            } else if (serviceResultCard) {
-                const activityType = serviceResultCard.dataset.activityType;
-                // For serviceResultCard, we expect direct JSON in data-activity-details
-                try {
-                    const details = JSON.parse(serviceResultCard.dataset.activityDetails);
-                    displayActivityDetails(activityType, details);
-                } catch (e) {
-                    console.error('Error parsing service result details from data attribute:', e);
-                    showToast('Error loading service result details.', 'error');
-                }
-            }
-        });
-
-        // Tab switching logic for My Services section
-        document.addEventListener('DOMContentLoaded', () => {
-            const mainContentTabButtons = document.querySelectorAll('#my-services-section .main-content-tab-button');
-            const mainContentTabContents = document.querySelectorAll('.main-content-tab-content');
-
-            mainContentTabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const targetTabId = button.dataset.tabId;
-
-                    mainContentTabButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-
-                    mainContentTabContents.forEach(content => {
-                        if (content.id === targetTabId) {
-                            content.classList.remove('hidden');
-                        } else {
-                            content.classList.add('hidden');
-                        }
-                    });
-                });
-            });
-        });
-
-        // Event listener for the new "My Services" button in the header
-        const myServicesHeaderBtn = document.getElementById('my-services-header-btn');
-        if (myServicesHeaderBtn) {
-            myServicesHeaderBtn.addEventListener('click', (e) => {
-                const targetId = myServicesHeaderBtn.dataset.contentTarget;
-                if (targetId) {
-                    e.preventDefault(); // Prevent default link behavior for internal navigation
-
-                    // Deactivate all sidebar nav items
-                    navLinks.forEach(nav => nav.classList.remove('active'));
-                    // Activate the corresponding sidebar nav item
-                    const correspondingSidebarItem = document.querySelector(`.sidebar-nav-item[data-content-target="${targetId}"]`);
-                    if (correspondingSidebarItem) {
-                        correspondingSidebarItem.classList.add('active');
-                    }
-
-                    // Hide all content sections
-                    contentSections.forEach(section => section.classList.add('hidden'));
-                    // Show the target content section
-                    const targetSection = document.getElementById(targetId);
-                    if (targetSection) {
-                        targetSection.classList.remove('hidden');
-                    }
-
-                    // Close sidebar on mobile if open
-                    if (window.innerWidth <= 900) {
-                        closeSidebar();
-                    }
-                }
-            });
-        }
-    </script>
-    <!-- Assuming main.js exists and contains additional scripts, if any. -->
-    <!-- If main.js is critical, ensure it's loaded AFTER the inline script that sets up global functions/listeners -->
+    <!-- Link to the single, consolidated JavaScript file -->
     <script src="{% static 'fairrent_app/js/main.js' %}"></script>
 </body>
 </html>
