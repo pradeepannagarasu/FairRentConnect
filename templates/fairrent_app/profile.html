@@ -866,10 +866,7 @@
             </nav>
         </div>
         <div class="sidebar-footer">
-            <!-- Homepage link: Changed to use Django's url tag for robustness -->
-            <a href="{% url 'fairrent_app:index' %}" class="flex items-center" id="homepage-link">
-                <i class="fas fa-arrow-circle-left"></i> Homepage
-            </a>
+            <!-- Homepage link REMOVED from here -->
             <a href="{% url 'fairrent_app:logout' %}" class="flex items-center">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
@@ -883,9 +880,21 @@
             <!-- Removed redundant H1 here, as the main dashboard header is below -->
         </div>
 
-        <!-- Dashboard Header -->
-        <div class="dashboard-header">Welcome, <span class="gradient-text">{{ user.username }}</span>!</div>
-        <p class="text-lg text-gray-600 mb-8">Here's a quick overview of your Roomto.Live activity.</p>
+        <!-- Dashboard Header and New Top-Right Buttons -->
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8">
+            <div>
+                <h1 class="dashboard-header">Welcome, <span class="gradient-text">{{ user.username }}</span>!</h1>
+                <p class="text-lg text-gray-600 mb-4 sm:mb-0">Here's a quick overview of your Roomto.Live activity.</p>
+            </div>
+            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-4 sm:mt-0">
+                <a href="{% url 'fairrent_app:index' %}" class="btn-secondary flex items-center justify-center btn-hover-effect">
+                    <i class="fas fa-home mr-2"></i>Homepage
+                </a>
+                <a href="#" class="btn-primary flex items-center justify-center btn-hover-effect" data-content-target="my-services-section" id="my-services-header-btn">
+                    <i class="fas fa-tools mr-2"></i>My Services
+                </a>
+            </div>
+        </div>
 
 
         <!-- Content Sections (Dynamically Swapped) -->
@@ -1919,24 +1928,36 @@
             });
         });
 
-        // Event listener for the homepage link
-        const homepageLink = document.getElementById('homepage-link');
-        if (homepageLink) {
-            // Add a very explicit, high-priority listener to ensure default navigation
-            // This is a defensive measure against potential global event handlers in main.js
-            homepageLink.addEventListener('click', (e) => {
-                console.log("Homepage link clicked. Ensuring default navigation.");
-                // Do NOT prevent default here. Allow the browser to navigate.
-                // If another script is calling e.preventDefault() on this link,
-                // this listener, if added with useCapture: true or if it runs later,
-                // might still not override it. The best way is to find and fix the
-                // interfering script. However, this explicit non-prevention is a strong hint.
-            }, true); // Use capture phase to run this listener before bubbling ones
+        // Event listener for the new "My Services" button in the header
+        const myServicesHeaderBtn = document.getElementById('my-services-header-btn');
+        if (myServicesHeaderBtn) {
+            myServicesHeaderBtn.addEventListener('click', (e) => {
+                const targetId = myServicesHeaderBtn.dataset.contentTarget;
+                if (targetId) {
+                    e.preventDefault(); // Prevent default link behavior for internal navigation
 
-            // The original listener (which explicitly doesn't prevent default) is still here
-            // homepageLink.addEventListener('click', (e) => {
-            //     console.log("Homepage link clicked. Redirecting to:", e.currentTarget.href);
-            // });
+                    // Deactivate all sidebar nav items
+                    navLinks.forEach(nav => nav.classList.remove('active'));
+                    // Activate the corresponding sidebar nav item
+                    const correspondingSidebarItem = document.querySelector(`.sidebar-nav-item[data-content-target="${targetId}"]`);
+                    if (correspondingSidebarItem) {
+                        correspondingSidebarItem.classList.add('active');
+                    }
+
+                    // Hide all content sections
+                    contentSections.forEach(section => section.classList.add('hidden'));
+                    // Show the target content section
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        targetSection.classList.remove('hidden');
+                    }
+
+                    // Close sidebar on mobile if open
+                    if (window.innerWidth <= 900) {
+                        closeSidebar();
+                    }
+                }
+            });
         }
     </script>
     <!-- Assuming main.js exists and contains additional scripts, if any. -->
