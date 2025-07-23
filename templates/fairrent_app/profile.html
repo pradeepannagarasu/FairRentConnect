@@ -5,8 +5,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Roomto.Live Dashboard</title>
+    <!-- Tailwind CSS for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font for a clean, modern look -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         /* --- Root Variables for Refined Professional Theme --- */
@@ -36,16 +39,44 @@
             overflow-x: hidden; /* Prevent horizontal scroll issues */
         }
 
-        /* --- NO SIDEBAR STYLES NEEDED NOW --- */
-        /* Removed all `.sidebar` related styles to simplify */
-        /* Removed `.sidebar-toggle` and `.overlay` as well */
-
         /* --- Main Content Styles (Adjusted for No Sidebar) --- */
         .main-content {
             margin-left: 0; /* No sidebar, so no left margin */
             padding: 2.5rem 3rem; /* Generous padding on all sides */
             min-height: 100vh;
             transition: margin-left var(--transition-ease);
+        }
+
+        /* Top Header Styling */
+        header {
+            background-color: var(--bg-card);
+            border-radius: 1.25rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-subtle);
+            padding: 1rem 2rem; /* Adjusted padding */
+            margin-bottom: 2.5rem; /* More space below header */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+        }
+
+        header .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.8rem; /* Slightly smaller for header */
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            color: var(--text-dark);
+            margin-right: 1rem; /* Space before nav on desktop */
+        }
+
+        header nav {
+            display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap */
+            gap: 0.75rem; /* Space between buttons */
+            margin-top: 0; /* No top margin on desktop */
         }
 
         .dashboard-header {
@@ -141,8 +172,27 @@
         }
 
         @media (max-width: 900px) {
-            body { padding-top: 2rem; } /* Less padding needed without fixed sidebar toggle */
-            .main-content { margin-left: 0; padding-left: 1.5rem; padding-right: 1.5rem; padding-top: 0; } /* Remove main-content top padding as body handles it */
+            .main-content { padding: 1.5rem; } /* Adjusted padding for smaller screens */
+            header {
+                flex-direction: column; /* Stack logo and nav vertically */
+                align-items: flex-start; /* Align items to the start */
+                padding: 1rem;
+            }
+            header .logo-container {
+                margin-bottom: 1rem; /* Space between logo and stacked nav */
+                margin-right: 0;
+            }
+            header nav {
+                width: 100%; /* Make nav take full width */
+                justify-content: center; /* Center buttons when wrapped */
+                gap: 0.5rem; /* Smaller gap for mobile buttons */
+            }
+            header nav a {
+                flex-grow: 1; /* Allow buttons to grow and fill space */
+                text-align: center;
+                padding: 0.75rem 1rem; /* Adjust button padding */
+            }
+
             .dashboard-header { font-size: 2.2rem; margin-bottom: 1rem;}
             .dashboard-header + p { font-size: 0.95rem; margin-bottom: 1.5rem; }
             .dashboard-card { padding: 1.5rem; }
@@ -153,8 +203,23 @@
         }
 
         @media (max-width: 600px) {
-            body { font-size: 14px; padding-top: 1rem; } /* Less padding needed */
-            .main-content { padding: 1rem; padding-top: 0; } /* Remove main-content top padding as body handles it */
+            body { font-size: 14px; }
+            .main-content { padding: 1rem; }
+            header {
+                padding: 0.75rem;
+                margin-bottom: 1.5rem;
+            }
+            header .logo-container {
+                font-size: 1.5rem;
+                margin-bottom: 0.75rem;
+            }
+            header nav {
+                gap: 0.4rem;
+            }
+            header nav a {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.9rem;
+            }
             .dashboard-header { font-size: 1.8rem; margin-bottom: 0.75rem;}
             .dashboard-header + p { font-size: 0.85rem; margin-bottom: 1rem; }
             .dashboard-card { padding: 1rem; }
@@ -672,19 +737,87 @@
             font-size: 1.2rem;
             box-shadow: var(--shadow-sm);
         }
+
+        /* Chat Modal Specific Styles */
+        .chat-modal-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background-color: var(--secondary-gray);
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .chat-message {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            word-wrap: break-word;
+        }
+
+        .chat-message.sent {
+            background-color: var(--primary-blue);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 0.25rem;
+        }
+
+        .chat-message.received {
+            background-color: #e2e8f0; /* Light gray for received messages */
+            color: var(--text-dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 0.25rem;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input-container input {
+            flex-grow: 1;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-subtle);
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+        }
+
+        .chat-input-container button {
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            background-color: var(--primary-blue);
+            color: white;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+
+        .chat-input-container button:hover {
+            background-color: var(--primary-dark-blue);
+        }
     </style>
 </head>
 <body>
+    <!-- Main Content -->
     <main class="main-content" id="mainContent">
+        <!-- Top Navigation Bar -->
         <header class="flex justify-between items-center mb-10 p-4 bg-white rounded-xl shadow-md border border-gray-200">
-            <a href="{% url 'fairrent_app:index' %}" class="flex items-center space-x-3 text-2xl font-black text-gray-900">
+            <a href="{% url 'fairrent_app:index' %}" class="logo-container">
                 <svg class="w-8 h-8 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                 </svg>
                 <span class="gradient-text">Roomto.Live</span>
             </a>
-            <nav class="flex items-center space-x-4">
-                <a href="{% url 'fairrent_app:index' %}" class="btn-secondary flex items-center justify-center btn-hover-effect text-base px-4 py-2">
+            <nav>
+                <a href="{% url 'fairrent_app:index' %}" class="btn-secondary flex items-center justify-center btn-hover-effect text-base px-4 py-2" data-content-target="dashboard-home">
                     <i class="fas fa-home mr-2"></i>Homepage
                 </a>
                 <a href="#" class="btn-primary flex items-center justify-center btn-hover-effect text-base px-4 py-2" data-content-target="roommate-finder-section" id="roommate-finder-header-btn">
@@ -699,17 +832,18 @@
             </nav>
         </header>
 
-
+        <!-- Dashboard Header -->
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8">
             <div>
-                <h1 class="dashboard-header">Welcome, <span class="gradient-text">{{ user.username }}</span>!</h1>
+                <h1 class="dashboard-header">Welcome, <span class="gradient-text">{{ user_roommate_profile.name|default:user.username }}</span>!</h1>
                 <p class="text-lg text-gray-600 mb-4 sm:mb-0">Here's a quick overview of your Roomto.Live activity.</p>
             </div>
-            </div>
+        </div>
 
-
+        <!-- Content Sections (Dynamically Swapped) -->
         <section id="dashboard-home" class="content-section active space-y-8 animate-fade-in">
             <div class="cards-grid">
+                <!-- User Info Card (Compact) -->
                 <div class="dashboard-card glass-card animate-fade-in delay-100">
                     <h3 class="card-title"><i class="fas fa-user-circle"></i> Your Profile Overview</h3>
                     <div class="flex items-center mb-5">
@@ -717,7 +851,7 @@
                             <i class="fas fa-user fa-2x"></i>
                         </div>
                         <div>
-                            <p class="text-xl font-bold text-gray-900">{{ user.username }}</p>
+                            <p class="text-xl font-bold text-gray-900">{{ user_roommate_profile.name|default:user.username }}</p>
                             <p class="text-sm text-gray-500">{{ user.email }}</p>
                         </div>
                     </div>
@@ -736,6 +870,7 @@
                     </button>
                 </div>
 
+                <!-- Quick Stats Card -->
                 <div class="dashboard-card glass-card animate-fade-in delay-200 col-span-1 md:col-span-1 lg:col-span-2">
                     <h3 class="card-title"><i class="fas fa-chart-bar"></i> Quick Stats</h3>
                     <div class="grid grid-cols-2 gap-4 text-center">
@@ -755,6 +890,7 @@
                             <p class="text-3xl font-bold text-purple-600">{{ user_liked_profiles|length }}</p>
                             <p class="text-gray-600 text-sm">Profiles Liked</p>
                         </div>
+                        <!-- NEW: Contract Analyses Stat -->
                         <div class="p-4 bg-teal-50 rounded-lg shadow-sm">
                             <p class="text-3xl font-bold text-teal-600">{{ user_rental_contracts|length }}</p>
                             <p class="text-gray-600 text-sm">Contracts Analyzed</p>
@@ -763,6 +899,7 @@
                 </div>
             </div>
 
+            <!-- Recent Activity Card (Full Width) -->
             <div class="dashboard-card glass-card animate-fade-in delay-300">
                 <h3 class="card-title"><i class="fas fa-history"></i> Recent Activity</h3>
                 <div id="recent-activity-list" class="space-y-3">
@@ -795,6 +932,7 @@
             </div>
         </section>
 
+        <!-- Roommate Finder Section (Full Page View) -->
         <section id="roommate-finder-section" class="content-section hidden space-y-8 animate-fade-in">
             <div class="glass-card p-8">
                 <div class="flex justify-between items-center mb-8">
@@ -813,7 +951,8 @@
                     </div>
                     
                     <div id="roommate-match-card-display" class="flex flex-col items-center justify-center w-full h-full relative">
-                        </div>
+                        <!-- Dynamic match cards will be loaded here -->
+                    </div>
 
                     <div id="roommate-prompt" class="text-center p-6 w-full h-full flex flex-col items-center justify-center z-10">
                         <i class="fas fa-users text-6xl text-gray-400 mb-6"></i>
@@ -837,6 +976,7 @@
             </div>
         </section>
 
+        <!-- My Services & Activity Tabs -->
         <section id="my-services-section" class="content-section hidden space-y-8 animate-fade-in">
             <div class="glass-card p-6">
                 <h3 class="card-title"><i class="fas fa-clipboard-list"></i> My Services & Activity</h3>
@@ -879,12 +1019,8 @@
                         {% for rent_result in user_rent_checks %}
                             <div class="service-result-card cursor-pointer rent-checker-result-card"
                                 data-activity-type="Rent Check"
-                                data-activity-details='{
-                                            "postcode": "{{ rent_result.postcode }}",
-                                            "bedrooms": "{{ rent_result.bedrooms }}",
-                                            "estimated_rent": "{{ rent_result.estimated_rent|floatformat:0 }}",
-                                            "checked_at": "{{ rent_result.checked_at|date:"Y-m-d H:i:s" }}"
-                                        }'>
+                                data-service-details-id="service_details_rent_check_{{ forloop.counter }}"
+                                >
                                 <div class="icon-wrapper bg-blue-100 text-blue-600">
                                     <i class="fas fa-gbp-sign"></i>
                                 </div>
@@ -894,19 +1030,21 @@
                                     <p class="timestamp">Checked on {{ rent_result.checked_at|date:"M d, Y" }}</p>
                                 </div>
                             </div>
+                            <script type="application/json" id="service_details_rent_check_{{ forloop.counter }}">
+                                {
+                                    "postcode": "{{ rent_result.postcode|escapejs }}",
+                                    "bedrooms": "{{ rent_result.bedrooms|escapejs }}",
+                                    "estimated_rent": {{ rent_result.estimated_rent|floatformat:0 }},
+                                    "checked_at": "{{ rent_result.checked_at|date:"Y-m-d H:i:s" }}"
+                                }
+                            </script>
                         {% endfor %}
 
                         {% for review in user_reviews %}
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Review"
-                                data-activity-details='{
-                                            "landlord_name": "{{ review.landlord_name|escapejs }}",
-                                            "property_address": "{{ review.property_address|escapejs }}",
-                                            "rating": {{ review.rating }},
-                                            "comments": "{{ review.comments|escapejs }}",
-                                            "reviewed_at": "{{ review.reviewed_at|date:"Y-m-d H:i:s" }}",
-                                            "reviewer": "{{ review.user.username|escapejs }}"
-                                        }'>
+                                data-service-details-id="service_details_review_{{ forloop.counter }}"
+                                >
                                 <div class="icon-wrapper-small bg-green-100 text-green-600 mr-4">
                                     <i class="fas fa-star"></i>
                                 </div>
@@ -917,19 +1055,23 @@
                                     <p class="text-sm text-gray-500">Submitted on {{ review.reviewed_at|date:"M d, Y" }}</p>
                                 </div>
                             </div>
+                            <script type="application/json" id="service_details_review_{{ forloop.counter }}">
+                                {
+                                    "landlord_name": "{{ review.landlord_name|escapejs }}",
+                                    "property_address": "{{ review.property_address|escapejs }}",
+                                    "rating": {{ review.rating }},
+                                    "comments": "{{ review.comments|escapejs }}",
+                                    "reviewed_at": "{{ review.reviewed_at|date:"Y-m-d H:i:s" }}",
+                                    "reviewer": "{{ review.user.username|escapejs }}"
+                                }
+                            </script>
                         {% endfor %}
 
                         {% for complaint in user_complaints %}
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Complaint"
-                                data-activity-details='{
-                                            "issue_type": "{{ complaint.get_issue_type_display|escapejs }}",
-                                            "property_address": "{{ complaint.property_address|escapejs }}",
-                                            "landlord_name": "{{ complaint.landlord_name|default:''|escapejs }}",
-                                            "description": "{{ complaint.description|escapejs }}",
-                                            "status": "{{ complaint.get_status_display|escapejs }}",
-                                            "submitted_at": "{{ complaint.submitted_at|date:"Y-m-d H:i:s" }}"
-                                        }'>
+                                data-service-details-id="service_details_complaint_{{ forloop.counter }}"
+                                >
                                 <div class="icon-wrapper-small bg-red-100 text-red-600 mr-4">
                                     <i class="fas fa-exclamation-triangle"></i>
                                 </div>
@@ -939,18 +1081,23 @@
                                     <p class="text-sm text-gray-500">Submitted on {{ complaint.submitted_at|date:"M d, Y" }}</p>
                                 </div>
                             </div>
+                            <script type="application/json" id="service_details_complaint_{{ forloop.counter }}">
+                                {
+                                    "issue_type": "{{ complaint.get_issue_type_display|escapejs }}",
+                                    "property_address": "{{ complaint.property_address|escapejs }}",
+                                    "landlord_name": "{{ complaint.landlord_name|default:''|escapejs }}",
+                                    "description": "{{ complaint.description|escapejs }}",
+                                    "status": "{{ complaint.get_status_display|escapejs }}",
+                                    "submitted_at": "{{ complaint.submitted_at|date:"Y-m-d H:i:s" }}"
+                                }
+                            </script>
                         {% endfor %}
 
                         {% for post in user_forum_posts %}
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Forum Post"
-                                data-activity-details='{
-                                            "title": "{{ post.title|escapejs }}",
-                                            "content": "{{ post.content|escapejs }}",
-                                            "category": "{{ post.get_category_display|escapejs }}",
-                                            "created_at": "{{ post.created_at|date:"Y-m-d H:i:s" }}",
-                                            "author": "{{ post.user.username|escapejs }}"
-                                        }'>
+                                data-service-details-id="service_details_forum_post_{{ forloop.counter }}"
+                                >
                                 <div class="icon-wrapper-small bg-yellow-100 text-yellow-600 mr-4">
                                     <i class="fas fa-comments"></i>
                                 </div>
@@ -960,21 +1107,22 @@
                                     <p class="text-sm text-gray-500">Posted on {{ post.created_at|date:"M d, Y" }}</p>
                                 </div>
                             </div>
+                            <script type="application/json" id="service_details_forum_post_{{ forloop.counter }}">
+                                {
+                                    "title": "{{ post.title|escapejs }}",
+                                    "content": "{{ post.content|escapejs }}",
+                                    "category": "{{ post.get_category_display|escapejs }}",
+                                    "created_at": "{{ post.created_at|date:"Y-m-d H:i:s" }}",
+                                    "author": "{{ post.user.username|escapejs }}"
+                                }
+                            </script>
                         {% endfor %}
 
                         {% for liked_profile in user_liked_profiles %}
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Liked Profile"
-                                data-activity-details='{
-                                            "name": "{{ liked_profile.liked_user_name|escapejs }}",
-                                            "age": {{ liked_profile.liked_user_age|default:"null" }},
-                                            "gender": "{{ liked_profile.liked_user_gender|escapejs }}",
-                                            "location": "{{ liked_profile.liked_user_location|escapejs }}",
-                                            "budget": {{ liked_profile.liked_user_budget|default:"null" }},
-                                            "bio": "{{ liked_profile.liked_user_bio|escapejs }}",
-                                            "compatibility_score": {{ liked_profile.liked_user_compatibility_score|default:"null" }},
-                                            "avatar_url": "{{ liked_profile.liked_user_avatar_url|escapejs }}"
-                                        }'>
+                                data-service-details-id="service_details_liked_profile_{{ forloop.counter }}"
+                                >
                                 <div class="icon-wrapper-small bg-pink-100 text-pink-500 mr-4">
                                     <i class="fas fa-heart"></i>
                                 </div>
@@ -984,16 +1132,26 @@
                                     <p class="text-sm text-gray-500">Liked on {{ liked_profile.liked_at|date:"M d, Y" }}</p>
                                 </div>
                             </div>
+                            <script type="application/json" id="service_details_liked_profile_{{ forloop.counter }}">
+                                {
+                                    "name": "{{ liked_profile.liked_user_name|escapejs }}",
+                                    "age": {{ liked_profile.liked_user_age|default:"null" }},
+                                    "gender": "{{ liked_profile.liked_user_gender|escapejs }}",
+                                    "location": "{{ liked_profile.liked_user_location|escapejs }}",
+                                    "budget": {{ liked_profile.liked_user_budget|default:"null" }},
+                                    "bio": "{{ liked_profile.liked_user_bio|escapejs }}",
+                                    "compatibility_score": {{ liked_profile.liked_user_compatibility_score|default:"null" }},
+                                    "avatar_url": "{{ liked_profile.liked_user_avatar_url|escapejs }}",
+                                    "uid": "{{ liked_profile.liked_user_uid|default:''|escapejs }}" {# IMPORTANT: Pass UID for chat #}
+                                }
+                            </script>
                         {% endfor %}
 
                         {% for contract in user_rental_contracts %}
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Contract Analysis"
-                                data-activity-details='{
-                                            "original_text": "{{ contract.original_text|escapejs }}",
-                                            "analysis_result": "{{ contract.analysis_result|escapejs }}",
-                                            "analyzed_at": "{{ contract.analyzed_at|date:"Y-m-d H:i:s" }}"
-                                        }'>
+                                data-service-details-id="service_details_contract_{{ forloop.counter }}"
+                                >
                                 <div class="icon-wrapper-small bg-teal-100 text-teal-600 mr-4">
                                     <i class="fas fa-file-contract"></i>
                                 </div>
@@ -1003,21 +1161,20 @@
                                     <p class="text-sm text-gray-500">Preview: "{{ contract.original_text|truncatechars:100 }}"</p>
                                 </div>
                             </div>
+                            <script type="application/json" id="service_details_contract_{{ forloop.counter }}">
+                                {
+                                    "original_text": "{{ contract.original_text|escapejs }}",
+                                    "analysis_result": "{{ contract.analysis_result|escapejs }}",
+                                    "analyzed_at": "{{ contract.analyzed_at|date:"Y-m-d H:i:s" }}"
+                                }
+                            </script>
                         {% endfor %}
 
                         {% for declaration_check in user_rent_declaration_checks %}
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Rent Declaration Check"
-                                data-activity-details='{
-                                            "postcode": "{{ declaration_check.postcode|escapejs }}",
-                                            "bedrooms": "{{ declaration_check.bedrooms|escapejs }}",
-                                            "actual_rent_paid": "{{ declaration_check.actual_rent_paid }}",
-                                            "council_tax_band": "{{ declaration_check.council_tax_band|escapejs }}",
-                                            "estimated_council_tax": "{{ declaration_check.estimated_council_tax|default:"null" }}",
-                                            "discrepancy_found": {{ declaration_check.discrepancy_found|lower }},
-                                            "analysis_result": "{{ declaration_check.analysis_result|escapejs }}",
-                                            "checked_at": "{{ declaration_check.checked_at|date:"Y-m-d H:i:s" }}"
-                                        }'>
+                                data-service-details-id="service_details_declaration_check_{{ forloop.counter }}"
+                                >
                                 <div class="icon-wrapper-small bg-orange-100 text-orange-600 mr-4">
                                     <i class="fas fa-file-invoice-dollar"></i>
                                 </div>
@@ -1027,6 +1184,18 @@
                                     <p class="text-sm text-gray-500">Checked on {{ declaration_check.checked_at|date:"M d, Y" }}</p>
                                 </div>
                             </div>
+                            <script type="application/json" id="service_details_declaration_check_{{ forloop.counter }}">
+                                {
+                                    "postcode": "{{ declaration_check.postcode|escapejs }}",
+                                    "bedrooms": "{{ declaration_check.bedrooms|escapejs }}",
+                                    "actual_rent_paid": {{ declaration_check.actual_rent_paid }},
+                                    "council_tax_band": "{{ declaration_check.council_tax_band|escapejs }}",
+                                    "estimated_council_tax": {{ declaration_check.estimated_council_tax|default:"null" }},
+                                    "discrepancy_found": {{ declaration_check.discrepancy_found|lower }},
+                                    "analysis_result": "{{ declaration_check.analysis_result|escapejs }}",
+                                    "checked_at": "{{ declaration_check.checked_at|date:"Y-m-d H:i:s" }}"
+                                }
+                            </script>
                         {% endfor %}
 
                     {% else %}
@@ -1037,6 +1206,7 @@
         </section>
     </main>
 
+    <!-- Roommate Profile Edit Modal -->
     <div id="profile-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full p-8">
             <button type="button" id="close-profile-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
@@ -1045,6 +1215,12 @@
             <form id="roommate-profile-form" class="space-y-6">
                 <h3 id="profile-modal-title" class="text-3xl font-bold mb-6 text-gray-900">Your Roommate Profile</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+                        <input type="text" id="name" name="name" value="{{ user_roommate_profile.name|default:'' }}"
+                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                               placeholder="e.g., John Doe">
+                    </div>
                     <div>
                         <label for="age" class="block text-sm font-medium text-gray-700 mb-1">Age</label>
                         <input type="number" id="age" name="age" value="{{ user_roommate_profile.age|default:'' }}"
@@ -1097,7 +1273,8 @@
                 <div class="mt-4">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Lifestyle Preferences</label>
                     <div id="lifestyle-preferences-tags" class="tag-input-container">
-                        </div>
+                        <!-- Tags will be injected here by JavaScript -->
+                    </div>
                     <input type="hidden" id="lifestyle_preferences_hidden" name="lifestyle_preferences" value="{{ user_roommate_profile.lifestyle_preferences|default:'' }}">
                 </div>
                 <div class="mt-4">
@@ -1114,24 +1291,101 @@
         </div>
     </div>
 
+    <!-- Generic Activity/Service Details Modal -->
     <div id="activity-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="activity-modal-title">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 relative transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
             <button type="button" id="close-activity-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
                 <i class="fas fa-times fa-lg"></i>
             </button>
             <div id="activity-modal-content" class="text-left activity-detail-modal-content">
-                </div>
-            <div class="mt-6 text-center">
+                <!-- Activity/Service details will be injected here by JavaScript -->
+            </div>
+            <div class="mt-6 text-center space-y-3">
                 <button id="modal-redirect-btn" class="btn-primary hidden px-6 py-2">Go to Service</button>
+                <button id="modal-start-chat-btn" class="btn-primary hidden px-6 py-2"><i class="fas fa-comment-dots mr-2"></i>Start Chat</button>
             </div>
         </div>
     </div>
 
+    <!-- Chat Modal -->
+    <div id="chat-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="chat-modal-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg h-[80vh] flex flex-col relative transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full p-8">
+            <button type="button" id="close-chat-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <i class="fas fa-times fa-lg"></i>
+            </button>
+            <h3 id="chat-modal-title" class="text-2xl font-bold text-gray-900 mb-4">Chat with <span id="chat-partner-name"></span></h3>
+            <div id="chat-messages" class="chat-messages">
+                <!-- Chat messages will be loaded here -->
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="chat-message-input" placeholder="Type your message..." class="flex-grow rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
+                <button id="send-chat-message-btn"><i class="fas fa-paper-plane"></i> Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert/Toast Notification -->
     <div id="alert-toast" class="fixed bottom-5 right-5 z-50 hidden p-4 rounded-lg text-white transition-transform transform translate-y-20">
         <p id="alert-message"></p>
     </div>
 
-    <script>
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase variables
+        let app;
+        let db;
+        let auth;
+        let userId = null; // Will be set after auth
+        let currentChatUnsubscribe = null; // To manage chat listeners
+
+        // Firebase Configuration (provided by Canvas environment)
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Use default-app-id if not defined
+
+        // Initialize Firebase and authenticate
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (Object.keys(firebaseConfig).length > 0) {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("Firebase user authenticated:", userId);
+                    } else {
+                        try {
+                            // If no user, sign in anonymously
+                            const anonymousUser = await signInAnonymously(auth);
+                            userId = anonymousUser.user.uid;
+                            console.log("Signed in anonymously:", userId);
+                        } catch (error) {
+                            console.error("Firebase Anonymous Auth Error:", error);
+                            showToast("Failed to authenticate with Firebase. Chat may not work.", "error");
+                        }
+                    }
+                });
+
+                // Attempt custom token sign-in if available
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    try {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                        console.log("Signed in with custom token.");
+                    } catch (error) {
+                        console.error("Firebase Custom Token Auth Error:", error);
+                        showToast("Failed to authenticate with custom token. Chat may not work.", "error");
+                    }
+                }
+            } else {
+                console.warn("Firebase config not found. Chat functionality will be disabled.");
+                showToast("Firebase not configured. Chat functionality disabled.", "error");
+            }
+        });
+
         // Helper function to show toast notifications
         function showToast(message, type = 'success') {
             const toast = document.getElementById('alert-toast');
@@ -1153,9 +1407,7 @@
             }, 3000);
         }
 
-        // --- Dashboard Navigation Logic (Simplified for No Sidebar) ---
-        // We no longer have a sidebar, so these elements are removed or adjusted.
-        // The top header links will now control the sections.
+        // --- Dashboard Navigation Logic ---
         const contentSections = document.querySelectorAll('.content-section');
         const headerNavButtons = document.querySelectorAll('header nav a[data-content-target]');
 
@@ -1171,11 +1423,9 @@
             // Update active state for header buttons
             headerNavButtons.forEach(btn => {
                 if (btn.dataset.contentTarget === targetId) {
-                    btn.classList.add('active-header-btn'); // You might need to define this class in CSS
                     btn.classList.remove('btn-secondary');
                     btn.classList.add('btn-primary');
                 } else {
-                    btn.classList.remove('active-header-btn');
                     btn.classList.remove('btn-primary');
                     btn.classList.add('btn-secondary');
                 }
@@ -1209,7 +1459,8 @@
         const roommateProfileForm = document.getElementById('roommate-profile-form');
         const lifestylePreferencesTagsContainer = document.getElementById('lifestyle-preferences-tags');
         const lifestylePreferencesHiddenInput = document.getElementById('lifestyle_preferences_hidden');
-        const profileLocationInput = document.getElementById('location');
+        const profileLocationInput = document.getElementById('location'); // Already exists
+        const profileNameInput = document.getElementById('name'); // New: Name input
 
         // Pre-defined lifestyle preferences
         const ALL_LIFESTYLE_PREFERENCES = [
@@ -1290,6 +1541,8 @@
                 const data = Object.fromEntries(formData.entries());
                 data.age = data.age ? parseInt(data.age) : null;
                 data.budget = data.budget ? parseInt(data.budget) : null;
+                // Add name to data
+                data.name = profileNameInput.value.trim();
 
                 try {
                     const response = await fetch('/api/save_roommate_profile/', {
@@ -1378,7 +1631,8 @@
 
                 matchCard.querySelector('.match-details-btn').addEventListener('click', (e) => {
                     // Use the original match object for detailed view to avoid issues with stringified data
-                    displayActivityDetails('Liked Profile', match);
+                    // Pass the match.uid if available for chat
+                    displayActivityDetails('Liked Profile', match, null, match.uid || null);
                 });
 
             } else {
@@ -1444,7 +1698,8 @@
                         budget: likedMatchData.budget !== undefined && likedMatchData.budget !== null ? parseInt(likedMatchData.budget) : null,
                         bio: likedMatchData.bio || '',
                         compatibility_score: likedMatchData.compatibility_score !== undefined && likedMatchData.compatibility_score !== null ? parseInt(likedMatchData.compatibility_score) : null,
-                        avatar_url: likedMatchData.avatar_url || ''
+                        avatar_url: likedMatchData.avatar_url || '',
+                        uid: likedMatchData.uid || '' // Include UID
                     };
 
                     try {
@@ -1508,8 +1763,13 @@
         const closeActivityModalBtn = document.getElementById('close-activity-modal-btn');
         const activityModalContent = document.getElementById('activity-modal-content');
         const modalRedirectBtn = document.getElementById('modal-redirect-btn');
+        const modalStartChatBtn = document.getElementById('modal-start-chat-btn'); // New chat button
 
-        function displayActivityDetails(activityType, details, redirectUrl = null) {
+        // Store chat partner details
+        let chatPartnerUid = null;
+        let chatPartnerName = '';
+
+        function displayActivityDetails(activityType, details, redirectUrl = null, chatUid = null) {
             if (!activityModalContent || !activityDetailsModal) return;
 
             activityModalContent.innerHTML = '';
@@ -1542,6 +1802,8 @@
                         <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> <p class="whitespace-pre-wrap">${details.bio || 'No bio provided for this user.'}</p></div>
                     </div>
                 `;
+                chatPartnerUid = chatUid; // Set the UID for chat
+                chatPartnerName = details.name || 'Unknown User';
             } else if (activityType === 'Rent Check') {
                 contentHtml += `
                     <div class="text-left space-y-3">
@@ -1619,6 +1881,13 @@
                 modalRedirectBtn.classList.add('hidden');
             }
 
+            // Handle chat button visibility
+            if (activityType === 'Liked Profile' && chatUid && userId && chatUid !== userId) {
+                modalStartChatBtn.classList.remove('hidden');
+            } else {
+                modalStartChatBtn.classList.add('hidden');
+            }
+
             activityDetailsModal.classList.remove('hidden');
             activityDetailsModal.classList.add('flex');
         }
@@ -1627,14 +1896,15 @@
             closeActivityModalBtn.addEventListener('click', () => {
                 activityDetailsModal.classList.add('hidden');
                 activityDetailsModal.classList.remove('flex');
+                chatPartnerUid = null; // Clear chat partner when modal closes
+                chatPartnerName = '';
             });
         }
-
 
         // --- Event listener for clicking on Activity/Service items ---
         document.addEventListener('click', (event) => {
             const activityItem = event.target.closest('.activity-item[data-activity-details-id]');
-            const serviceResultCard = event.target.closest('.service-result-card[data-activity-details]');
+            const serviceResultCard = event.target.closest('.service-result-card[data-service-details-id]'); // Changed to service-details-id
 
             if (activityItem) {
                 const activityType = activityItem.dataset.activityType;
@@ -1645,35 +1915,41 @@
 
                 if (scriptTag) {
                     try {
-                        // The content of the script tag is the JSON string
                         details = JSON.parse(scriptTag.textContent);
+                        // For liked profiles from activity feed, also pass the UID if available
+                        const chatUid = (activityType === 'Liked Profile' && details.uid) ? details.uid : null;
+                        displayActivityDetails(activityType, details, redirectUrl, chatUid);
                     } catch (e) {
-                        console.error('Error parsing JSON from script tag:', e);
-                        showToast('Error loading activity details (script tag parse error).', 'error');
+                        console.error('Error parsing JSON from activity script tag:', e, scriptTag.textContent);
+                        showToast('Error loading activity details (parse error).', 'error');
                         return;
                     }
                 } else {
-                    console.warn('Script tag not found for ID:', scriptId);
+                    console.warn('Activity script tag not found for ID:', scriptId);
                     showToast('Error loading activity details (script tag missing).', 'error');
                     return;
                 }
-                
-                if (details) {
-                    displayActivityDetails(activityType, details, redirectUrl);
-                } else {
-                    showToast('Activity details are empty or invalid.', 'error');
-                }
-
             } else if (serviceResultCard) {
                 const activityType = serviceResultCard.dataset.activityType;
-                // For serviceResultCard, we expect direct JSON in data-activity-details
-                try {
-                    const details = JSON.parse(serviceResultCard.dataset.activityDetails);
-                    // For service results, we don't typically have a redirect_url attached directly to the card
-                    displayActivityDetails(activityType, details); 
-                } catch (e) {
-                    console.error('Error parsing service result details from data attribute:', e);
-                    showToast('Error loading service result details.', 'error');
+                const scriptId = serviceResultCard.dataset.serviceDetailsId; // Get ID from new attribute
+                const scriptTag = document.getElementById(scriptId);
+                let details;
+
+                if (scriptTag) {
+                    try {
+                        details = JSON.parse(scriptTag.textContent);
+                        // For liked profiles from service results, also pass the UID if available
+                        const chatUid = (activityType === 'Liked Profile' && details.uid) ? details.uid : null;
+                        displayActivityDetails(activityType, details, null, chatUid); // No redirect for service results typically
+                    } catch (e) {
+                        console.error('Error parsing JSON from service result script tag:', e, scriptTag.textContent);
+                        showToast('Error loading service result details (parse error).', 'error');
+                        return;
+                    }
+                } else {
+                    console.warn('Service result script tag not found for ID:', scriptId);
+                    showToast('Error loading service result details (script tag missing).', 'error');
+                    return;
                 }
             }
         });
@@ -1701,10 +1977,130 @@
             });
         });
 
-        // Removed the previous myServicesHeaderBtn logic as it's now handled by headerNavButtons loop
-        // and the general switchContentSection function.
+        // --- Chat Functionality ---
+        const chatModal = document.getElementById('chat-modal');
+        const closeChatModalBtn = document.getElementById('close-chat-modal-btn');
+        const chatPartnerNameSpan = document.getElementById('chat-partner-name');
+        const chatMessagesDiv = document.getElementById('chat-messages');
+        const chatMessageInput = document.getElementById('chat-message-input');
+        const sendChatMessageBtn = document.getElementById('send-chat-message-btn');
 
+        // Event listener for "Start Chat" button in activity details modal
+        if (modalStartChatBtn) {
+            modalStartChatBtn.addEventListener('click', () => {
+                if (!userId) {
+                    showToast("Please wait, authenticating with Firebase...", "info");
+                    return;
+                }
+                if (chatPartnerUid && userId && chatPartnerUid !== userId) {
+                    activityDetailsModal.classList.add('hidden'); // Close activity modal
+                    activityDetailsModal.classList.remove('flex');
+                    openChat(chatPartnerUid, chatPartnerName);
+                } else {
+                    showToast("Cannot start chat. Invalid chat partner or self-chat.", "error");
+                    console.error("Attempted to start chat with invalid partner:", chatPartnerUid, "current user:", userId);
+                }
+            });
+        }
+
+        if (closeChatModalBtn) {
+            closeChatModalBtn.addEventListener('click', closeChat);
+        }
+
+        if (sendChatMessageBtn) {
+            sendChatMessageBtn.addEventListener('click', sendMessage);
+        }
+
+        if (chatMessageInput) {
+            chatMessageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
+
+        function openChat(targetUid, targetName) {
+            if (!userId || !db) {
+                showToast("Chat service not available. Please ensure you are logged in and Firebase is initialized.", "error");
+                return;
+            }
+
+            chatPartnerNameSpan.textContent = targetName;
+            chatModal.classList.remove('hidden');
+            chatModal.classList.add('flex');
+            chatMessagesDiv.innerHTML = '<div class="text-center text-gray-500">Loading messages...</div>'; // Clear and show loading
+
+            // Determine chat room ID (sorted UIDs to ensure consistent chat room for any pair)
+            const chatRoomId = [userId, targetUid].sort().join('_');
+            const chatCollectionRef = collection(db, `artifacts/${appId}/public/data/chats/${chatRoomId}/messages`);
+            const q = query(chatCollectionRef, orderBy('timestamp'));
+
+            // Unsubscribe from previous chat listener if any
+            if (currentChatUnsubscribe) {
+                currentChatUnsubscribe();
+            }
+
+            currentChatUnsubscribe = onSnapshot(q, (snapshot) => {
+                chatMessagesDiv.innerHTML = ''; // Clear existing messages
+                snapshot.forEach((doc) => {
+                    const message = doc.data();
+                    const messageElement = document.createElement('div');
+                    messageElement.className = `chat-message ${message.senderId === userId ? 'sent' : 'received'}`;
+                    messageElement.textContent = message.text;
+                    chatMessagesDiv.appendChild(messageElement);
+                });
+                // Scroll to bottom
+                chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+            }, (error) => {
+                console.error("Error listening to messages:", error);
+                showToast("Error loading chat messages.", "error");
+                chatMessagesDiv.innerHTML = '<div class="text-center text-red-500">Failed to load messages.</div>';
+            });
+        }
+
+        function closeChat() {
+            chatModal.classList.add('hidden');
+            chatModal.classList.remove('flex');
+            if (currentChatUnsubscribe) {
+                currentChatUnsubscribe(); // Stop listening to messages
+                currentChatUnsubscribe = null;
+            }
+            chatMessagesDiv.innerHTML = ''; // Clear messages
+            chatMessageInput.value = ''; // Clear input
+            chatPartnerUid = null;
+            chatPartnerName = '';
+        }
+
+        async function sendMessage() {
+            if (!userId || !db || !chatPartnerUid) {
+                showToast("Chat service not ready or no recipient selected.", "error");
+                return;
+            }
+
+            const messageText = chatMessageInput.value.trim();
+            if (messageText === '') {
+                return; // Don't send empty messages
+            }
+
+            const chatRoomId = [userId, chatPartnerUid].sort().join('_');
+            const messagesCollectionRef = collection(db, `artifacts/${appId}/public/data/chats/${chatRoomId}/messages`);
+
+            try {
+                await addDoc(messagesCollectionRef, {
+                    senderId: userId,
+                    recipientId: chatPartnerUid,
+                    text: messageText,
+                    timestamp: serverTimestamp() // Firestore server timestamp
+                });
+                chatMessageInput.value = ''; // Clear input after sending
+            } catch (error) {
+                console.error("Error sending message:", error);
+                showToast("Failed to send message.", "error");
+            }
+        }
     </script>
+    <!-- Assuming main.js exists and contains additional scripts, if any. -->
+    <!-- If main.js is critical, ensure it's loaded AFTER the inline script that sets up global functions/listeners -->
     <script src="{% static 'fairrent_app/js/main.js' %}"></script>
 </body>
 </html>

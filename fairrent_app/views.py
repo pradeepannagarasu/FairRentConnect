@@ -17,6 +17,7 @@ import json
 import requests
 import random
 import logging
+import uuid # Import uuid for generating unique IDs for AI profiles
 
 from .models import Complaint, LandlordReview, RoommateProfile, ForumPost, ForumReply, RentCheck, LikedProfile, RentalContract, RentDeclarationCheck # Import all models
 
@@ -51,7 +52,8 @@ def profile_view(request):
 
     user_rent_checks = RentCheck.objects.filter(user=request.user).order_by('-checked_at')[:5] # Fetch user's rent checks
     user_forum_posts = ForumPost.objects.filter(user=request.user).order_by('-created_at')[:5]
-    user_liked_profiles = LikedProfile.objects.filter(user=request.user).order_by('-liked_at')[:5] # Fetch user's liked profiles
+    # IMPORTANT: Select related user for liked profiles to get their UID
+    user_liked_profiles = LikedProfile.objects.filter(user=request.user).order_by('-liked_at')[:5] 
     user_rental_contracts = RentalContract.objects.filter(user=request.user).order_by('-analyzed_at')[:5] # Fetch user's analyzed contracts
     user_rent_declaration_checks = RentDeclarationCheck.objects.filter(user=request.user).order_by('-checked_at')[:5] # Fetch user's rent declaration checks
 
@@ -134,7 +136,8 @@ def profile_view(request):
                 'budget': liked_profile.liked_user_budget,
                 'bio': liked_profile.liked_user_bio,
                 'compatibility_score': liked_profile.liked_user_compatibility_score,
-                'avatar_url': liked_profile.liked_user_avatar_url
+                'avatar_url': liked_profile.liked_user_avatar_url,
+                'uid': liked_profile.liked_user_uid # NEW: Pass the liked user's UID for chat
             }
         })
     for contract in user_rental_contracts: # Add rental contracts to activities
@@ -249,6 +252,12 @@ def save_roommate_profile(request):
     """API endpoint to save or update a user's roommate profile."""
     try:
         data = json.loads(request.body)
+        
+        # NEW: Get the 'name' field and validate
+        name = data.get('name', '').strip()
+        if not name:
+            return JsonResponse({'status': 'error', 'message': 'Name is required for your profile.'}, status=400)
+
         age = data.get('age')
         if age is not None:
             try:
@@ -280,6 +289,7 @@ def save_roommate_profile(request):
         profile, created = RoommateProfile.objects.update_or_create(
             user=request.user,
             defaults={
+                'name': name, # NEW: Save the name field
                 'age': age,
                 'gender': data.get('gender'),
                 'sleep_schedule': data.get('sleep_schedule'),
@@ -330,6 +340,8 @@ def find_roommate_matches_api(request):
     found_matches = []
 
     # 1. Try to find real users matching preferences
+    # IMPORTANT: Fetch the user's own RoommateProfile to get their actual UID (from request.user.pk)
+    current_user_uid = str(request.user.pk) 
     all_other_profiles = RoommateProfile.objects.exclude(user=request.user)
     potential_real_matches = []
 
@@ -366,14 +378,15 @@ def find_roommate_matches_api(request):
         if score > 0: # Only consider profiles with some compatibility
             potential_real_matches.append({
                 'score': score,
-                'name': other_profile.user.username, # Use username as name for real profiles
+                'name': other_profile.name or other_profile.user.username, # Use profile name if available, else username
                 'age': other_profile.age,
                 'gender': other_profile.get_gender_display(),
                 'location': other_profile.location,
-                'budget': other_profile.budget,
+                'budget': str(other_profile.budget) if other_profile.budget else None, # Ensure Decimal is stringified
                 'bio': other_profile.bio,
                 'compatibility_score': min(95, 70 + int(score * 3)), # Scale score to 70-95 range
-                'avatar_url': f"https://placehold.co/160x160/cccccc/ffffff?text={other_profile.user.username[0].upper()}" # Placeholder for real user avatars
+                'avatar_url': f"https://placehold.co/160x160/cccccc/ffffff?text={ (other_profile.name or other_profile.user.username)[0].upper() }" if (other_profile.name or other_profile.user.username) else 'https://placehold.co/160x160/cccccc/ffffff?text=U', # Placeholder for real user avatars
+                'uid': str(other_profile.user.pk) # NEW: Pass the real user's Django PK as UID for chat
             })
 
     # Sort real matches by score and select the best ones
@@ -414,7 +427,7 @@ def find_roommate_matches_api(request):
             Make sure the 'bio' for each match is concise (2-3 sentences) and highlights key personality traits or interests.
             Ensure 'avatar_url' uses different seed values from 'https://picsum.photos/seed/UNIQUE_NUMBER/160/160' for each match to guarantee visual variety.
 
-            Generate a JSON array of {remaining_slots} roommate objects. Each object must have these exact keys: "name", "age", "gender", "location", "budget", "bio", "compatibility_score" (integer 70-95), and "avatar_url".
+            Generate a JSON array of {remaining_slots} roommate objects. Each object must have these exact keys: "name", "age", "gender", "location", "budget", "bio", "compatibility_score" (integer 70-95), "avatar_url", and "uid" (a unique string for chat, e.g., 'ai_profile_UUID').
             Do not include any text, comments, or markdown formatting outside of the single JSON array.
             """
             
@@ -431,6 +444,11 @@ def find_roommate_matches_api(request):
             response.raise_for_status()
             ai_content = response.json()['choices'][0]['message']['content']
             ai_matches = json.loads(ai_content)
+            
+            # Ensure AI matches also have a unique UID
+            for match in ai_matches:
+                match['uid'] = f"ai_profile_{uuid.uuid4()}" # Generate a unique ID for AI profiles
+            
             found_matches.extend(ai_matches)
 
         except requests.exceptions.RequestException as e:
@@ -486,14 +504,21 @@ def save_liked_profile(request):
             liked_user_compatibility_score = int(data.get('compatibility_score'))
 
         liked_user_avatar_url = data.get('avatar_url', '')
+        liked_user_uid = data.get('uid', '') # NEW: Get the liked user's UID
 
         # Basic validation for required fields (adjust as per your model's null/blank settings)
         if not liked_user_name:
             return JsonResponse({'status': 'error', 'message': 'Liked user name is required.'}, status=400)
         # Add more validation if other fields are strictly required in your model
 
+        # Check if a LikedProfile with this user and liked_user_uid already exists
+        # This prevents duplicate entries if the user likes the same profile multiple times
+        if LikedProfile.objects.filter(user=request.user, liked_user_uid=liked_user_uid).exists():
+            return JsonResponse({'status': 'info', 'message': 'You have already liked this profile.'})
+
         LikedProfile.objects.create(
             user=request.user,
+            liked_user_uid=liked_user_uid, # NEW: Save the liked user's UID
             liked_user_name=liked_user_name,
             liked_user_age=liked_user_age,
             liked_user_gender=liked_user_gender,
