@@ -1053,7 +1053,7 @@
                         {% for activity in recent_activities %}
                             <div class="activity-item cursor-pointer"
                                 data-activity-type="{{ activity.type }}"
-                                data-activity-details-id="activity_details_tab_{{ forloop.counter }}">
+                                data-activity-details-id="activity_details_{{ forloop.counter }}">
                                 <div class="content flex items-start">
                                     <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
                                         <i class="fas fa-{{ activity.icon }}"></i>
@@ -1359,7 +1359,8 @@
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const navLinks = document.querySelectorAll('.sidebar nav a');
+        // FIXED: Changed selector to only target links with data-content-target for internal tab switching
+        const navLinks = document.querySelectorAll('.sidebar nav a[data-content-target]'); 
         const contentSections = document.querySelectorAll('.content-section');
 
         // Open sidebar on mobile
@@ -1408,11 +1409,8 @@
         navLinks.forEach(item => {
             item.addEventListener('click', (e) => {
                 const targetId = item.dataset.contentTarget;
-                // Check if the link is for the homepage, if so, allow default behavior
-                if (item.getAttribute('href') === "{% url 'fairrent_app:index' %}") {
-                    return; // Let the browser handle the navigation to the homepage
-                }
-
+                // No need for a special check for homepage here, as it's excluded by the selector
+                
                 if (targetId) {
                     e.preventDefault(); // Prevent default link behavior for internal navigation
                     navLinks.forEach(nav => nav.classList.remove('active'));
@@ -1433,25 +1431,47 @@
 
         // Initialize active sidebar item and content section on load
         document.addEventListener('DOMContentLoaded', () => {
+            // Determine the initial section based on URL hash or default to dashboard-home
             const initialSectionId = window.location.hash ? window.location.hash.substring(1) : 'dashboard-home';
+            
+            // Find the sidebar navigation item corresponding to the initial section
             const initialNavItem = document.querySelector(`.sidebar-nav-item[data-content-target="${initialSectionId}"]`);
-            // Check if the current path is the profile page itself (no hash), then activate dashboard-home
-            const isProfilePage = window.location.pathname.includes('profile'); // Adjust 'profile' if your URL pattern is different
+            
+            // Find the content section element
+            const initialContentSection = document.getElementById(initialSectionId);
 
-            if (isProfilePage && !window.location.hash) {
-                // If it's the profile page and no specific section is requested via hash, default to dashboard-home
-                document.querySelector('.sidebar-nav-item[data-content-target="dashboard-home"]').classList.add('active');
-                document.getElementById('dashboard-home').classList.remove('hidden');
+            // Deactivate all sidebar navigation items first
+            document.querySelectorAll('.sidebar-nav-item').forEach(nav => nav.classList.remove('active'));
+            // Hide all content sections first
+            contentSections.forEach(section => section.classList.add('hidden'));
+
+            // If the current page is the profile page and there's no hash, or the hash points to dashboard-home
+            // or if a specific internal nav item is found, activate it.
+            if (window.location.pathname.includes('profile') && (!window.location.hash || initialSectionId === 'dashboard-home')) {
+                const dashboardNavItem = document.querySelector('.sidebar-nav-item[data-content-target="dashboard-home"]');
+                if (dashboardNavItem) {
+                    dashboardNavItem.classList.add('active');
+                }
+                const dashboardSection = document.getElementById('dashboard-home');
+                if (dashboardSection) {
+                    dashboardSection.classList.remove('hidden');
+                }
             } else if (initialNavItem) {
+                // If a specific hash was provided and a corresponding nav item exists
                 initialNavItem.classList.add('active');
-                const initialContentSection = document.getElementById(initialSectionId);
                 if (initialContentSection) {
                     initialContentSection.classList.remove('hidden');
                 }
             } else {
-                // Fallback if no hash or matching nav item, default to dashboard-home
-                document.querySelector('.sidebar-nav-item[data-content-target="dashboard-home"]').classList.add('active');
-                document.getElementById('dashboard-home').classList.remove('hidden');
+                // Fallback: If nothing matches, default to dashboard-home
+                const dashboardNavItem = document.querySelector('.sidebar-nav-item[data-content-target="dashboard-home"]');
+                if (dashboardNavItem) {
+                    dashboardNavItem.classList.add('active');
+                }
+                const dashboardSection = document.getElementById('dashboard-home');
+                if (dashboardSection) {
+                    dashboardSection.classList.remove('hidden');
+                }
             }
         });
 
@@ -1949,12 +1969,12 @@
         const myServicesHeaderBtn = document.getElementById('my-services-header-btn');
         if (myServicesHeaderBtn) {
             myServicesHeaderBtn.addEventListener('click', (e) => {
-                const targetId = myServicesHeaderBtn.dataset.content-target;
+                const targetId = myServicesHeaderBtn.dataset.contentTarget; // Corrected to use dataset.contentTarget
                 if (targetId) {
                     e.preventDefault(); // Prevent default link behavior for internal navigation
 
                     // Deactivate all sidebar nav items
-                    navLinks.forEach(nav => nav.classList.remove('active'));
+                    document.querySelectorAll('.sidebar-nav-item').forEach(nav => nav.classList.remove('active')); // Select all sidebar-nav-items
                     // Activate the corresponding sidebar nav item
                     const correspondingSidebarItem = document.querySelector(`.sidebar-nav-item[data-content-target="${targetId}"]`);
                     if (correspondingSidebarItem) {
