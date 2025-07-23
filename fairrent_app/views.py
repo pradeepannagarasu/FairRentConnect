@@ -28,11 +28,8 @@ logger = logging.getLogger(__name__)
 def index(request):
     """
     Renders the main application homepage.
-    If the user is authenticated, redirects them to their profile dashboard.
+    FIXED: Removed the redirect for authenticated users. Now, it always renders index.html.
     """
-    # CRITICAL CHANGE: Redirect authenticated users to their profile dashboard
-    if request.user.is_authenticated:
-        return redirect('fairrent_app:profile')
     return render(request, 'fairrent_app/index.html')
 
 @login_required
