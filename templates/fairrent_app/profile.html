@@ -954,7 +954,7 @@
                         {% for activity in recent_activities %}
                             <div class="activity-item cursor-pointer"
                                 data-activity-type="{{ activity.type }}"
-                                data-activity-details='{% if activity.details %}{{ activity.details|json_script:"activity_details_data" }}{% endif %}'>
+                                data-activity-details-id="activity_details_{{ forloop.counter }}">
                                 <div class="content flex items-start">
                                     <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
                                         <i class="fas fa-{{ activity.icon }}"></i>
@@ -965,6 +965,10 @@
                                     </div>
                                 </div>
                             </div>
+                            {# Store activity details in a script tag for safe JSON parsing #}
+                            <script type="application/json" id="activity_details_{{ forloop.counter }}">
+                                {{ activity.details|json_script:"activity_details_data" }}
+                            </script>
                         {% endfor %}
                     {% else %}
                         <p class="text-center text-gray-500 py-4">No recent activity to display.</p>
@@ -1032,7 +1036,7 @@
                         {% for activity in recent_activities %}
                             <div class="activity-item cursor-pointer"
                                 data-activity-type="{{ activity.type }}"
-                                data-activity-details='{% if activity.details %}{{ activity.details|json_script:"activity_details_data" }}{% endif %}'>
+                                data-activity-details-id="activity_details_tab_{{ forloop.counter }}">
                                 <div class="content flex items-start">
                                     <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
                                         <i class="fas fa-{{ activity.icon }}"></i>
@@ -1043,6 +1047,10 @@
                                     </div>
                                 </div>
                             </div>
+                            {# Store activity details in a script tag for safe JSON parsing #}
+                            <script type="application/json" id="activity_details_tab_{{ forloop.counter }}">
+                                {{ activity.details|json_script:"activity_details_data" }}
+                            </script>
                         {% endfor %}
                     {% else %}
                         <p class="text-center text-gray-500 py-4">No recent activity to display.</p>
@@ -1075,12 +1083,12 @@
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Review"
                                 data-activity-details='{
-                                        "landlord_name": "{{ review.landlord_name }}",
-                                        "property_address": "{{ review.property_address }}",
+                                        "landlord_name": "{{ review.landlord_name|escapejs }}",
+                                        "property_address": "{{ review.property_address|escapejs }}",
                                         "rating": {{ review.rating }},
                                         "comments": "{{ review.comments|escapejs }}",
                                         "reviewed_at": "{{ review.reviewed_at|date:"Y-m-d H:i:s" }}",
-                                        "reviewer": "{{ review.user.username }}"
+                                        "reviewer": "{{ review.user.username|escapejs }}"
                                     }'>
                                 <div class="icon-wrapper-small bg-green-100 text-green-600 mr-4">
                                     <i class="fas fa-star"></i>
@@ -1098,11 +1106,11 @@
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Complaint"
                                 data-activity-details='{
-                                        "issue_type": "{{ complaint.get_issue_type_display }}",
-                                        "property_address": "{{ complaint.property_address }}",
-                                        "landlord_name": "{{ complaint.landlord_name|default:'' }}",
+                                        "issue_type": "{{ complaint.get_issue_type_display|escapejs }}",
+                                        "property_address": "{{ complaint.property_address|escapejs }}",
+                                        "landlord_name": "{{ complaint.landlord_name|default:''|escapejs }}",
                                         "description": "{{ complaint.description|escapejs }}",
-                                        "status": "{{ complaint.get_status_display }}",
+                                        "status": "{{ complaint.get_status_display|escapejs }}",
                                         "submitted_at": "{{ complaint.submitted_at|date:"Y-m-d H:i:s" }}"
                                     }'>
                                 <div class="icon-wrapper-small bg-red-100 text-red-600 mr-4">
@@ -1122,9 +1130,9 @@
                                 data-activity-details='{
                                         "title": "{{ post.title|escapejs }}",
                                         "content": "{{ post.content|escapejs }}",
-                                        "category": "{{ post.get_category_display }}",
+                                        "category": "{{ post.get_category_display|escapejs }}",
                                         "created_at": "{{ post.created_at|date:"Y-m-d H:i:s" }}",
-                                        "author": "{{ post.user.username }}"
+                                        "author": "{{ post.user.username|escapejs }}"
                                     }'>
                                 <div class="icon-wrapper-small bg-yellow-100 text-yellow-600 mr-4">
                                     <i class="fas fa-comments"></i>
@@ -1141,14 +1149,14 @@
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Liked Profile"
                                 data-activity-details='{
-                                        "name": "{{ liked_profile.liked_user_name }}",
+                                        "name": "{{ liked_profile.liked_user_name|escapejs }}",
                                         "age": {{ liked_profile.liked_user_age|default:"null" }},
-                                        "gender": "{{ liked_profile.liked_user_gender }}",
-                                        "location": "{{ liked_profile.liked_user_location }}",
+                                        "gender": "{{ liked_profile.liked_user_gender|escapejs }}",
+                                        "location": "{{ liked_profile.liked_user_location|escapejs }}",
                                         "budget": {{ liked_profile.liked_user_budget|default:"null" }},
                                         "bio": "{{ liked_profile.liked_user_bio|escapejs }}",
                                         "compatibility_score": {{ liked_profile.liked_user_compatibility_score|default:"null" }},
-                                        "avatar_url": "{{ liked_profile.liked_user_avatar_url }}"
+                                        "avatar_url": "{{ liked_profile.liked_user_avatar_url|escapejs }}"
                                     }'>
                                 <div class="icon-wrapper-small bg-pink-100 text-pink-500 mr-4">
                                     <i class="fas fa-heart"></i>
@@ -1174,7 +1182,7 @@
                                 </div>
                                 <div>
                                     <p class="font-semibold text-gray-800">Contract Analysis</p>
-                                    <p class="text-700">Analyzed on <span class="font-bold">{{ contract.analyzed_at|date:"M d, Y" }}</span></p>
+                                    <p class="text-gray-700">Analyzed on <span class="font-bold">{{ contract.analyzed_at|date:"M d, Y" }}</span></p>
                                     <p class="text-sm text-gray-500">Preview: "{{ contract.original_text|truncatechars:100 }}"</p>
                                 </div>
                             </div>
@@ -1184,10 +1192,10 @@
                             <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
                                 data-activity-type="Rent Declaration Check"
                                 data-activity-details='{
-                                        "postcode": "{{ declaration_check.postcode }}",
-                                        "bedrooms": "{{ declaration_check.bedrooms }}",
+                                        "postcode": "{{ declaration_check.postcode|escapejs }}",
+                                        "bedrooms": "{{ declaration_check.bedrooms|escapejs }}",
                                         "actual_rent_paid": "{{ declaration_check.actual_rent_paid }}",
-                                        "council_tax_band": "{{ declaration_check.council_tax_band }}",
+                                        "council_tax_band": "{{ declaration_check.council_tax_band|escapejs }}",
                                         "estimated_council_tax": "{{ declaration_check.estimated_council_tax|default:"null" }}",
                                         "discrepancy_found": {{ declaration_check.discrepancy_found|lower }},
                                         "analysis_result": "{{ declaration_check.analysis_result|escapejs }}",
@@ -1656,14 +1664,15 @@
             if (currentCard) {
                 if (direction === 'like') {
                     const likedMatchData = currentMatches[currentMatchIndex];
+                    // Ensure numbers are sent as numbers, not strings or undefined
                     const dataToSend = {
                         name: likedMatchData.name || '',
-                        age: parseInt(likedMatchData.age) || null,
+                        age: likedMatchData.age !== undefined && likedMatchData.age !== null ? parseInt(likedMatchData.age) : null,
                         gender: likedMatchData.gender || '',
                         location: likedMatchData.location || '',
-                        budget: parseInt(likedMatchData.budget) || null,
+                        budget: likedMatchData.budget !== undefined && likedMatchData.budget !== null ? parseInt(likedMatchData.budget) : null,
                         bio: likedMatchData.bio || '',
-                        compatibility_score: parseInt(likedMatchData.compatibility_score) || null,
+                        compatibility_score: likedMatchData.compatibility_score !== undefined && likedMatchData.compatibility_score !== null ? parseInt(likedMatchData.compatibility_score) : null,
                         avatar_url: likedMatchData.avatar_url || ''
                     };
 
@@ -1734,13 +1743,29 @@
             activityModalContent.innerHTML = '';
             let contentHtml = `<h3 class="text-2xl font-bold text-gray-900 mb-4">${activityType} Details</h3>`;
 
+            // Helper to format date strings
+            const formatDate = (dateString) => {
+                if (!dateString) return 'N/A';
+                try {
+                    return new Date(dateString).toLocaleString();
+                } catch (e) {
+                    return dateString; // Return original if parsing fails
+                }
+            };
+
+            // Helper to format currency
+            const formatCurrency = (value) => {
+                if (value === null || value === undefined || isNaN(parseFloat(value))) return 'N/A';
+                return `£${parseFloat(value).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+            };
+
             if (activityType === 'Liked Profile') {
                 contentHtml += `
                     <img src="${details.avatar_url || 'https://placehold.co/112x112/cccccc/ffffff?text=User'}" alt="${details.name || 'User'}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/112x112/cccccc/ffffff?text=User'">
                     <h4 class="text-xl font-bold text-gray-900 mb-2">${details.name || 'Unknown User'}, ${details.age || 'N/A'}</h4>
                     <p class="text-md text-gray-700 mb-4">${details.gender || 'N/A'} | ${details.location || 'N/A'}</p>
                     <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-money-bill-wave"></i><span class="font-semibold">Budget:</span> £${details.budget || 'N/A'} / month</div>
+                        <div class="detail-item"><i class="fas fa-money-bill-wave"></i><span class="font-semibold">Budget:</span> ${formatCurrency(details.budget)} / month</div>
                         <div class="detail-item"><i class="fas fa-user-friends"></i><span class="font-semibold">Compatibility:</span> <span class="compatibility-score-modal">${details.compatibility_score || 'N/A'}%</span></div>
                         <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> <p class="whitespace-pre-wrap">${details.bio || 'No bio provided for this user.'}</p></div>
                     </div>
@@ -1750,8 +1775,8 @@
                     <div class="text-left space-y-3">
                         <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Postcode:</span> ${details.postcode || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-bed"></i><span class="font-semibold">Bedrooms:</span> ${details.bedrooms || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-gbp-sign"></i><span class="font-semibold">Estimated Rent:</span> £${details.estimated_rent || 'N/A'} / month</div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Checked At:</span> ${details.checked_at ? new Date(details.checked_at).toLocaleString() : 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-gbp-sign"></i><span class="font-semibold">Estimated Rent:</span> ${formatCurrency(details.estimated_rent)} / month</div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Checked At:</span> ${formatDate(details.checked_at)}</div>
                     </div>
                 `;
             } else if (activityType === 'Review') {
@@ -1761,7 +1786,7 @@
                         <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Property:</span> ${details.property_address || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-star"></i><span class="font-semibold">Rating:</span> ${details.rating || 'N/A'} Stars</div>
                         <div class="detail-item"><i class="fas fa-comment-alt"></i><span class="font-semibold">Comments:</span> <p class="whitespace-pre-wrap">${details.comments || 'No comments provided.'}</p></div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Reviewed At:</span> ${details.reviewed_at ? new Date(details.reviewed_at).toLocaleString() : 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Reviewed At:</span> ${formatDate(details.reviewed_at)}</div>
                         <div class="detail-item"><i class="fas fa-user"></i><span class="font-semibold">Reviewer:</span> ${details.reviewer || 'N/A'}</div>
                     </div>
                 `;
@@ -1773,7 +1798,7 @@
                         <div class="detail-item"><i class="fas fa-user-tie"></i><span class="font-semibold">Landlord (Optional):</span> ${details.landlord_name || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Description:</span> <p class="whitespace-pre-wrap">${details.description || 'No description provided.'}</p></div>
                         <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Status:</span> ${details.status || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Submitted At:</span> ${details.submitted_at ? new Date(details.submitted_at).toLocaleString() : 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Submitted At:</span> ${formatDate(details.submitted_at)}</div>
                     </div>
                 `;
             } else if (activityType === 'Forum Post') {
@@ -1782,14 +1807,14 @@
                         <div class="detail-item"><i class="fas fa-heading"></i><span class="font-semibold">Title:</span> ${details.title || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-tags"></i><span class="font-semibold">Category:</span> ${details.category || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Content:</span> <p class="whitespace-pre-wrap">${details.content || 'No content provided.'}</p></div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Posted At:</span> ${details.created_at ? new Date(details.created_at).toLocaleString() : 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Posted At:</span> ${formatDate(details.created_at)}</div>
                         <div class="detail-item"><i class="fas fa-user"></i><span class="font-semibold">Author:</span> ${details.author || 'N/A'}</div>
                     </div>
                 `;
             } else if (activityType === 'Contract Analysis') {
                 contentHtml += `
                     <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Analyzed At:</span> ${details.analyzed_at ? new Date(details.analyzed_at).toLocaleString() : 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Analyzed At:</span> ${formatDate(details.analyzed_at)}</div>
                         <div class="detail-item"><i class="fas fa-file-alt"></i><span class="font-semibold">Original Text:</span> <p class="whitespace-pre-wrap text-sm max-h-40 overflow-y-auto border p-2 rounded">${details.original_text || 'No original text provided.'}</p></div>
                         <div class="detail-item"><i class="fas fa-robot"></i><span class="font-semibold">AI Analysis:</span> <p class="whitespace-pre-wrap text-sm max-h-60 overflow-y-auto border p-2 rounded">${details.analysis_result || 'No detailed analysis available.'}</p></div>
                     </div>
@@ -1799,12 +1824,12 @@
                     <div class="text-left space-y-3">
                         <div class="detail-item"><i class="fas fa-map-marker-alt"></i><span class="font-semibold">Postcode:</span> ${details.postcode || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-bed"></i><span class="font-semibold">Bedrooms:</span> ${details.bedrooms || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-pound-sign"></i><span class="font-semibold">Actual Rent Paid:</span> £${details.actual_rent_paid || 'N/A'} / month</div>
+                        <div class="detail-item"><i class="fas fa-pound-sign"></i><span class="font-semibold">Actual Rent Paid:</span> ${formatCurrency(details.actual_rent_paid)} / month</div>
                         <div class="detail-item"><i class="fas fa-city"></i><span class="font-semibold">Council Tax Band:</span> ${details.council_tax_band || 'N/A'}</div>
-                        <div class="detail-item"><i class="fas fa-calculator"></i><span class="font-semibold">Estimated Council Tax:</span> £${details.estimated_council_tax || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-calculator"></i><span class="font-semibold">Estimated Council Tax:</span> ${formatCurrency(details.estimated_council_tax)}</div>
                         <div class="detail-item"><i class="fas fa-exclamation-circle"></i><span class="font-semibold">Discrepancy Found:</span> <span class="${details.discrepancy_found ? 'text-red-600 font-bold' : 'text-green-600 font-bold'}">${details.discrepancy_found ? 'Yes' : 'No'}</span></div>
                         <div class="detail-item"><i class="fas fa-robot"></i><span class="font-semibold">AI Analysis:</span> <p class="whitespace-pre-wrap">${details.analysis_result || 'No detailed analysis available.'}</p></div>
-                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Checked At:</span> ${details.checked_at ? new Date(details.checked_at).toLocaleString() : 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Checked At:</span> ${formatDate(details.checked_at)}</div>
                     </div>
                 `;
             }
@@ -1827,46 +1852,28 @@
 
         // --- Event listener for clicking on Activity/Service items ---
         document.addEventListener('click', (event) => {
-            const activityItem = event.target.closest('.activity-item[data-activity-details]');
+            const activityItem = event.target.closest('.activity-item[data-activity-details-id]');
             const serviceResultCard = event.target.closest('.service-result-card[data-activity-details]');
 
             if (activityItem) {
                 const activityType = activityItem.dataset.activityType;
-                // Get the script tag ID from the data attribute
-                const scriptIdMatch = activityItem.dataset.activityDetails.match(/json_script:"(.*?)"/);
+                const scriptId = activityItem.dataset.activityDetailsId;
+                const scriptTag = document.getElementById(scriptId);
                 let details;
 
-                if (scriptIdMatch && scriptIdMatch[1]) {
-                    // If a script tag ID is found, try to parse from the script tag
-                    const scriptTag = document.getElementById(scriptIdMatch[1]);
-                    if (scriptTag) {
-                        try {
-                            details = JSON.parse(scriptTag.textContent);
-                        } catch (e) {
-                            console.error('Error parsing JSON from script tag:', e);
-                            showToast('Error loading activity details (script tag parse error).', 'error');
-                            return; // Stop execution if parsing fails
-                        }
-                    } else {
-                        console.warn('Script tag not found for ID:', scriptIdMatch[1]);
-                        // Fallback to direct data attribute parsing if script tag is not found
-                        try {
-                            details = JSON.parse(activityItem.dataset.activityDetails);
-                        } catch (e) {
-                            console.error('Error parsing activity details from data attribute (fallback):', e);
-                            showToast('Error loading activity details (direct parse fallback error).', 'error');
-                            return;
-                        }
-                    }
-                } else {
-                    // If no script tag ID is found, parse directly from data-activity-details
+                if (scriptTag) {
                     try {
-                        details = JSON.parse(activityItem.dataset.activityDetails);
-                    }  catch (e) {
-                        console.error('Error parsing activity details from data attribute (no script ID):', e);
-                        showToast('Error loading activity details (direct parse error).', 'error');
+                        // The content of the script tag is the JSON string
+                        details = JSON.parse(scriptTag.textContent);
+                    } catch (e) {
+                        console.error('Error parsing JSON from script tag:', e);
+                        showToast('Error loading activity details (script tag parse error).', 'error');
                         return;
                     }
+                } else {
+                    console.warn('Script tag not found for ID:', scriptId);
+                    showToast('Error loading activity details (script tag missing).', 'error');
+                    return;
                 }
                 
                 if (details) {
