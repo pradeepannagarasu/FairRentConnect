@@ -840,17 +840,17 @@
     <!-- Sidebar -->
     <aside class="sidebar hidden-mobile" id="sidebar" tabindex="0" aria-label="Main Navigation">
         <div>
-            <div class="sidebar-logo">
-                <!-- Original SVG Logo from existing code, color adjusted by CSS variable -->
+            <!-- FIXED: Wrapped the sidebar-logo content in an <a> tag to make it clickable -->
+            <a href="{% url 'fairrent_app:index' %}" class="sidebar-logo">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                 </svg>
                 <span>Roomto.Live</span>
-            </div>
+            </a>
             <nav aria-label="Sidebar">
                 <ul>
                     <li>
-                        <!-- FIXED: Changed href from '#' to Django URL tag for homepage -->
+                        <!-- This link already correctly points to the homepage and does not have data-content-target -->
                         <a href="{% url 'fairrent_app:index' %}" class="sidebar-nav-item">
                             <i class="fas fa-home"></i>Home
                         </a>
@@ -1949,7 +1949,7 @@
         const myServicesHeaderBtn = document.getElementById('my-services-header-btn');
         if (myServicesHeaderBtn) {
             myServicesHeaderBtn.addEventListener('click', (e) => {
-                const targetId = myServicesHeaderBtn.dataset.contentTarget;
+                const targetId = myServicesHeaderBtn.dataset.content-target;
                 if (targetId) {
                     e.preventDefault(); // Prevent default link behavior for internal navigation
 
