@@ -5,13 +5,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Roomto.Live Dashboard</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'fairrent_app/favicon.ico' %}">
+    `<a href="{% url 'fairrent_app:index' %}" class="btn-secondary ... " data-content-target="dashboard-home">`
     <!-- Tailwind CSS for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font for a clean, modern look -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Font Awesome for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="{% static 'fairrent_app/favicon.ico' %}">
     <style>
         /* --- Root Variables for Refined Professional Theme --- */
         :root {
@@ -818,7 +820,7 @@
                 <span class="gradient-text">Roomto.Live</span>
             </a>
             <nav>
-                <a href="{% url 'fairrent_app:index' %}" class="btn-secondary flex items-center justify-center btn-hover-effect text-base px-4 py-2" data-content-target="dashboard-home">
+                <a href="{% url 'fairrent_app:index' %}" class="btn-secondary flex items-center justify-center btn-hover-effect text-base px-4 py-2"> {# REMOVED data-content-target #}
                     <i class="fas fa-home mr-2"></i>Homepage
                 </a>
                 <a href="#" class="btn-primary flex items-center justify-center btn-hover-effect text-base px-4 py-2" data-content-target="roommate-finder-section" id="roommate-finder-header-btn">
@@ -1088,7 +1090,7 @@
                                     "property_address": "{{ complaint.property_address|escapejs }}",
                                     "landlord_name": "{{ complaint.landlord_name|default:''|escapejs }}",
                                     "description": "{{ complaint.description|escapejs }}",
-                                    "status": "{{ complaint.get_status_display|escapejs }}",
+                                    "status": "{{ complaint.get_status_type_display|escapejs }}", {# Corrected from get_status_display to get_status_type_display #}
                                     "submitted_at": "{{ complaint.submitted_at|date:"Y-m-d H:i:s" }}"
                                 }
                             </script>
@@ -1344,6 +1346,8 @@
         let currentChatUnsubscribe = null; // To manage chat listeners
 
         // Firebase Configuration (provided by Canvas environment)
+        // IMPORTANT: These variables are expected to be injected by the Render environment.
+        // If they are not present, Firebase will not initialize.
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Use default-app-id if not defined
 
@@ -1437,8 +1441,9 @@
         headerNavButtons.forEach(button => {
             button.addEventListener('click', (e) => {
                 const targetId = button.dataset.contentTarget;
-                if (targetId) {
-                    e.preventDefault(); // Prevent default link behavior for internal navigation
+                // Only prevent default for internal content targets
+                if (targetId) { 
+                    e.preventDefault(); 
                     window.location.hash = targetId; // Update URL hash for direct linking
                     switchContentSection(targetId);
                 }
@@ -1978,127 +1983,9 @@
             });
         });
 
-        // --- Chat Functionality ---
-        const chatModal = document.getElementById('chat-modal');
-        const closeChatModalBtn = document.getElementById('close-chat-modal-btn');
-        const chatPartnerNameSpan = document.getElementById('chat-partner-name');
-        const chatMessagesDiv = document.getElementById('chat-messages');
-        const chatMessageInput = document.getElementById('chat-message-input');
-        const sendChatMessageBtn = document.getElementById('send-chat-message-btn');
+        // Removed the previous myServicesHeaderBtn logic as it's now handled by headerNavButtons loop
+        // and the general switchContentSection function.
 
-        // Event listener for "Start Chat" button in activity details modal
-        if (modalStartChatBtn) {
-            modalStartChatBtn.addEventListener('click', () => {
-                if (!userId) {
-                    showToast("Please wait, authenticating with Firebase...", "info");
-                    return;
-                }
-                if (chatPartnerUid && userId && chatPartnerUid !== userId) {
-                    activityDetailsModal.classList.add('hidden'); // Close activity modal
-                    activityDetailsModal.classList.remove('flex');
-                    openChat(chatPartnerUid, chatPartnerName);
-                } else {
-                    showToast("Cannot start chat. Invalid chat partner or self-chat.", "error");
-                    console.error("Attempted to start chat with invalid partner:", chatPartnerUid, "current user:", userId);
-                }
-            });
-        }
-
-        if (closeChatModalBtn) {
-            closeChatModalBtn.addEventListener('click', closeChat);
-        }
-
-        if (sendChatMessageBtn) {
-            sendChatMessageBtn.addEventListener('click', sendMessage);
-        }
-
-        if (chatMessageInput) {
-            chatMessageInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                }
-            });
-        }
-
-        function openChat(targetUid, targetName) {
-            if (!userId || !db) {
-                showToast("Chat service not available. Please ensure you are logged in and Firebase is initialized.", "error");
-                return;
-            }
-
-            chatPartnerNameSpan.textContent = targetName;
-            chatModal.classList.remove('hidden');
-            chatModal.classList.add('flex');
-            chatMessagesDiv.innerHTML = '<div class="text-center text-gray-500">Loading messages...</div>'; // Clear and show loading
-
-            // Determine chat room ID (sorted UIDs to ensure consistent chat room for any pair)
-            const chatRoomId = [userId, targetUid].sort().join('_');
-            const chatCollectionRef = collection(db, `artifacts/${appId}/public/data/chats/${chatRoomId}/messages`);
-            const q = query(chatCollectionRef, orderBy('timestamp'));
-
-            // Unsubscribe from previous chat listener if any
-            if (currentChatUnsubscribe) {
-                currentChatUnsubscribe();
-            }
-
-            currentChatUnsubscribe = onSnapshot(q, (snapshot) => {
-                chatMessagesDiv.innerHTML = ''; // Clear existing messages
-                snapshot.forEach((doc) => {
-                    const message = doc.data();
-                    const messageElement = document.createElement('div');
-                    messageElement.className = `chat-message ${message.senderId === userId ? 'sent' : 'received'}`;
-                    messageElement.textContent = message.text;
-                    chatMessagesDiv.appendChild(messageElement);
-                });
-                // Scroll to bottom
-                chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-            }, (error) => {
-                console.error("Error listening to messages:", error);
-                showToast("Error loading chat messages.", "error");
-                chatMessagesDiv.innerHTML = '<div class="text-center text-red-500">Failed to load messages.</div>';
-            });
-        }
-
-        function closeChat() {
-            chatModal.classList.add('hidden');
-            chatModal.classList.remove('flex');
-            if (currentChatUnsubscribe) {
-                currentChatUnsubscribe(); // Stop listening to messages
-                currentChatUnsubscribe = null;
-            }
-            chatMessagesDiv.innerHTML = ''; // Clear messages
-            chatMessageInput.value = ''; // Clear input
-            chatPartnerUid = null;
-            chatPartnerName = '';
-        }
-
-        async function sendMessage() {
-            if (!userId || !db || !chatPartnerUid) {
-                showToast("Chat service not ready or no recipient selected.", "error");
-                return;
-            }
-
-            const messageText = chatMessageInput.value.trim();
-            if (messageText === '') {
-                return; // Don't send empty messages
-            }
-
-            const chatRoomId = [userId, chatPartnerUid].sort().join('_');
-            const messagesCollectionRef = collection(db, `artifacts/${appId}/public/data/chats/${chatRoomId}/messages`);
-
-            try {
-                await addDoc(messagesCollectionRef, {
-                    senderId: userId,
-                    recipientId: chatPartnerUid,
-                    text: messageText,
-                    timestamp: serverTimestamp() // Firestore server timestamp
-                });
-                chatMessageInput.value = ''; // Clear input after sending
-            } catch (error) {
-                console.error("Error sending message:", error);
-                showToast("Failed to send message.", "error");
-            }
-        }
     </script>
     <!-- Assuming main.js exists and contains additional scripts, if any. -->
     <!-- If main.js is critical, ensure it's loaded AFTER the inline script that sets up global functions/listeners -->

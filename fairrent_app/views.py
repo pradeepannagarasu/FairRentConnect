@@ -168,7 +168,7 @@ def profile_view(request):
                 'estimated_council_tax': str(declaration_check.estimated_council_tax) if declaration_check.estimated_council_tax else 'N/A',
                 'discrepancy_found': declaration_check.discrepancy_found,
                 'analysis_result': declaration_check.analysis_result,
-                'checked_at': declaration_check.checked_at.isoformat() if declaration_check.checked_at else None
+                'checked_at': declaration_check.checked_at.isoformat() if declaration_check.checked_at else None # Corrected from 'declaration.checked_at'
             }
         })
 
@@ -830,7 +830,7 @@ def get_address_suggestions(request):
         if not query: 
             return JsonResponse({'status': 'success', 'message': 'No query provided.', 'data': {'suggestions': []}})
         
-        response = requests.get(
+        response = requests.post(
             "https://api.opencagedata.com/geocode/v1/json",
             params={'q': query, 'key': opencage_api_key, 'countrycode': 'gb', 'limit': 5}
         )
@@ -996,7 +996,7 @@ def check_rent_declaration_api(request):
 
         # Extract data from AI response
         estimated_council_tax = declaration_data.get('estimated_council_tax')
-        discrepancy_found = declaration_data.get('discrepancy_found', False)
+        discrepancy_found = declaration_data.get('discrespancy_found', False)
         analysis_result = declaration_data.get('analysis_result', 'No analysis provided.')
 
         # Save the rent declaration check result for authenticated users
