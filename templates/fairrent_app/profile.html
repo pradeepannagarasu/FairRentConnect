@@ -43,10 +43,10 @@
 
         /* --- Main Content Styles (Adjusted for No Sidebar) --- */
         .main-content {
-            /* Removed margin-left as there's no sidebar */
             padding: 2.5rem 3rem; /* Generous padding on all sides */
             min-height: 100vh;
-            /* Removed transition for margin-left as it's no longer dynamic */
+            width: 100%; /* Ensure it takes full width */
+            box-sizing: border-box; /* Include padding in width calculation */
         }
 
         /* Top Header Styling */
@@ -993,7 +993,7 @@
                         {% for activity in recent_activities %}
                             <div class="activity-item cursor-pointer"
                                 data-activity-type="{{ activity.type }}"
-                                data-activity-details-id="activity_details_tab_{{ forloop.counter }}"
+                                data-activity-details-id="activity_details_{{ forloop.counter }}"
                                 data-redirect-url="{% if activity.redirect_url %}{{ activity.redirect_url }}{% endif %}"
                                 >
                                 <div class="content flex items-start">
@@ -1006,7 +1006,7 @@
                                     </div>
                                 </div>
                                 {# Store activity details in a script tag for safe JSON parsing #}
-                                <script type="application/json" id="activity_details_tab_{{ forloop.counter }}">
+                                <script type="application/json" id="activity_details_{{ forloop.counter }}">
                                     {{ activity.details|json_script:"activity_details_data" }}
                                 </script>
                             </div>
