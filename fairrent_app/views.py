@@ -446,13 +446,26 @@ def find_roommate_matches_api(request):
             )
             response.raise_for_status()
             ai_content = response.json()['choices'][0]['message']['content']
-            ai_matches = json.loads(ai_content)
             
-            # Ensure AI matches also have a unique UID
+            # Ensure ai_matches is always a list of dictionaries
+            try:
+                ai_matches = json.loads(ai_content)
+                if not isinstance(ai_matches, list):
+                    # If it's a single object, wrap it in a list
+                    ai_matches = [ai_matches]
+            except json.JSONDecodeError:
+                # If it's not valid JSON, treat as empty list
+                ai_matches = []
+                logger.error(f"Failed to decode AI response as JSON list: {ai_content}")
+
+            # Ensure AI matches also have a unique UID and are dictionaries
             for match in ai_matches:
-                match['uid'] = f"ai_profile_{uuid.uuid4()}" # Generate a unique ID for AI profiles
+                if isinstance(match, dict): # Only process if it's a dictionary
+                    match['uid'] = f"ai_profile_{uuid.uuid4()}" # Generate a unique ID for AI profiles
+                else:
+                    logger.warning(f"Skipping non-dictionary AI match: {match}")
             
-            found_matches.extend(ai_matches)
+            found_matches.extend([m for m in ai_matches if isinstance(m, dict)]) # Only extend valid dictionaries
 
         except requests.exceptions.RequestException as e:
             logger.error(f"OpenAI API request failed for AI matches: {e}")
@@ -793,8 +806,11 @@ def generate_forum_idea_api(request):
         return JsonResponse({'status': 'error', 'message': 'Forum idea generation service is currently unavailable. API key not configured.'}, status=503)
     try:
         data = json.loads(request.body)
-        topic = data.get('topic', 'general tenant advice')
+        query = data.get('query', '').strip()
+        if not query: 
+            return JsonResponse({'status': 'success', 'message': 'No query provided.', 'data': {'suggestions': []}})
         
+        # Corrected to use requests.post for OpenAI API
         response = requests.post(
             "https://api.openai.com/v1/chat/completions",
             headers={"Authorization": f"Bearer {openai_api_key}", "Content-Type": "application/json"},
@@ -802,7 +818,7 @@ def generate_forum_idea_api(request):
                 "model": "gpt-3.5-turbo",
                 "messages": [
                     {"role": "system", "content": "You are an assistant that generates engaging UK-focused forum post ideas for tenants. Provide a short, catchy title and a brief starting question."},
-                    {"role": "user", "content": f"Generate a forum post idea about: \"{topic}\""}
+                    {"role": "user", "content": f"Generate a forum post idea about: \"{query}\""}
                 ],
                 "max_tokens": 100
             }
@@ -833,7 +849,8 @@ def get_address_suggestions(request):
         if not query: 
             return JsonResponse({'status': 'success', 'message': 'No query provided.', 'data': {'suggestions': []}})
         
-        response = requests.post(
+        # Corrected to use requests.get for OpenCage API
+        response = requests.get(
             "https://api.opencagedata.com/geocode/v1/json",
             params={'q': query, 'key': opencage_api_key, 'countrycode': 'gb', 'limit': 5}
         )
