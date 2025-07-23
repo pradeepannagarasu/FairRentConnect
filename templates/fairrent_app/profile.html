@@ -277,8 +277,9 @@
         }
 
         @media (max-width: 900px) {
-            /* Increased padding-top to clear fixed sidebar-toggle */
-            .main-content { margin-left: 0; padding-top: 8rem; padding-left: 1.5rem; padding-right: 1.5rem; }
+            /* Increased padding-top on body to clear fixed sidebar-toggle */
+            body { padding-top: 8rem; } /* Added padding to body */
+            .main-content { margin-left: 0; padding-left: 1.5rem; padding-right: 1.5rem; padding-top: 0; } /* Remove main-content top padding as body handles it */
             .sidebar { position: fixed; left: 0; top: 0; height: 100vh; z-index: 1001; width: 85vw; max-width: 320px; } /* Wider for better content display */
             .sidebar.hidden-mobile {
                 transform: translateX(-100%);
@@ -304,9 +305,8 @@
         }
 
         @media (max-width: 600px) {
-            body { font-size: 14px; }
-            /* Increased padding-top to clear fixed sidebar-toggle on smaller phones */
-            .main-content { padding: 1rem; padding-top: 7rem; }
+            body { font-size: 14px; padding-top: 7rem; } /* Added padding to body */
+            .main-content { padding: 1rem; padding-top: 0; } /* Remove main-content top padding as body handles it */
             .sidebar { border-radius: 0; width: 100vw; max-width: none; } /* Full width on very small screens */
             .sidebar-logo { font-size: 1.6rem; margin: 1.5rem; }
             .dashboard-header { font-size: 1.8rem; margin-bottom: 0.75rem;}
@@ -1862,7 +1862,7 @@
                     // If no script tag ID is found, parse directly from data-activity-details
                     try {
                         details = JSON.parse(activityItem.dataset.activityDetails);
-                    } catch (e) {
+                    }  catch (e) {
                         console.error('Error parsing activity details from data attribute (no script ID):', e);
                         showToast('Error loading activity details (direct parse error).', 'error');
                         return;
@@ -1915,8 +1915,8 @@
         const homepageLink = document.getElementById('homepage-link');
         if (homepageLink) {
             homepageLink.addEventListener('click', (e) => {
-                console.log("Homepage link clicked. Redirecting to:", e.currentTarget.href);
                 // No e.preventDefault() here, allow default browser navigation
+                console.log("Homepage link clicked. Redirecting to:", e.currentTarget.href);
             });
         }
     </script>
