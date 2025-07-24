@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Roomto.Live Dashboard</title>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}"> {# Corrected favicon path #}
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
     <!-- Tailwind CSS for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font for a clean, modern look -->
@@ -29,6 +29,12 @@
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --transition-ease: all 0.2s ease-in-out;
+
+            /* NEW: Custom colors for swipe buttons */
+            --reject-red: #ef4444;
+            --reject-dark-red: #dc2626;
+            --like-green: #22c55e;
+            --like-dark-green: #16a34a;
         }
 
         body {
@@ -160,6 +166,23 @@
             100% { opacity: 1; transform: translateX(0); }
         }
 
+        /* NEW: Swipe animations */
+        .roommate-match-card.swiping-left {
+            animation: swipe-left 0.5s forwards;
+        }
+        .roommate-match-card.swiping-right {
+            animation: swipe-right 0.5s forwards;
+        }
+
+        @keyframes swipe-left {
+            from { transform: translateX(0) rotate(0deg); opacity: 1; }
+            to { transform: translateX(-150%) rotate(-30deg); opacity: 0; }
+        }
+        @keyframes swipe-right {
+            from { transform: translateX(0) rotate(0deg); opacity: 1; }
+            to { transform: translateX(150%) rotate(30deg); opacity: 0; }
+        }
+
         /* --- Responsive Styles --- */
         @media (max-width: 1200px) {
             .main-content { padding: 2rem 2.5rem; } /* Adjusted padding */
@@ -242,7 +265,6 @@
         /* --- Custom styles from profile.html, adapted for new theme --- */
         .glass-card {
             background: var(--bg-card); /* Use pure white for clean look */
-            /* Reordered backdrop-filter properties */
             -webkit-backdrop-filter: none;
             backdrop-filter: none; /* Remove blur for simpler design */
             border-radius: 1.25rem; /* Consistent with new card radius */
@@ -546,6 +568,96 @@
             border-color: var(--primary-blue);
         }
 
+        /* NEW: Swipe buttons styling */
+        .swipe-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem; /* Increased gap for better touch targets */
+            margin-top: 2.5rem; /* More space below the card */
+            z-index: 10; /* Ensure buttons are above other content */
+        }
+
+        .swipe-button {
+            width: 70px; /* Larger buttons */
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem; /* Larger icons */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .swipe-button.skip {
+            background-color: var(--reject-red);
+            color: white;
+            border: 2px solid var(--reject-dark-red);
+        }
+
+        .swipe-button.skip:hover {
+            background-color: var(--reject-dark-red);
+            transform: scale(1.1);
+        }
+
+        .swipe-button.like {
+            background-color: var(--like-green);
+            color: white;
+            border: 2px solid var(--like-dark-green);
+        }
+
+        .swipe-button.like:hover {
+            background-color: var(--like-dark-green);
+            transform: scale(1.1);
+        }
+
+        /* NEW: Roommate card specific styling for better visuals */
+        .roommate-match-card {
+            width: 100%;
+            max-width: 400px; /* Constrain width for better mobile experience */
+            padding: 2.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, #ffffff, #f0f8ff); /* Subtle gradient background */
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08); /* More pronounced shadow */
+            border-radius: 1.5rem; /* Even more rounded */
+            transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+            position: absolute; /* For swipe animation positioning */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Center the card */
+            touch-action: pan-y; /* Allow vertical scrolling, but handle horizontal swipe */
+        }
+
+        .roommate-match-card img {
+            border: 5px solid var(--primary-blue); /* More prominent border */
+            box-shadow: var(--shadow-sm);
+        }
+
+        .roommate-match-card .compatibility-score {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            margin-top: 1rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* Hide scrollbar for beauty, but allow scrolling */
+        .chat-messages::-webkit-scrollbar,
+        .notification-modal::-webkit-scrollbar,
+        .activity-detail-modal-content::-webkit-scrollbar,
+        .roommate-profile-form::-webkit-scrollbar {
+            display: none;
+        }
+        .chat-messages,
+        .notification-modal,
+        .activity-detail-modal-content,
+        .roommate-profile-form {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
     </style>
 </head>
 <body>
@@ -559,7 +671,7 @@
                 </svg>
                 <span class="gradient-text">Roomto.Live</span>
             </a>
-            <nav class="flex items-center"> {# Added items-center to align bell vertically #}
+            <nav class="flex items-center">
                 <a href="{% url 'fairrent_app:index' %}" class="btn-secondary flex items-center justify-center btn-hover-effect text-base px-4 py-2">
                     <i class="fas fa-home mr-2"></i>Homepage
                 </a>
@@ -572,7 +684,7 @@
                 
                 {# NEW: Notification Bell Button #}
                 <div class="notification-bell-container">
-                    <button id="notification-bell-btn" class="notification-bell-button" aria-label="Notifications"> {# Added aria-label #}
+                    <button id="notification-bell-btn" class="notification-bell-button" aria-label="Notifications">
                         <i class="fas fa-bell"></i>
                         {% if unread_notifications_count > 0 %}
                             <span id="notification-badge" class="notification-badge">{{ unread_notifications_count }}</span>
@@ -713,8 +825,8 @@
 
         <!-- Roommate Finder Section (Full Page View) -->
         <section id="roommate-finder-section" class="content-section hidden space-y-8 animate-fade-in">
-            <div class="glass-card p-8">
-                <div class="flex justify-between items-center mb-8">
+            <div class="glass-card p-8 flex flex-col items-center justify-center min-h-[500px]"> {# Added flex-col and min-h for centering #}
+                <div class="flex justify-between items-center w-full mb-8">
                     <div>
                         <h3 class="text-3xl font-bold text-gray-900">AI Roommate Finder</h3>
                         <p class="text-gray-500 mt-1">Discover compatible roommates with our smart AI.</p>
@@ -723,7 +835,7 @@
                         <i class="fas fa-edit mr-2"></i>{% if user_roommate_profile %}Edit Profile{% else %}Create Profile{% endif %}
                     </button>
                 </div>
-                <div id="roommate-match-container" class="relative min-h-[400px] bg-gray-50 rounded-xl border border-gray-200 overflow-hidden flex flex-col items-center justify-center">
+                <div id="roommate-match-container" class="relative w-full max-w-md min-h-[450px] bg-gray-50 rounded-xl border border-gray-200 overflow-hidden flex flex-col items-center justify-center">
                     <div id="roommate-matches-loader" class="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-90 rounded-xl hidden z-20">
                         <div class="spinner w-16 h-16 border-6 border-gray-200 rounded-full mb-4"></div>
                         <p class="text-gray-700 font-medium text-lg">Finding your perfect matches with AI...</p>
@@ -748,9 +860,10 @@
                     </div>
                 </div>
                 
-                <div id="swipe-buttons-container" class="swipe-buttons hidden z-30">
-                    <button id="skip-match-btn" class="swipe-button skip" aria-label="Skip Profile"><i class="fas fa-times"></i></button> {# Added aria-label #}
-                    <button id="like-match-btn" class="swipe-button like" aria-label="Like Profile"><i class="fas fa-check"></i></button> {# Added aria-label #}
+                {# Moved swipe buttons outside roommate-match-container for better clickability and styling #}
+                <div id="swipe-buttons-container" class="swipe-buttons hidden">
+                    <button id="skip-match-btn" class="swipe-button skip" aria-label="Skip Profile"><i class="fas fa-times"></i></button>
+                    <button id="like-match-btn" class="swipe-button like" aria-label="Like Profile"><i class="fas fa-check"></i></button>
                 </div>
             </div>
         </section>
@@ -988,7 +1101,7 @@
     <!-- Roommate Profile Edit Modal -->
     <div id="profile-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full p-8">
-            <button type="button" id="close-profile-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Close Profile Modal"> {# Added aria-label #}
+            <button type="button" id="close-profile-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Close Profile Modal">
                 <i class="fas fa-times fa-lg"></i>
             </button>
             <form id="roommate-profile-form" class="space-y-6">
@@ -1269,8 +1382,8 @@
 
         const lifestylePreferencesTagsContainer = document.getElementById('lifestyle-preferences-tags');
         const lifestylePreferencesHiddenInput = document.getElementById('lifestyle_preferences_hidden');
-        const houseRulesTagsContainer = document.getElementById('house-rules-tags'); // NEW
-        const houseRulesHiddenInput = document.getElementById('house_rules_hidden'); // NEW
+        const houseRulesTagsContainer = document.getElementById('house-rules-tags');
+        const houseRulesHiddenInput = document.getElementById('house_rules_hidden');
 
         const profileLocationInput = document.getElementById('location');
         const profileNameInput = document.getElementById('name');
@@ -1282,7 +1395,7 @@
             'Cooks Often', 'Rarely Cooks', 'Non-Smoker', 'Smoker', 'Introvert', 'Extrovert'
         ];
 
-        const ALL_HOUSE_RULES = [ // NEW
+        const ALL_HOUSE_RULES = [
             'No Pets', 'No Smoking', 'Quiet Hours', 'Guests Allowed', 'No Parties',
             'Shared Chores', 'Bills Included', 'Parking Available'
         ];
@@ -1476,7 +1589,7 @@
 
 
         // --- Roommate Match Finder Logic (Swipe UI) ---
-        const findMatchesBtn = document.getElementById('find-matches-btn'); // This might be null if not present in the HTML
+        const findMatchesBtn = document.getElementById('find-matches-btn');
         const roommateMatchesLoader = document.getElementById('roommate-matches-loader');
         const roommateMatchCardDisplay = document.getElementById('roommate-match-card-display');
         const roommatePrompt = document.getElementById('roommate-prompt');
@@ -1489,26 +1602,31 @@
 
         let currentMatches = [];
         let currentMatchIndex = 0;
-        const currentUserProfileType = "{{ user_roommate_profile.user_type|default:'' }}"; // Get current user's profile type
+        const currentUserProfileType = "{{ user_roommate_profile.user_type|default:'' }}";
+
+        // Swipe variables
+        let startX = 0;
+        let currentX = 0;
+        let isSwiping = false;
+        const swipeThreshold = 75; // Pixels to swipe to trigger action
 
         function displayCurrentMatch() {
             if (!roommateMatchCardDisplay || !roommatePrompt || !noMoreMatchesPrompt || !swipeButtonsContainer) return;
 
-            // Clear previous content
+            // Clear previous content and reset styles
             roommateMatchCardDisplay.innerHTML = '';
             roommatePrompt.classList.add('hidden');
             noMoreMatchesPrompt.classList.add('hidden');
 
             if (currentMatchIndex < currentMatches.length) {
                 const match = currentMatches[currentMatchIndex];
-                console.log("Displaying match:", match); // Log the match object for debugging
+                console.log("Displaying match:", match);
 
-                // Ensure all fields have fallbacks for display, and handle "undefined" string specifically
                 const name = (match.name && match.name !== 'undefined') ? match.name : 'Unknown User';
                 const location = (match.location && match.location !== 'undefined') ? match.location : 'N/A';
                 const compatibilityScore = (match.compatibility_score && match.compatibility_score !== 'undefined') ? `${match.compatibility_score}` : 'N/A';
                 const bio = (match.bio && match.bio !== 'undefined') ? match.bio : 'No bio provided for this user.';
-                const avatarUrl = (match.avatar_url && match.avatar_url !== 'undefined') ? match.avatar_url : 'https://placehold.co/110x110/cccccc/ffffff?text=User'; // Fallback placeholder
+                const avatarUrl = (match.avatar_url && match.avatar_url !== 'undefined') ? match.avatar_url : 'https://placehold.co/110x110/cccccc/ffffff?text=User';
 
                 let matchDetailsHtml = '';
                 if (match.user_type === 'looking_for_room') {
@@ -1533,7 +1651,7 @@
                 }
 
                 const matchCard = document.createElement('div');
-                matchCard.className = 'roommate-match-card glass-card'; // Apply styling
+                matchCard.className = 'roommate-match-card glass-card';
                 matchCard.innerHTML = `
                     <img src="${avatarUrl}" alt="${name}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/110x110/cccccc/ffffff?text=User'">
                     ${matchDetailsHtml}
@@ -1546,8 +1664,10 @@
                 roommateMatchCardDisplay.appendChild(matchCard);
                 swipeButtonsContainer.classList.remove('hidden');
 
+                // Add swipe event listeners to the new card
+                addSwipeListeners(matchCard);
+
                 matchCard.querySelector('.match-details-btn').addEventListener('click', (e) => {
-                    // Pass the match.uid and match.user_type for detailed view and chat
                     displayActivityDetails('Liked Profile', match, null, match.uid || null, match.user_type);
                 });
 
@@ -1557,6 +1677,38 @@
                 noMoreMatchesPrompt.classList.remove('hidden');
             }
         }
+
+        // NEW: Swipe event listeners function
+        function addSwipeListeners(cardElement) {
+            cardElement.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                isSwiping = true;
+                cardElement.style.transition = 'none'; // Disable transition during swipe
+            });
+
+            cardElement.addEventListener('touchmove', (e) => {
+                if (!isSwiping) return;
+                currentX = e.touches[0].clientX;
+                const diffX = currentX - startX;
+                cardElement.style.transform = `translate(-50%, -50%) translateX(${diffX}px) rotate(${diffX / 20}deg)`; // Move and rotate
+            });
+
+            cardElement.addEventListener('touchend', () => {
+                if (!isSwiping) return;
+                isSwiping = false;
+                const diffX = currentX - startX;
+                cardElement.style.transition = 'transform 0.3s ease-out'; // Re-enable transition
+
+                if (diffX > swipeThreshold) {
+                    animateAndAdvance('like');
+                } else if (diffX < -swipeThreshold) {
+                    animateAndAdvance('skip');
+                } else {
+                    cardElement.style.transform = 'translate(-50%, -50%) translateX(0) rotate(0deg)'; // Reset position
+                }
+            });
+        }
+
 
         async function fetchRoommateMatches() {
             if (!roommatePrompt || !noMoreMatchesPrompt || !roommateMatchesLoader || !roommateMatchCardDisplay || !swipeButtonsContainer) return;
@@ -1611,9 +1763,9 @@
         async function animateAndAdvance(direction) {
             const currentCard = roommateMatchCardDisplay.querySelector('.roommate-match-card');
             if (currentCard) {
+                currentCard.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out'; // Ensure animation
                 if (direction === 'like') {
                     const likedMatchData = currentMatches[currentMatchIndex];
-                    // Ensure numbers are sent as numbers, not strings or undefined
                     const dataToSend = {
                         name: likedMatchData.name || '',
                         age: likedMatchData.age !== undefined && likedMatchData.age !== null ? parseInt(likedMatchData.age) : null,
@@ -1623,8 +1775,8 @@
                         bio: likedMatchData.bio || '',
                         compatibility_score: likedMatchData.compatibility_score !== undefined && likedMatchData.compatibility_score !== null ? parseInt(likedMatchData.compatibility_score) : null,
                         avatar_url: likedMatchData.avatar_url || '',
-                        uid: likedMatchData.uid || '', // Include UID
-                        user_type: likedMatchData.user_type || '' // NEW: Include user_type
+                        uid: likedMatchData.uid || '',
+                        user_type: likedMatchData.user_type || ''
                     };
 
                     try {
@@ -1637,22 +1789,24 @@
                             body: JSON.stringify(dataToSend)
                         });
                         const saveResult = await saveResponse.json();
-                        if (saveResult.status === 'success' || saveResult.status === 'info') { // 'info' for already liked
+                        if (saveResult.status === 'success' || saveResult.status === 'info') {
                             showToast(saveResult.message, saveResult.status);
                             currentCard.classList.add('swiping-right');
                             currentCard.addEventListener('transitionend', () => {
                                 currentMatchIndex++;
                                 displayCurrentMatch();
                             }, { once: true });
-                            // After liking, refresh notifications (if it was a real user)
                             fetchNotifications(); 
                         } else {
                             showToast(saveResult.message || 'Failed to save liked profile.', 'error');
                             console.error('Error saving liked profile:', saveResult.errors);
+                            // If saving fails, reset the card position
+                            currentCard.style.transform = 'translate(-50%, -50%) translateX(0) rotate(0deg)';
                         }
                     } catch (error) {
                         console.error('Network error saving liked profile:', error);
                         showToast('Network error saving liked profile. Please try again.', 'error');
+                        currentCard.style.transform = 'translate(-50%, -50%) translateX(0) rotate(0deg)'; // Reset on network error
                     }
                 } else { // If skipping
                     currentCard.classList.add('swiping-left');
@@ -1690,26 +1844,23 @@
         const closeActivityModalBtn = document.getElementById('close-activity-modal-btn');
         const activityModalContent = document.getElementById('activity-modal-content');
         const modalRedirectBtn = document.getElementById('modal-redirect-btn');
-        const modalStartChatBtn = document.getElementById('modal-start-chat-btn'); // New chat button
+        const modalStartChatBtn = document.getElementById('modal-start-chat-btn');
 
-        // Function to display activity details (no change needed here, variables are global)
         function displayActivityDetails(activityType, details, redirectUrl = null, chatUid = null, profileUserType = null) {
             if (!activityModalContent || !activityDetailsModal) return;
 
             activityModalContent.innerHTML = '';
             let contentHtml = `<h3 class="text-2xl font-bold text-gray-900 mb-4">${activityType} Details</h3>`;
 
-            // Helper to format date strings
             const formatDate = (dateString) => {
                 if (!dateString) return 'N/A';
                 try {
                     return new Date(dateString).toLocaleString();
                 } catch (e) {
-                    return dateString; // Return original if parsing fails
+                    return dateString;
                 }
             };
 
-            // Helper to format currency
             const formatCurrency = (value) => {
                 if (value === null || value === undefined || isNaN(parseFloat(value))) return 'N/A';
                 return `£${parseFloat(value).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
@@ -1724,14 +1875,14 @@
                         <div class="detail-item"><i class="fas fa-user-friends"></i><span class="font-semibold">Compatibility:</span> <span class="compatibility-score-modal">${details.compatibility_score || 'N/A'}%</span></div>
                 `;
                 
-                if (profileUserType === 'looking_for_room') { // This is a profile of someone looking for a room
+                if (profileUserType === 'looking_for_room') {
                     contentHtml += `
                         <div class="detail-item"><i class="fas fa-venus-mars"></i><span class="font-semibold">Gender:</span> ${details.gender || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-money-bill-wave"></i><span class="font-semibold">Budget:</span> ${formatCurrency(details.budget)} / month</div>
                         <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Age:</span> ${details.age || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> <p class="whitespace-pre-wrap">${details.bio || 'No bio provided for this user.'}</p></div>
                     `;
-                } else if (profileUserType === 'offering_room') { // This is a profile of someone offering a room
+                } else if (profileUserType === 'offering_room') {
                     contentHtml += `
                         <div class="detail-item"><i class="fas fa-door-open"></i><span class="font-semibold">Available Rooms:</span> ${details.num_available_rooms || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-money-bill-wave"></i><span class="font-semibold">Rent:</span> ${formatCurrency(details.rent_amount_offering)} / month</div>
@@ -1741,8 +1892,8 @@
                         <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> <p class="whitespace-pre-wrap">${details.bio || 'No bio provided for this user.'}</p></div>
                     `;
                 }
-                contentHtml += `</div>`; // Close text-left space-y-3
-                chatPartnerUid = chatUid; // Set the UID for chat
+                contentHtml += `</div>`;
+                chatPartnerUid = chatUid;
                 chatPartnerName = details.name || 'Unknown User';
             } else if (activityType === 'Rent Check') {
                 contentHtml += `
@@ -1813,7 +1964,6 @@
 
             activityModalContent.innerHTML = contentHtml;
             
-            // Handle redirect button visibility and URL
             if (redirectUrl) {
                 modalRedirectBtn.href = redirectUrl;
                 modalRedirectBtn.classList.remove('hidden');
@@ -1821,8 +1971,6 @@
                 modalRedirectBtn.classList.add('hidden');
             }
 
-            // Handle chat button visibility
-            // Only show chat button if current user is authenticated and not trying to chat with self
             if (chatUid && currentUserId && chatUid !== currentUserId) {
                 modalStartChatBtn.classList.remove('hidden');
             } else {
@@ -1837,12 +1985,11 @@
             closeActivityModalBtn.addEventListener('click', () => {
                 activityDetailsModal.classList.add('hidden');
                 activityDetailsModal.classList.remove('flex');
-                chatPartnerUid = null; // Clear chat partner when modal closes
+                chatPartnerUid = null;
                 chatPartnerName = '';
             });
         }
 
-        // --- Event listener for clicking on Activity/Service items ---
         document.addEventListener('click', (event) => {
             const activityItem = event.target.closest('.activity-item[data-activity-details-id]');
             const serviceResultCard = event.target.closest('.service-result-card[data-service-details-id]');
@@ -1857,7 +2004,6 @@
                 if (scriptTag) {
                     try {
                         details = JSON.parse(scriptTag.textContent);
-                        // For liked profiles from activity feed, also pass the UID and user_type if available
                         const chatUid = (activityType === 'Liked Profile' && details.uid) ? details.uid : null;
                         const profileUserType = (activityType === 'Liked Profile' && details.user_type) ? details.user_type : null;
                         displayActivityDetails(activityType, details, redirectUrl, chatUid, profileUserType);
@@ -1880,10 +2026,9 @@
                 if (scriptTag) {
                     try {
                         details = JSON.parse(scriptTag.textContent);
-                        // For liked profiles from service results, also pass the UID and user_type if available
                         const chatUid = (activityType === 'Liked Profile' && details.uid) ? details.uid : null;
                         const profileUserType = (activityType === 'Liked Profile' && details.user_type) ? details.user_type : null;
-                        displayActivityDetails(activityType, details, null, chatUid, profileUserType); // No redirect for service results typically
+                        displayActivityDetails(activityType, details, null, chatUid, profileUserType);
                     } catch (e) {
                         console.error('Error parsing JSON from service result script tag:', e, scriptTag.textContent);
                         showToast('Error loading service result details (parse error).', 'error');
@@ -1939,30 +2084,26 @@
                 const data = await response.json();
 
                 if (data.status === 'success') {
-                    chatMessagesDiv.innerHTML = ''; // Clear existing messages
+                    chatMessagesDiv.innerHTML = '';
                     data.messages.forEach(msg => {
                         const messageElement = document.createElement('div');
                         messageElement.className = `chat-message ${msg.sender_uid === currentUserId ? 'sent' : 'received'}`;
                         
-                        // Create a span for the timestamp and make it smaller and grey
                         const timestampSpan = document.createElement('span');
                         timestampSpan.className = 'text-xs text-gray-500 ml-2';
-                        // Format timestamp if available
                         if (msg.timestamp) {
                             const date = new Date(msg.timestamp);
                             timestampSpan.textContent = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                         }
 
-                        // Create a span for the message text
                         const messageTextSpan = document.createElement('span');
                         messageTextSpan.textContent = msg.message;
 
                         messageElement.appendChild(messageTextSpan);
-                        messageElement.appendChild(timestampSpan); // Append timestamp after message
+                        messageElement.appendChild(timestampSpan);
 
                         chatMessagesDiv.appendChild(messageElement);
                     });
-                    // Scroll to bottom
                     chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
                 } else {
                     showToast(data.message || 'Failed to load messages.', 'error');
@@ -1974,7 +2115,7 @@
         }
 
         function openChat(targetUid, targetName) {
-            if (!currentUserId || currentUserId === 'null') { // Ensure currentUserId is a valid ID
+            if (!currentUserId || currentUserId === 'null') {
                 showToast("You must be logged in to chat.", "error");
                 return;
             }
@@ -1983,25 +2124,24 @@
             chatPartnerNameSpan.textContent = targetName;
             chatModal.classList.remove('hidden');
             chatModal.classList.add('flex');
-            chatMessagesDiv.innerHTML = '<div class="text-center text-gray-500">Loading messages...</div>'; // Clear and show loading
+            chatMessagesDiv.innerHTML = '<div class="text-center text-gray-500">Loading messages...</div>';
 
-            // Start polling for new messages every 2 seconds
             if (chatPollingInterval) {
                 clearInterval(chatPollingInterval);
             }
-            chatPollingInterval = setInterval(fetchMessages, 2000); // Poll every 2 seconds
-            fetchMessages(); // Fetch immediately on open
+            chatPollingInterval = setInterval(fetchMessages, 2000);
+            fetchMessages();
         }
 
         function closeChat() {
             chatModal.classList.add('hidden');
             chatModal.classList.remove('flex');
             if (chatPollingInterval) {
-                clearInterval(chatPollingInterval); // Stop polling
+                clearInterval(chatPollingInterval);
                 chatPollingInterval = null;
             }
-            chatMessagesDiv.innerHTML = ''; // Clear messages
-            chatMessageInput.value = ''; // Clear input
+            chatMessagesDiv.innerHTML = '';
+            chatMessageInput.value = '';
             chatPartnerUid = null;
             chatPartnerName = '';
         }
@@ -2018,7 +2158,7 @@
 
             const messageText = chatMessageInput.value.trim();
             if (messageText === '') {
-                return; // Don't send empty messages
+                return;
             }
 
             try {
@@ -2035,9 +2175,9 @@
                 });
                 const result = await response.json();
                 if (result.status === 'success') {
-                    chatMessageInput.value = ''; // Clear input after sending
-                    fetchMessages(); // Immediately refresh messages after sending
-                    fetchNotifications(); // Refresh notifications in case a new message notification was created
+                    chatMessageInput.value = '';
+                    fetchMessages();
+                    fetchNotifications();
                 } else {
                     showToast(result.message || 'Failed to send message.', 'error');
                 }
@@ -2047,12 +2187,10 @@
             }
         }
 
-        // Event listeners for chat buttons
         if (modalStartChatBtn) {
             modalStartChatBtn.addEventListener('click', () => {
-                // Assuming chatPartnerUid and chatPartnerName are set by displayActivityDetails
                 if (chatPartnerUid && chatPartnerName) {
-                    closeActivityModalBtn.click(); // Close activity details modal
+                    closeActivityModalBtn.click();
                     openChat(chatPartnerUid, chatPartnerName);
                 } else {
                     showToast("Could not start chat. Partner details missing.", "error");
@@ -2082,18 +2220,16 @@
         const noNotificationsMessage = document.getElementById('no-notifications-message');
         const markAllReadBtn = document.getElementById('mark-all-read-btn');
 
-        // Toggle notification modal visibility
         if (notificationBellBtn) {
             notificationBellBtn.addEventListener('click', (event) => {
-                event.stopPropagation(); // Prevent document click from closing it immediately
+                event.stopPropagation();
                 notificationModal.classList.toggle('active');
                 if (notificationModal.classList.contains('active')) {
-                    fetchNotifications(); // Fetch notifications when opening modal
+                    fetchNotifications();
                 }
             });
         }
 
-        // Close notification modal when clicking outside
         document.addEventListener('click', (event) => {
             if (notificationModal && !notificationModal.contains(event.target) && !notificationBellBtn.contains(event.target)) {
                 notificationModal.classList.remove('active');
@@ -2114,7 +2250,7 @@
                     const result = await response.json();
                     if (result.status === 'success') {
                         showToast(result.message, 'success');
-                        fetchNotifications(); // Refresh notifications after marking all as read
+                        fetchNotifications();
                     } else {
                         showToast(result.message || 'Failed to mark all as read.', 'error');
                     }
@@ -2131,11 +2267,11 @@
                 return;
             }
             try {
-                const response = await fetch('/api/notifications/?unread_only=false'); // Fetch all notifications for display
+                const response = await fetch("{% url 'fairrent_app:api_get_notifications' %}?unread_only=false"); 
                 const data = await response.json();
 
                 if (data.status === 'success') {
-                    notificationList.innerHTML = ''; // Clear current list
+                    notificationList.innerHTML = '';
                     if (data.notifications.length === 0) {
                         noNotificationsMessage.classList.remove('hidden');
                         markAllReadBtn.classList.add('hidden');
@@ -2151,21 +2287,18 @@
                                 <p class="notification-timestamp">${new Date(notif.created_at).toLocaleString()}</p>
                             `;
                             notifElement.addEventListener('click', async () => {
-                                // Mark as read when clicked
                                 if (!notif.is_read) {
                                     await markNotificationAsRead(notif.id);
                                 }
-                                // Redirect if a link exists
                                 if (notif.link) {
                                     window.location.href = notif.link;
                                 }
-                                notificationModal.classList.remove('active'); // Close modal after clicking
+                                notificationModal.classList.remove('active');
                             });
                             notificationList.appendChild(notifElement);
                         });
                     }
                     
-                    // Update badge count
                     if (notificationBadge) {
                         if (data.unread_count > 0) {
                             notificationBadge.textContent = data.unread_count;
@@ -2180,8 +2313,7 @@
                 }
             } catch (error) {
                 console.error('Error fetching notifications:', error);
-                // Only show toast if it's a critical network error, not just no notifications
-                if (error instanceof TypeError) { // e.g., network down
+                if (error instanceof TypeError) {
                     showToast('Network error fetching notifications.', 'error');
                 }
             }
@@ -2199,14 +2331,12 @@
                 });
                 const result = await response.json();
                 if (result.status === 'success' || result.status === 'info') {
-                    // Update UI immediately without full re-fetch for better UX
                     const markedNotifElement = notificationList.querySelector(`[data-notification-id="${notificationId}"]`);
                     if (markedNotifElement) {
                         markedNotifElement.classList.remove('unread');
-                        markedNotifElement.classList.remove('bg-fef2f2'); // Remove light red background
+                        markedNotifElement.classList.remove('bg-fef2f2');
                         markedNotifElement.classList.remove('font-semibold');
                     }
-                    // Re-fetch to update the badge count accurately
                     fetchNotifications(); 
                 } else {
                     showToast(result.message || 'Failed to mark notification as read.', 'error');
@@ -2217,20 +2347,17 @@
             }
         }
 
-        // Start polling for notifications when the user is authenticated
         document.addEventListener('DOMContentLoaded', () => {
             if (currentUserId && currentUserId !== 'null') {
-                fetchNotifications(); // Initial fetch
+                fetchNotifications();
                 if (notificationPollingInterval) {
                     clearInterval(notificationPollingInterval);
                 }
-                notificationPollingInterval = setInterval(fetchNotifications, 10000); // Poll every 10 seconds
+                notificationPollingInterval = setInterval(fetchNotifications, 10000);
             }
         });
 
     </script>
-    <!-- Assuming main.js exists and contains additional scripts, if any. -->
-    <!-- If main.js is critical, ensure it's loaded AFTER the inline script that sets up global functions/listeners -->
-    <script src="{% static 'fairrent_app/js/main.js' %}" defer></script> {# Added defer attribute #}
+    <script src="{% static 'fairrent_app/js/main.js' %}" defer></script>
 </body>
 </html>
