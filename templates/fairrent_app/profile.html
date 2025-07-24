@@ -1290,6 +1290,18 @@
         <p id="alert-message"></p>
     </div>
 
+    <!-- NEW: Chat Request Confirmation Modal -->
+    <div id="chat-request-confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="chat-request-confirm-title">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-8 relative text-center">
+            <h3 id="chat-request-confirm-title" class="text-xl font-bold text-gray-900 mb-4">Send Chat Request?</h3>
+            <p class="text-gray-700 mb-6">Would you like to send a chat request to <span id="confirm-chat-partner-name" class="font-semibold"></span>?</p>
+            <div class="flex justify-center space-x-4">
+                <button type="button" id="cancel-chat-request-btn" class="btn-secondary">Cancel</button>
+                <button type="button" id="send-chat-request-btn" class="btn-primary">Send Request</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Global variable for current user's UID (Django PK)
         const currentUserId = "{{ request.user.pk|default:'null' }}"; 
@@ -1395,9 +1407,11 @@
             'Cooks Often', 'Rarely Cooks', 'Non-Smoker', 'Smoker', 'Introvert', 'Extrovert'
         ];
 
+        // EXPANDED HOUSE RULES
         const ALL_HOUSE_RULES = [
-            'No Pets', 'No Smoking', 'Quiet Hours', 'Guests Allowed', 'No Parties',
-            'Shared Chores', 'Bills Included', 'Parking Available'
+            'No Pets', 'No Smoking', 'Quiet Hours (after 10 PM)', 'Guests Allowed', 'No Parties',
+            'Shared Chores (rota)', 'Bills Included', 'Parking Available', 'Vegan/Vegetarian Friendly',
+            'Alcohol-Free', 'Drug-Free', 'LGBTQ+ Friendly', 'Professional', 'Student'
         ];
 
         // Function to render tags (reusable for lifestyle and house rules)
@@ -1795,18 +1809,21 @@
                             currentCard.addEventListener('transitionend', () => {
                                 currentMatchIndex++;
                                 displayCurrentMatch();
+                                // After liking, if it's a real user, prompt for chat request
+                                if (likedMatchData.uid && !likedMatchData.uid.startsWith('ai_profile_')) {
+                                    showChatRequestConfirmModal(likedMatchData.uid, likedMatchData.name);
+                                }
                             }, { once: true });
                             fetchNotifications(); 
                         } else {
                             showToast(saveResult.message || 'Failed to save liked profile.', 'error');
                             console.error('Error saving liked profile:', saveResult.errors);
-                            // If saving fails, reset the card position
                             currentCard.style.transform = 'translate(-50%, -50%) translateX(0) rotate(0deg)';
                         }
                     } catch (error) {
                         console.error('Network error saving liked profile:', error);
                         showToast('Network error saving liked profile. Please try again.', 'error');
-                        currentCard.style.transform = 'translate(-50%, -50%) translateX(0) rotate(0deg)'; // Reset on network error
+                        currentCard.style.transform = 'translate(-50%, -50%) translateX(0) rotate(0deg)';
                     }
                 } else { // If skipping
                     currentCard.classList.add('swiping-left');
@@ -2074,6 +2091,14 @@
         const chatMessageInput = document.getElementById('chat-message-input');
         const sendChatMessageBtn = document.getElementById('send-chat-message-btn');
 
+        // NEW: Chat Request Confirmation Modal elements
+        const chatRequestConfirmModal = document.getElementById('chat-request-confirm-modal');
+        const confirmChatPartnerNameSpan = document.getElementById('confirm-chat-partner-name');
+        const cancelChatRequestBtn = document.getElementById('cancel-chat-request-btn');
+        const sendChatRequestBtn = document.getElementById('send-chat-request-btn');
+
+        let currentLikedUserUidForChat = null; // Store UID for chat request
+
         async function fetchMessages() {
             if (!currentUserId || !chatPartnerUid) {
                 console.warn("Cannot fetch messages: currentUserId or chatPartnerUid is missing.");
@@ -2211,6 +2236,46 @@
             });
         }
 
+        // --- NEW: Chat Request Confirmation Modal Logic ---
+        function showChatRequestConfirmModal(uid, name) {
+            currentLikedUserUidForChat = uid;
+            confirmChatPartnerNameSpan.textContent = name;
+            chatRequestConfirmModal.classList.remove('hidden');
+            chatRequestConfirmModal.classList.add('flex');
+        }
+
+        function closeChatRequestConfirmModal() {
+            chatRequestConfirmModal.classList.add('hidden');
+            chatRequestConfirmModal.classList.remove('flex');
+            currentLikedUserUidForChat = null;
+        }
+
+        if (cancelChatRequestBtn) {
+            cancelChatRequestBtn.addEventListener('click', closeChatRequestConfirmModal);
+        }
+
+        if (sendChatRequestBtn) {
+            sendChatRequestBtn.addEventListener('click', async () => {
+                if (!currentLikedUserUidForChat) return;
+
+                // Simulate sending a chat request. In a real app, this would be a new API endpoint.
+                // For now, we'll just open the chat directly and show a success message.
+                // A real implementation would:
+                // 1. Send request to backend.
+                // 2. Backend creates a `ChatRequest` object (pending).
+                // 3. Backend sends a notification to the recipient.
+                // 4. Recipient accepts/rejects via their profile/notifications.
+                // 5. Only upon acceptance, the chat is 'opened' for both.
+
+                showToast(`Chat request sent to ${confirmChatPartnerNameSpan.textContent}!`, 'success');
+                closeChatRequestConfirmModal();
+                
+                // For demo purposes, immediately open chat if it's a real user.
+                // In a real app, this would only happen after the recipient accepts.
+                openChat(currentLikedUserUidForChat, confirmChatPartnerNameSpan.textContent);
+            });
+        }
+
 
         // --- Notification System Logic ---
         const notificationBellBtn = document.getElementById('notification-bell-btn');
@@ -2276,7 +2341,7 @@
                         noNotificationsMessage.classList.remove('hidden');
                         markAllReadBtn.classList.add('hidden');
                     } else {
-                        noNotificationsMessage.classList.add('hidden');
+                        noNotificationsMessage.classList.remove('hidden');
                         markAllReadBtn.classList.remove('hidden');
                         data.notifications.forEach(notif => {
                             const notifElement = document.createElement('div');
