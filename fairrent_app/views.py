@@ -335,7 +335,8 @@ def find_roommate_matches_api(request):
     openai_api_key = settings.OPENAI_API_KEY
     if not openai_api_key:
         logger.warning("OpenAI API key not configured. Only real user matches will be attempted.")
-        # Continue without AI if key is missing, but log a warning.
+        # If OpenAI API key is missing, return an error that indicates this
+        return JsonResponse({'status': 'error', 'message': 'AI service is currently unavailable. OpenAI API key not configured.'}, status=503)
 
     target_matches_count = 5
     found_matches = []
@@ -862,7 +863,7 @@ def get_address_suggestions(request):
         return JsonResponse({'status': 'error', 'message': f'Failed to connect to address suggestion service: {e}'}, status=500)
     except json.JSONDecodeError as e:
         logger.error(f"Failed to parse OpenCage response JSON: {e}")
-        return JsonResponse({'status': 'error', 'message': 'Address service returned an unreadable response.'}, status=500)
+        return JsonResponse({'status': 'error', 'message': 'AI service returned an unreadable response.'}, status=500)
     except Exception as e:
         logger.exception("An unexpected error occurred in get_address_suggestions")
         return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred: {e}'}, status=500)
