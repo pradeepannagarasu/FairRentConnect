@@ -9,8 +9,17 @@ import uuid # Import uuid for generating unique IDs for AI profiles
 
 class RoommateProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # NEW: Add a name field for display purposes
+    # Your preferred display name.
     name = models.CharField(max_length=100, blank=True, null=True, help_text="Your preferred display name.")
+    
+    # NEW: Field to distinguish user types
+    USER_TYPE_CHOICES = [
+        ('looking_for_room', 'Looking for a Room'),
+        ('offering_room', 'Offering a Room'),
+    ]
+    user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, blank=True, null=True, help_text="Are you looking for a room or offering one?")
+
+    # Fields for 'Looking for a Room'
     age = models.IntegerField(blank=True, null=True)
     GENDER_CHOICES = [
         ('male', 'Male'),
@@ -31,9 +40,18 @@ class RoommateProfile(models.Model):
     ]
     cleanliness = models.CharField(max_length=20, choices=CLEANLINESS_CHOICES, blank=True, null=True)
     lifestyle_preferences = models.CharField(max_length=255, blank=True, null=True, help_text="Comma-separated list of preferences (e.g., 'Quiet, Pet-Friendly')")
-    budget = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    location = models.CharField(max_length=255, blank=True, null=True)
-    bio = models.TextField(blank=True, null=True)
+    budget = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Max monthly budget for a room (if looking)")
+    location = models.CharField(max_length=255, blank=True, null=True, help_text="Desired location (if looking) or property location (if offering)")
+    bio = models.TextField(blank=True, null=True, help_text="Tell us about yourself and what you're looking for/offering.")
+
+    # NEW: Fields for 'Offering a Room'
+    num_available_rooms = models.IntegerField(blank=True, null=True, help_text="Number of rooms available in your property.")
+    rent_amount_offering = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Monthly rent per room (if offering)")
+    room_size = models.CharField(max_length=100, blank=True, null=True, help_text="e.g., 'Double', 'Single', 'En-suite'")
+    house_rules = models.TextField(blank=True, null=True, help_text="Comma-separated house rules (e.g., 'No pets, Quiet after 10 PM')")
+    availability_date = models.DateField(blank=True, null=True, help_text="Date room becomes available")
+    property_photos = models.TextField(blank=True, null=True, help_text="Comma-separated URLs of property photos") # For simplicity, store URLs as text
+
     # ADDED: created_at and updated_at fields for RoommateProfile
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
@@ -49,6 +67,9 @@ class RoommateProfile(models.Model):
 
     def get_cleanliness_display(self):
         return dict(self.CLEANLINESS_CHOICES).get(self.cleanliness, 'N/A')
+    
+    def get_user_type_display(self):
+        return dict(self.USER_TYPE_CHOICES).get(self.user_type, 'N/A')
 
 class Complaint(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -222,4 +243,3 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.recipient.username}: {self.message[:50]}..."
-

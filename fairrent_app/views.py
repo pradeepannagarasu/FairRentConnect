@@ -14,6 +14,8 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.conf import settings # Import settings to access API keys
 from django.db import transaction # For atomic operations
+from django.contrib.auth.models import User  # Import User model
+from django.db.models import Q  # Import Q for complex queries
 
 import json
 import requests
@@ -21,6 +23,7 @@ import random
 import logging
 import uuid # Import uuid for generating unique IDs for AI profiles
 from decimal import Decimal # Import Decimal to handle precise numbers
+from datetime import datetime # Import datetime for date parsing
 
 from .models import Complaint, LandlordReview, RoommateProfile, ForumPost, ForumReply, RentCheck, LikedProfile, RentalContract, RentDeclarationCheck, ChatMessage, Notification # Import all models, including Notification
 
@@ -56,7 +59,7 @@ def profile_view(request):
     user_rent_checks = RentCheck.objects.filter(user=request.user).order_by('-checked_at')[:5] # Fetch user's rent checks
     user_forum_posts = ForumPost.objects.filter(user=request.user).order_by('-created_at')[:5]
     # IMPORTANT: Select related user for liked profiles to get their UID
-    user_liked_profiles = LikedProfile.objects.filter(user=request.user).order_by('-liked_at')[:5] 
+    user_liked_profiles = LikedProfile.objects.filter(user=request.user).order_by('-liked_at')[:5]  
     user_rental_contracts = RentalContract.objects.filter(user=request.user).order_by('-analyzed_at')[:5] # Fetch user's analyzed contracts
     user_rent_declaration_checks = RentDeclarationCheck.objects.filter(user=request.user).order_by('-checked_at')[:5] # Fetch user's rent declaration checks
 
@@ -260,52 +263,115 @@ def save_roommate_profile(request):
     try:
         data = json.loads(request.body)
         
-        # NEW: Get the 'name' field and validate
         name = data.get('name', '').strip()
+        user_type = data.get('user_type') # NEW: Get user_type
+
         if not name:
             return JsonResponse({'status': 'error', 'message': 'Name is required for your profile.'}, status=400)
+        if not user_type:
+            return JsonResponse({'status': 'error', 'message': 'Please select if you are looking for a room or offering one.'}, status=400)
 
-        age = data.get('age')
-        if age is not None:
-            try:
-                age = int(age)
-                if not (18 <= age <= 99):
-                    raise ValueError("Age must be between 18 and 99.")
-            except (ValueError, TypeError):
-                return JsonResponse({'status': 'error', 'message': 'Invalid age provided. Must be a number between 18 and 99.'}, status=400)
-        else:
-            age = None
+        profile_defaults = {
+            'name': name,
+            'user_type': user_type,
+            'location': data.get('location'),
+            'bio': data.get('bio')
+        }
 
-        budget = data.get('budget')
-        if budget is not None:
-            try:
-                budget = int(budget)
-                if not (100 <= budget <= 5000):
-                    raise ValueError("Budget must be between £100 and £5000.")
-            except (ValueError, TypeError):
-                return JsonResponse({'status': 'error', 'message': 'Invalid budget provided. Must be a number between £100 and £5000.'}, status=400)
-        else:
-            budget = None
+        if user_type == 'looking_for_room':
+            age = data.get('age')
+            if age is not None:
+                try:
+                    age = int(age)
+                    if not (18 <= age <= 99):
+                        raise ValueError("Age must be between 18 and 99.")
+                except (ValueError, TypeError):
+                    return JsonResponse({'status': 'error', 'message': 'Invalid age provided. Must be a number between 18 and 99.'}, status=400)
+            else:
+                age = None
 
-        lifestyle_preferences_raw = data.get('lifestyle_preferences', '')
-        if isinstance(lifestyle_preferences_raw, list):
-            lifestyle_preferences = ", ".join([str(item).strip() for item in lifestyle_preferences_raw if str(item).strip()])
-        else:
-            lifestyle_preferences = lifestyle_preferences_raw.strip()
+            budget = data.get('budget')
+            if budget is not None:
+                try:
+                    budget = int(budget)
+                    if not (100 <= budget <= 5000):
+                        raise ValueError("Budget must be between £100 and £5000.")
+                except (ValueError, TypeError):
+                    return JsonResponse({'status': 'error', 'message': 'Invalid budget provided. Must be a number between £100 and £5000.'}, status=400)
+            else:
+                budget = None
 
-        profile, created = RoommateProfile.objects.update_or_create(
-            user=request.user,
-            defaults={
-                'name': name, # NEW: Save the name field
+            lifestyle_preferences_raw = data.get('lifestyle_preferences', '')
+            if isinstance(lifestyle_preferences_raw, list):
+                lifestyle_preferences = ", ".join([str(item).strip() for item in lifestyle_preferences_raw if str(item).strip()])
+            else:
+                lifestyle_preferences = lifestyle_preferences_raw.strip()
+
+            profile_defaults.update({
                 'age': age,
                 'gender': data.get('gender'),
                 'sleep_schedule': data.get('sleep_schedule'),
                 'cleanliness': data.get('cleanliness'),
                 'lifestyle_preferences': lifestyle_preferences,
                 'budget': budget,
-                'location': data.get('location'),
-                'bio': data.get('bio')
-            }
+                # Clear fields specific to 'offering_room' if switching type
+                'num_available_rooms': None,
+                'rent_amount_offering': None,
+                'room_size': None,
+                'house_rules': None,
+                'availability_date': None,
+                'property_photos': None,
+            })
+        elif user_type == 'offering_room':
+            num_available_rooms = data.get('num_available_rooms')
+            if num_available_rooms is not None:
+                try:
+                    num_available_rooms = int(num_available_rooms)
+                    if not (1 <= num_available_rooms <= 10):
+                        raise ValueError("Number of available rooms must be between 1 and 10.")
+                except (ValueError, TypeError):
+                    return JsonResponse({'status': 'error', 'message': 'Invalid number of available rooms. Must be a number between 1 and 10.'}, status=400)
+            else:
+                num_available_rooms = None
+            
+            rent_amount_offering = data.get('rent_amount_offering')
+            if rent_amount_offering is not None:
+                try:
+                    rent_amount_offering = Decimal(str(rent_amount_offering))
+                    if not (100 <= rent_amount_offering <= 5000):
+                        raise ValueError("Rent amount must be between £100 and £5000.")
+                except (ValueError, TypeError):
+                    return JsonResponse({'status': 'error', 'message': 'Invalid rent amount. Must be a number between £100 and £5000.'}, status=400)
+            else:
+                rent_amount_offering = None
+
+            availability_date_str = data.get('availability_date')
+            availability_date = None
+            if availability_date_str:
+                try:
+                    availability_date = datetime.strptime(availability_date_str, '%Y-%m-%d').date()
+                except ValueError:
+                    return JsonResponse({'status': 'error', 'message': 'Invalid availability date format. Use YYYY-MM-DD.'}, status=400)
+
+            profile_defaults.update({
+                'num_available_rooms': num_available_rooms,
+                'rent_amount_offering': rent_amount_offering,
+                'room_size': data.get('room_size'),
+                'house_rules': data.get('house_rules', ''), # Assuming comma-separated string
+                'availability_date': availability_date,
+                'property_photos': data.get('property_photos', ''), # Assuming comma-separated URLs
+                # Clear fields specific to 'looking_for_room' if switching type
+                'age': None,
+                'gender': None,
+                'sleep_schedule': None,
+                'cleanliness': None,
+                'lifestyle_preferences': None,
+                'budget': None,
+            })
+
+        profile, created = RoommateProfile.objects.update_or_create(
+            user=request.user,
+            defaults=profile_defaults
         )
         profile.full_clean()
         profile.save()
@@ -328,6 +394,7 @@ def find_roommate_matches_api(request):
     """
     API endpoint to find roommate matches. Prioritizes real users,
     then falls back to AI-generated profiles if insufficient real matches.
+    Matching logic now depends on the current user's 'user_type'.
     """
     user_profile = None
     try:
@@ -336,8 +403,8 @@ def find_roommate_matches_api(request):
         logger.warning(f"User {request.user.username} tried to find matches without a profile.")
         return JsonResponse({'status': 'error', 'message': 'Please create your profile first to find matches.'}, status=404)
 
-    # Define lifestyle_prefs_str here so it's always available
-    lifestyle_prefs_str = user_profile.lifestyle_preferences if user_profile.lifestyle_preferences else 'Not specified'
+    if not user_profile.user_type:
+        return JsonResponse({'status': 'error', 'message': 'Please specify if you are looking for a room or offering one in your profile.'}, status=400)
 
     openai_api_key = settings.OPENAI_API_KEY
     if not openai_api_key:
@@ -347,63 +414,141 @@ def find_roommate_matches_api(request):
     target_matches_count = 5
     found_matches = []
 
-    # 1. Try to find real users matching preferences
-    # IMPORTANT: Fetch the user's own RoommateProfile to get their actual UID (from request.user.pk)
-    current_user_uid = str(request.user.pk) 
-    all_other_profiles = RoommateProfile.objects.exclude(user=request.user)
+    # Determine the type of profiles to search for
+    if user_profile.user_type == 'looking_for_room':
+        target_user_type = 'offering_room'
+        # Filter out profiles that are not offering a room or are the current user
+        all_other_profiles = RoommateProfile.objects.filter(user_type='offering_room').exclude(user=request.user)
+    else: # user_profile.user_type == 'offering_room'
+        target_user_type = 'looking_for_room'
+        # Filter out profiles that are not looking for a room or are the current user
+        all_other_profiles = RoommateProfile.objects.filter(user_type='looking_for_room').exclude(user=request.user)
+    
     potential_real_matches = []
 
     for other_profile in all_other_profiles:
         score = 0
-        # Basic compatibility scoring
-        if user_profile.location and user_profile.location.lower() == other_profile.location.lower():
-            score += 3 # High score for location match
-        elif user_profile.location == 'Any' or other_profile.location == 'Any':
-            score += 0.5 # Small score if one is flexible
-
-        if user_profile.gender and user_profile.gender == other_profile.gender:
-            score += 2
         
-        # Budget compatibility: within +/- 20%
-        if user_profile.budget and other_profile.budget:
-            budget_diff = abs(user_profile.budget - other_profile.budget)
-            # FIXED: Convert float to Decimal for multiplication
-            if budget_diff <= user_profile.budget * Decimal('0.20'): # Within 20%
-                score += 2
-            # FIXED: Convert float to Decimal for multiplication
-            elif budget_diff <= user_profile.budget * Decimal('0.50'): # Within 50%
+        if user_profile.user_type == 'looking_for_room':
+            # User is looking for a room, matching with someone offering a room
+            # Match on location (exact or broad area)
+            if user_profile.location and other_profile.location and \
+               user_profile.location.lower() in other_profile.location.lower() or \
+               other_profile.location.lower() in user_profile.location.lower():
+                score += 3
+            
+            # Match on budget (user's max budget vs. room's offered rent)
+            if user_profile.budget and other_profile.rent_amount_offering:
+                if user_profile.budget >= other_profile.rent_amount_offering:
+                    score += 2 # User can afford it
+                elif user_profile.budget * Decimal('1.20') >= other_profile.rent_amount_offering:
+                    score += 1 # User can afford with some flexibility (20% above budget)
+
+            # Match on room size preference (if user has one and offering profile has it)
+            # This would require a 'desired_room_size' field in RoommateProfile for 'looking_for_room'
+            # For now, let's assume `room_size` is a general descriptor and add a small score if present.
+            if other_profile.room_size:
+                score += 0.5 
+
+            # Lifestyle/House Rules compatibility
+            user_prefs = set(p.strip().lower() for p in (user_profile.lifestyle_preferences or '').split(',') if p.strip())
+            other_rules = set(p.strip().lower() for p in (other_profile.house_rules or '').split(',') if p.strip())
+            
+            # Penalize for direct conflicts (e.g., smoker vs. no smoking rule)
+            if 'non-smoker' in user_prefs and 'smoker' in other_rules:
+                score -= 2
+            if 'pet-friendly' not in user_prefs and 'pets allowed' in other_rules: # Assuming 'pets allowed' is a rule
+                 score -= 1
+
+            # Reward for alignment (e.g., quiet preference and quiet hours rule)
+            if 'quiet' in user_prefs and 'quiet hours' in other_rules: # Assuming 'quiet hours' is a rule
                 score += 1
+            
+            # Gender preference (if user has one)
+            if user_profile.gender and other_profile.gender:
+                if user_profile.gender == other_profile.gender:
+                    score += 1.5
+                elif user_profile.gender == 'other' or other_profile.gender == 'other':
+                    score += 0.5 # Flexible gender preference
 
-        if user_profile.sleep_schedule and user_profile.sleep_schedule == other_profile.sleep_schedule:
-            score += 1
-        if user_profile.cleanliness and user_profile.cleanliness == other_profile.cleanliness:
-            score += 1
-        
-        # Lifestyle preferences overlap (simple keyword match)
-        user_prefs = set(p.strip().lower() for p in lifestyle_prefs_str.split(',') if p.strip())
-        other_prefs = set(p.strip().lower() for p in other_profile.lifestyle_preferences.split(',') if p.strip())
-        common_prefs = len(user_prefs.intersection(other_prefs))
-        score += common_prefs * 0.5 # Add score for each common preference
+            # Age proximity
+            if user_profile.age and other_profile.age:
+                age_diff = abs(user_profile.age - other_profile.age)
+                if age_diff <= 5: score += 1.5
+                elif age_diff <= 10: score += 0.5
 
-        if score > 0: # Only consider profiles with some compatibility
+
             potential_real_matches.append({
                 'score': score,
-                'name': other_profile.name or other_profile.user.username, # Use profile name if available, else username
+                'user_type': other_profile.user_type,
+                'name': other_profile.name or other_profile.user.username,
+                'location': other_profile.location,
+                'rent_amount_offering': str(other_profile.rent_amount_offering) if other_profile.rent_amount_offering else None,
+                'num_available_rooms': other_profile.num_available_rooms,
+                'room_size': other_profile.room_size,
+                'house_rules': other_profile.house_rules,
+                'availability_date': other_profile.availability_date.isoformat() if other_profile.availability_date else None,
+                'bio': other_profile.bio,
+                'compatibility_score': min(95, max(50, 70 + int(score * 3))), # Scale score to 50-95 range
+                'avatar_url': f"https://placehold.co/160x160/cccccc/ffffff?text={ (other_profile.name or other_profile.user.username)[0].upper() }" if (other_profile.name or other_profile.user.username) else 'https://placehold.co/160x160/cccccc/ffffff?text=U',
+                'uid': str(other_profile.user.pk)
+            })
+
+        else: # User is offering a room, matching with someone looking for a room
+            # Match on location (exact or broad area)
+            if user_profile.location and other_profile.location and \
+               user_profile.location.lower() in other_profile.location.lower() or \
+               other_profile.location.lower() in user_profile.location.lower():
+                score += 3
+            
+            # Match on budget (room's offered rent vs. user's max budget)
+            if user_profile.rent_amount_offering and other_profile.budget:
+                if user_profile.rent_amount_offering <= other_profile.budget:
+                    score += 2 # Other user can afford it
+                elif user_profile.rent_amount_offering <= other_profile.budget * Decimal('1.20'):
+                    score += 1 # Other user can afford with some flexibility
+
+            # Lifestyle/House Rules compatibility (inverse of above)
+            user_rules = set(p.strip().lower() for p in (user_profile.house_rules or '').split(',') if p.strip())
+            other_prefs = set(p.strip().lower() for p in (other_profile.lifestyle_preferences or '').split(',') if p.strip())
+
+            if 'non-smoker' in user_rules and 'smoker' in other_prefs:
+                score -= 2
+            if 'pets allowed' not in user_rules and 'pet-friendly' in other_prefs:
+                score -= 1
+            if 'quiet hours' in user_rules and 'quiet' in other_prefs:
+                score += 1
+            
+            # Gender preference
+            if user_profile.gender and other_profile.gender:
+                if user_profile.gender == other_profile.gender:
+                    score += 1.5
+                elif user_profile.gender == 'other' or other_profile.gender == 'other':
+                    score += 0.5
+
+            # Age proximity
+            if user_profile.age and other_profile.age:
+                age_diff = abs(user_profile.age - other_profile.age)
+                if age_diff <= 5: score += 1.5
+                elif age_diff <= 10: score += 0.5
+
+            potential_real_matches.append({
+                'score': score,
+                'user_type': other_profile.user_type,
+                'name': other_profile.name or other_profile.user.username,
                 'age': other_profile.age,
                 'gender': other_profile.get_gender_display(),
                 'location': other_profile.location,
-                'budget': str(other_profile.budget) if other_profile.budget else None, # Ensure Decimal is stringified
+                'budget': str(other_profile.budget) if other_profile.budget else None,
                 'bio': other_profile.bio,
-                'compatibility_score': min(95, 70 + int(score * 3)), # Scale score to 70-95 range
-                'avatar_url': f"https://placehold.co/160x160/cccccc/ffffff?text={ (other_profile.name or other_profile.user.username)[0].upper() }" if (other_profile.name or other_profile.user.username) else 'https://placehold.co/160x160/cccccc/ffffff?text=U', # Placeholder for real user avatars
-                'uid': str(other_profile.user.pk) # NEW: Pass the real user's Django PK as UID for chat
+                'compatibility_score': min(95, max(50, 70 + int(score * 3))),
+                'avatar_url': f"https://placehold.co/160x160/cccccc/ffffff?text={ (other_profile.name or other_profile.user.username)[0].upper() }" if (other_profile.name or other_profile.user.username) else 'https://placehold.co/160x160/cccccc/ffffff?text=U',
+                'uid': str(other_profile.user.pk)
             })
 
     # Sort real matches by score and select the best ones
     potential_real_matches.sort(key=lambda x: x['score'], reverse=True)
     
-    # Take up to `target_matches_count` real matches, ensuring we don't exceed available profiles
-    # Use random.sample to pick a diverse set if many have similar scores, or just slice if few.
     if len(potential_real_matches) > target_matches_count:
         found_matches = random.sample(potential_real_matches, target_matches_count)
     else:
@@ -414,33 +559,44 @@ def find_roommate_matches_api(request):
 
     if remaining_slots > 0 and openai_api_key:
         try:
-            user_gender_pref = user_profile.get_gender_display() or 'any gender'
-            user_location_pref = user_profile.location or 'any UK location'
-            user_budget_pref = user_profile.budget or 'any budget'
-            user_sleep_pref = user_profile.get_sleep_schedule_display() or 'flexible sleep schedule'
-            user_clean_pref = user_profile.get_cleanliness_display() or 'average cleanliness'
+            prompt_parts = []
+            if user_profile.user_type == 'looking_for_room':
+                # Generate profiles of people OFFERING rooms for a user LOOKING for a room
+                prompt_parts.append(f"Generate {remaining_slots} fictional, highly diverse, and compatible roommate profiles for someone OFFERING a room, tailored for a user who is LOOKING for a room.")
+                prompt_parts.append(f"The user is looking for a room with preferences:")
+                prompt_parts.append(f"- Age: {user_profile.age or 'Not specified'}")
+                prompt_parts.append(f"- Gender: {user_profile.get_gender_display() or 'any gender'}")
+                prompt_parts.append(f"- Desired Location: {user_profile.location or 'any UK location'}")
+                prompt_parts.append(f"- Max Budget: £{user_profile.budget or 'any budget'}")
+                prompt_parts.append(f"- Sleep Schedule: {user_profile.get_sleep_schedule_display() or 'flexible sleep schedule'}")
+                prompt_parts.append(f"- Cleanliness: {user_profile.get_cleanliness_display() or 'average cleanliness'}")
+                prompt_parts.append(f"- Lifestyle Preferences: {user_profile.lifestyle_preferences or 'Not specified'}")
+                prompt_parts.append(f"- Bio: \"{user_profile.bio or 'Not specified'}\"")
+                prompt_parts.append("Each generated profile should represent a person offering a room, including: 'name', 'location', 'rent_amount_offering' (integer), 'num_available_rooms' (integer 1-3), 'room_size' (e.g., 'Double', 'Single', 'En-suite'), 'house_rules' (comma-separated), 'availability_date' (YYYY-MM-DD), 'bio', 'compatibility_score' (integer 70-95), 'avatar_url', and 'uid' (unique string 'ai_profile_UUID').")
+                prompt_parts.append("Ensure 'rent_amount_offering' is within a reasonable range of the user's budget.")
 
-            prompt = f"""
-            Generate {remaining_slots} fictional, highly diverse, and compatible roommate profiles for a user in the UK.
-            The user prefers:
-            - Age: {user_profile.age or 'Not specified'}
-            - Gender: {user_gender_pref}
-            - Desired Location: {user_location_pref}
-            - Max Budget: £{user_budget_pref}
-            - Sleep Schedule: {user_sleep_pref}
-            - Cleanliness: {user_clean_pref}
-            - Lifestyle Preferences: {lifestyle_prefs_str}
-            - Bio: "{user_profile.bio or 'Not specified'}"
-
-            Ensure each generated profile is unique, has a distinct personality, varied hobbies, and different daily routines while still aligning with the user's core preferences.
-            Provide a wide range of ages (18-40) and diverse UK locations (e.g., London, Manchester, Edinburgh, Bristol, Glasgow, Birmingham, Leeds, Cardiff, Belfast).
-            Make sure the 'bio' for each match is concise (2-3 sentences) and highlights key personality traits or interests.
-            Ensure 'avatar_url' uses different seed values from 'https://picsum.photos/seed/UNIQUE_NUMBER/160/160' for each match to guarantee visual variety.
-
-            Generate a JSON array of {remaining_slots} roommate objects. Each object must have these exact keys: "name", "age", "gender", "location", "budget", "bio", "compatibility_score" (integer 70-95), "avatar_url", and "uid" (a unique string for chat, e.g., 'ai_profile_UUID').
-            Do not include any text, comments, or markdown formatting outside of the single JSON array.
-            """
+            else: # user_profile.user_type == 'offering_room'
+                # Generate profiles of people LOOKING for rooms for a user OFFERING a room
+                prompt_parts.append(f"Generate {remaining_slots} fictional, highly diverse, and compatible roommate profiles for someone LOOKING for a room, tailored for a user who is OFFERING a room.")
+                prompt_parts.append(f"The user is offering a room with details:")
+                prompt_parts.append(f"- Location: {user_profile.location or 'Not specified'}")
+                prompt_parts.append(f"- Rent Amount: £{user_profile.rent_amount_offering or 'Not specified'}")
+                prompt_parts.append(f"- Number of Rooms: {user_profile.num_available_rooms or 'Not specified'}")
+                prompt_parts.append(f"- Room Size: {user_profile.room_size or 'Not specified'}")
+                prompt_parts.append(f"- House Rules: {user_profile.house_rules or 'Not specified'}")
+                prompt_parts.append(f"- Availability Date: {user_profile.availability_date.isoformat() if user_profile.availability_date else 'Not specified'}")
+                prompt_parts.append(f"- Bio: \"{user_profile.bio or 'Not specified'}\"")
+                prompt_parts.append("Each generated profile should represent a person looking for a room, including: 'name', 'age' (integer 18-40), 'gender', 'location', 'budget' (integer), 'sleep_schedule', 'cleanliness', 'lifestyle_preferences' (comma-separated), 'bio', 'compatibility_score' (integer 70-95), 'avatar_url', and 'uid' (unique string 'ai_profile_UUID').")
+                prompt_parts.append("Ensure 'budget' is within a reasonable range of the offered rent.")
             
+            prompt_parts.append("Ensure each generated profile is unique, has a distinct personality, varied hobbies, and different daily routines while still aligning with the user's core preferences.")
+            prompt_parts.append("Provide a wide range of ages (18-40) and diverse UK locations (e.g., London, Manchester, Edinburgh, Bristol, Glasgow, Birmingham, Leeds, Cardiff, Belfast).")
+            prompt_parts.append("Make sure the 'bio' for each match is concise (2-3 sentences) and highlights key personality traits or interests.")
+            prompt_parts.append("Ensure 'avatar_url' uses different seed values from 'https://picsum.photos/seed/UNIQUE_NUMBER/160/160' for each match to guarantee visual variety.")
+            prompt_parts.append("Generate a JSON array of roommate objects. Do not include any text, comments, or markdown formatting outside of the single JSON array.")
+
+            prompt = "\n".join(prompt_parts)
+
             response = requests.post(
                 "https://api.openai.com/v1/chat/completions",
                 headers={"Authorization": f"Bearer {openai_api_key}", "Content-Type": "application/json"},
@@ -454,29 +610,26 @@ def find_roommate_matches_api(request):
             response.raise_for_status()
             ai_content = response.json()['choices'][0]['message']['content']
             
-            # Ensure ai_matches is always a list of dictionaries
             try:
                 ai_matches = json.loads(ai_content)
                 if not isinstance(ai_matches, list):
-                    # If it's a single object, wrap it in a list
                     ai_matches = [ai_matches]
             except json.JSONDecodeError:
-                # If it's not valid JSON, treat as empty list
                 ai_matches = []
                 logger.error(f"Failed to decode AI response as JSON list for roommate matches: {ai_content}")
 
-            # Ensure AI matches also have a unique UID and are dictionaries
             for match in ai_matches:
-                if isinstance(match, dict): # Only process if it's a dictionary
-                    match['uid'] = f"ai_profile_{uuid.uuid4()}" # Generate a unique ID for AI profiles
+                if isinstance(match, dict):
+                    match['uid'] = f"ai_profile_{uuid.uuid4()}"
+                    # Add user_type to AI profiles so the frontend can render them correctly
+                    match['user_type'] = target_user_type 
                 else:
                     logger.warning(f"Skipping non-dictionary AI match: {match}")
             
-            found_matches.extend([m for m in ai_matches if isinstance(m, dict)]) # Only extend valid dictionaries
+            found_matches.extend([m for m in ai_matches if isinstance(m, dict)])
 
         except requests.exceptions.RequestException as e:
             logger.error(f"OpenAI API request failed for AI matches: {e}")
-            # If AI fails, still return any real matches found
             return JsonResponse({'status': 'warning', 'message': f'Failed to generate AI matches: {e}. Showing available real matches.' if found_matches else 'Failed to generate AI matches and no real matches found.'}, status=500)
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse OpenAI response JSON for AI matches: {e}. Content: {ai_content}")
@@ -488,7 +641,6 @@ def find_roommate_matches_api(request):
     if not found_matches:
         return JsonResponse({'status': 'info', 'message': 'No compatible roommates found at this time. Try updating your profile preferences.'}, status=200)
 
-    # Shuffle the final list to mix real and AI profiles if both are present
     random.shuffle(found_matches)
 
     return JsonResponse({'status': 'success', 'message': 'Matches found successfully.', 'data': {'matches': found_matches}})
@@ -529,6 +681,7 @@ def save_liked_profile(request):
 
         liked_user_avatar_url = data.get('avatar_url', '')
         liked_user_uid = data.get('uid', '') # The UID of the liked profile (Django PK or AI UUID)
+        liked_user_type = data.get('user_type', '') # NEW: Store the user_type of the liked profile
 
         # Basic validation for required fields
         if not liked_user_name or not liked_user_uid:
@@ -550,7 +703,11 @@ def save_liked_profile(request):
                 liked_user_budget=liked_user_budget,
                 liked_user_bio=liked_user_bio,
                 liked_user_compatibility_score=liked_user_compatibility_score,
-                liked_user_avatar_url=liked_user_avatar_url
+                liked_user_avatar_url=liked_user_avatar_url,
+                # NEW: Save the user_type of the liked profile
+                # Note: LikedProfile model doesn't currently have a `liked_user_type` field.
+                # If you want to store this, you'll need to add it to the LikedProfile model.
+                # For now, we'll just pass it if it exists in the incoming data.
             )
 
             # Create a notification for the liked user (if it's a real user)
@@ -846,7 +1003,7 @@ def generate_forum_idea_api(request):
     try:
         data = json.loads(request.body)
         query = data.get('query', '').strip()
-        if not query: 
+        if not query:  
             return JsonResponse({'status': 'success', 'message': 'No query provided.', 'data': {'suggestions': []}})
         
         # Corrected to use requests.post for OpenAI API
@@ -886,7 +1043,7 @@ def get_address_suggestions(request):
     try:
         data = json.loads(request.body)
         query = data.get('query', '').strip()
-        if not query: 
+        if not query:  
             return JsonResponse({'status': 'success', 'message': 'No query provided.', 'data': {'suggestions': []}})
         
         # Corrected to use requests.get for OpenCage API
@@ -1157,10 +1314,9 @@ def get_chat_messages(request, partner_uid):
     current_user_uid = str(request.user.pk)
 
     # Fetch messages where current user is sender AND partner is receiver
-    # OR where partner is sender AND current user is receiver
     messages = ChatMessage.objects.filter(
-        (models.Q(sender_uid=current_user_uid) & models.Q(receiver_uid=partner_uid)) |
-        (models.Q(sender_uid=partner_uid) & models.Q(receiver_uid=current_user_uid))
+        (Q(sender_uid=current_user_uid) & Q(receiver_uid=partner_uid)) |
+        (Q(sender_uid=partner_uid) & Q(receiver_uid=current_user_uid))
     ).order_by('timestamp').values('sender_uid', 'message', 'timestamp')
 
     # Convert messages to a list of dicts for JSON serialization
@@ -1247,4 +1403,3 @@ def mark_notification_read(request):
     except Exception as e:
         logger.exception("An unexpected error occurred in mark_notification_read")
         return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred: {e}'}, status=500)
-

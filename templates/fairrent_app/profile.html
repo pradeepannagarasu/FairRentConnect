@@ -39,7 +39,6 @@
             padding: 0;
             color: var(--text-dark);
             overflow-x: hidden; /* Prevent horizontal scroll issues */
-            /* Removed -webkit-text-size-adjust as it's not supported and causes an error */
         }
 
         /* --- Main Content Styles (Adjusted for No Sidebar) --- */
@@ -513,6 +512,40 @@
             background-color: var(--primary-dark-blue);
         }
 
+        /* NEW: User Type Selection in Modal */
+        .user-type-selection-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+
+        .user-type-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid var(--border-subtle);
+            background-color: var(--secondary-gray);
+            color: var(--text-dark);
+        }
+
+        .user-type-button.active {
+            background-color: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+            box-shadow: var(--shadow-md);
+        }
+
+        .user-type-button:hover:not(.active) {
+            background-color: #e0e7ff; /* Light blue hover for inactive */
+            border-color: var(--primary-blue);
+        }
+
     </style>
 </head>
 <body>
@@ -539,7 +572,7 @@
                 
                 {# NEW: Notification Bell Button #}
                 <div class="notification-bell-container">
-                    <button id="notification-bell-btn" class="notification-bell-button">
+                    <button id="notification-bell-btn" class="notification-bell-button" aria-label="Notifications"> {# Added aria-label #}
                         <i class="fas fa-bell"></i>
                         {% if unread_notifications_count > 0 %}
                             <span id="notification-badge" class="notification-badge">{{ unread_notifications_count }}</span>
@@ -590,9 +623,23 @@
                     <div class="text-base text-gray-600 space-y-2 border-t pt-5 mt-5 border-gray-100">
                         <p class="flex items-center"><i class="fas fa-calendar-alt w-5 mr-3 text-gray-400"></i>Joined {{ user.date_joined|date:"F Y" }}</p>
                         {% if user_roommate_profile %}
-                            <p class="flex items-center"><i class="fas fa-venus-mars w-5 mr-3 text-gray-400"></i>Gender: {{ user_roommate_profile.get_gender_display|default:'N/A' }}</p>
-                            <p class="flex items-center"><i class="fas fa-money-bill-wave w-5 mr-3 text-gray-400"></i>Budget: £{{ user_roommate_profile.budget|default:'N/A' }}</p>
+                            <p class="flex items-center"><i class="fas fa-tag w-5 mr-3 text-gray-400"></i>Role: {{ user_roommate_profile.get_user_type_display|default:'N/A' }}</p>
                             <p class="flex items-center"><i class="fas fa-map-marker-alt w-5 mr-3 text-gray-400"></i>Location: {{ user_roommate_profile.location|default:'N/A' }}</p>
+
+                            {% if user_roommate_profile.user_type == 'looking_for_room' %}
+                                <p class="flex items-center"><i class="fas fa-venus-mars w-5 mr-3 text-gray-400"></i>Gender: {{ user_roommate_profile.get_gender_display|default:'N/A' }}</p>
+                                <p class="flex items-center"><i class="fas fa-money-bill-wave w-5 mr-3 text-gray-400"></i>Budget: £{{ user_roommate_profile.budget|default:'N/A' }}</p>
+                                <p class="flex items-center"><i class="fas fa-bed w-5 mr-3 text-gray-400"></i>Sleep: {{ user_roommate_profile.get_sleep_schedule_display|default:'N/A' }}</p>
+                                <p class="flex items-center"><i class="fas fa-broom w-5 mr-3 text-gray-400"></i>Cleanliness: {{ user_roommate_profile.get_cleanliness_display|default:'N/A' }}</p>
+                                <p class="flex items-center"><i class="fas fa-heart w-5 mr-3 text-gray-400"></i>Lifestyle: {{ user_roommate_profile.lifestyle_preferences|default:'N/A' }}</p>
+                            {% elif user_roommate_profile.user_type == 'offering_room' %}
+                                <p class="flex items-center"><i class="fas fa-door-open w-5 mr-3 text-gray-400"></i>Available Rooms: {{ user_roommate_profile.num_available_rooms|default:'N/A' }}</p>
+                                <p class="flex items-center"><i class="fas fa-money-bill-wave w-5 mr-3 text-gray-400"></i>Rent: £{{ user_roommate_profile.rent_amount_offering|default:'N/A' }}</p>
+                                <p class="flex items-center"><i class="fas fa-expand-arrows-alt w-5 mr-3 text-gray-400"></i>Room Size: {{ user_roommate_profile.room_size|default:'N/A' }}</p>
+                                <p class="flex items-center"><i class="fas fa-calendar-alt w-5 mr-3 text-gray-400"></i>Available From: {{ user_roommate_profile.availability_date|date:"M d, Y"|default:'N/A' }}</p>
+                                <p class="flex items-center"><i class="fas fa-gavel w-5 mr-3 text-gray-400"></i>House Rules: {{ user_roommate_profile.house_rules|default:'N/A' }}</p>
+                            {% endif %}
+                            <p class="flex items-center"><i class="fas fa-info-circle w-5 mr-3 text-gray-400"></i>Bio: {{ user_roommate_profile.bio|default:'N/A' }}</p>
                         {% else %}
                             <p class="text-sm text-red-500">Profile not complete. Please create your profile!</p>
                         {% endif %}
@@ -689,8 +736,8 @@
                     <div id="roommate-prompt" class="text-center p-6 w-full h-full flex flex-col items-center justify-center z-10">
                         <i class="fas fa-users text-6xl text-gray-400 mb-6"></i>
                         <p class="mt-4 font-semibold text-gray-700 text-xl">Your potential matches will appear here.</p>
-                        <p class="text-gray-500 mt-2 text-lg">{% if user.is_authenticated and user_roommate_profile %}Click "Find Matches" to begin your search!{% else %}Create your profile to get started and find your ideal roommate.{% endif %}</p>
-                        {% if user.is_authenticated and user_roommate_profile %}<button id="find-matches-btn-inner" class="mt-8 btn-primary text-lg btn-hover-effect"><i class="fas fa-search mr-3"></i>Find Matches</button>{% endif %}
+                        <p class="text-gray-500 mt-2 text-lg">{% if user.is_authenticated and user_roommate_profile and user_roommate_profile.user_type %}Click "Find Matches" to begin your search!{% else %}Create your profile and select your role to get started and find your ideal roommate.{% endif %}</p>
+                        {% if user.is_authenticated and user_roommate_profile and user_roommate_profile.user_type %}<button id="find-matches-btn-inner" class="mt-8 btn-primary text-lg btn-hover-effect"><i class="fas fa-search mr-3"></i>Find Matches</button>{% endif %}
                     </div>
 
                     <div id="no-more-matches-prompt" class="hidden text-center p-6 w-full h-full flex flex-col items-center justify-content-center z-10">
@@ -946,6 +993,21 @@
             </button>
             <form id="roommate-profile-form" class="space-y-6">
                 <h3 id="profile-modal-title" class="text-3xl font-bold mb-6 text-gray-900">Your Roommate Profile</h3>
+                
+                <!-- NEW: User Type Selection -->
+                <div class="flex flex-col items-center mb-6">
+                    <label class="block text-lg font-semibold text-gray-800 mb-3">What are you looking for?</label>
+                    <div class="user-type-selection-container">
+                        <button type="button" id="user-type-looking-btn" class="user-type-button" data-user-type="looking_for_room">
+                            <i class="fas fa-search"></i> I'm looking for a room
+                        </button>
+                        <button type="button" id="user-type-offering-btn" class="user-type-button" data-user-type="offering_room">
+                            <i class="fas fa-home"></i> I'm offering a room
+                        </button>
+                    </div>
+                    <input type="hidden" id="user-type-hidden" name="user_type" value="{{ user_roommate_profile.user_type|default:'' }}">
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
@@ -954,61 +1016,115 @@
                                placeholder="e.g., John Doe">
                     </div>
                     <div>
-                        <label for="age" class="block text-sm font-medium text-gray-700 mb-1">Age</label>
-                        <input type="number" id="age" name="age" value="{{ user_roommate_profile.age|default:'' }}"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
-                               min="18" max="99" placeholder="e.g., 25">
-                    </div>
-                    <div>
-                        <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                        <select id="gender" name="gender"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
-                            <option value="">Select Gender</option>
-                            <option value="male" {% if user_roommate_profile.gender == 'male' %}selected{% endif %}>Male</option>
-                            <option value="female" {% if user_roommate_profile.gender == 'female' %}selected{% endif %}>Female</option>
-                            <option value="other" {% if user_roommate_profile.gender == 'other' %}selected{% endif %}>Other</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="sleep_schedule" class="block text-sm font-medium text-gray-700 mb-1">Sleep Schedule</label>
-                        <select id="sleep_schedule" name="sleep_schedule"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
-                            <option value="">Select Schedule</option>
-                            <option value="early_bird" {% if user_roommate_profile.sleep_schedule == 'early_bird' %}selected{% endif %}>Early Bird</option>
-                            <option value="night_owl" {% if user_roommate_profile.sleep_schedule == 'night_owl' %}selected{% endif %}>Night Owl</option>
-                            <option value="flexible" {% if user_roommate_profile.sleep_schedule == 'flexible' %}selected{% endif %}>Flexible</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="cleanliness" class="block text-sm font-medium text-gray-700 mb-1">Cleanliness</label>
-                        <select id="cleanliness" name="cleanliness"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
-                            <option value="">Select Cleanliness</option>
-                            <option value="very_tidy" {% if user_roommate_profile.cleanliness == 'very_tidy' %}selected{% endif %}>Very Tidy</option>
-                            <option value="average" {% if user_roommate_profile.cleanliness == 'average' %}selected{% endif %}>Average</option>
-                            <option value="relaxed" {% if user_roommate_profile.cleanliness == 'relaxed' %}selected{% endif %}>Relaxed</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="budget" class="block text-sm font-medium text-gray-700 mb-1">Max Budget (£/month)</label>
-                        <input type="number" id="budget" name="budget" value="{{ user_roommate_profile.budget|default:'' }}"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
-                               min="100" max="5000" placeholder="e.g., 800">
-                    </div>
-                    <div>
-                        <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Desired Location</label>
+                        <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location (Desired / Property)</label>
                         <input type="text" id="location" name="location" value="{{ user_roommate_profile.location|default:'' }}"
                                placeholder="e.g., East London"
                                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
                     </div>
                 </div>
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Lifestyle Preferences</label>
-                    <div id="lifestyle-preferences-tags" class="tag-input-container">
-                        <!-- Tags will be injected here by JavaScript -->
+
+                <!-- Fields for "Looking for a Room" -->
+                <div id="looking-for-room-fields" class="space-y-6 {% if user_roommate_profile.user_type == 'offering_room' %}hidden{% endif %}">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="age" class="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                            <input type="number" id="age" name="age" value="{{ user_roommate_profile.age|default:'' }}"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                                   min="18" max="99" placeholder="e.g., 25">
+                        </div>
+                        <div>
+                            <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                            <select id="gender" name="gender"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
+                                <option value="">Select Gender</option>
+                                <option value="male" {% if user_roommate_profile.gender == 'male' %}selected{% endif %}>Male</option>
+                                <option value="female" {% if user_roommate_profile.gender == 'female' %}selected{% endif %}>Female</option>
+                                <option value="other" {% if user_roommate_profile.gender == 'other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="sleep_schedule" class="block text-sm font-medium text-gray-700 mb-1">Sleep Schedule</label>
+                            <select id="sleep_schedule" name="sleep_schedule"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
+                                <option value="">Select Schedule</option>
+                                <option value="early_bird" {% if user_roommate_profile.sleep_schedule == 'early_bird' %}selected{% endif %}>Early Bird</option>
+                                <option value="night_owl" {% if user_roommate_profile.sleep_schedule == 'night_owl' %}selected{% endif %}>Night Owl</option>
+                                <option value="flexible" {% if user_roommate_profile.sleep_schedule == 'flexible' %}selected{% endif %}>Flexible</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="cleanliness" class="block text-sm font-medium text-gray-700 mb-1">Cleanliness</label>
+                            <select id="cleanliness" name="cleanliness"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
+                                <option value="">Select Cleanliness</option>
+                                <option value="very_tidy" {% if user_roommate_profile.cleanliness == 'very_tidy' %}selected{% endif %}>Very Tidy</option>
+                                <option value="average" {% if user_roommate_profile.cleanliness == 'average' %}selected{% endif %}>Average</option>
+                                <option value="relaxed" {% if user_roommate_profile.cleanliness == 'relaxed' %}selected{% endif %}>Relaxed</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="budget" class="block text-sm font-medium text-gray-700 mb-1">Max Budget (£/month)</label>
+                            <input type="number" id="budget" name="budget" value="{{ user_roommate_profile.budget|default:'' }}"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                                   min="100" max="5000" placeholder="e.g., 800">
+                        </div>
                     </div>
-                    <input type="hidden" id="lifestyle_preferences_hidden" name="lifestyle_preferences" value="{{ user_roommate_profile.lifestyle_preferences|default:'' }}">
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Lifestyle Preferences</label>
+                        <div id="lifestyle-preferences-tags" class="tag-input-container flex flex-wrap gap-2 p-2 border border-gray-300 rounded-lg bg-gray-50">
+                            <!-- Tags will be injected here by JavaScript -->
+                        </div>
+                        <input type="hidden" id="lifestyle_preferences_hidden" name="lifestyle_preferences" value="{{ user_roommate_profile.lifestyle_preferences|default:'' }}">
+                    </div>
                 </div>
+
+                <!-- Fields for "Offering a Room" -->
+                <div id="offering-room-fields" class="space-y-6 {% if user_roommate_profile.user_type != 'offering_room' %}hidden{% endif %}">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="num_available_rooms" class="block text-sm font-medium text-gray-700 mb-1">Number of Available Rooms</label>
+                            <input type="number" id="num_available_rooms" name="num_available_rooms" value="{{ user_roommate_profile.num_available_rooms|default:'' }}"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                                   min="1" max="10" placeholder="e.g., 1">
+                        </div>
+                        <div>
+                            <label for="rent_amount_offering" class="block text-sm font-medium text-gray-700 mb-1">Rent Amount (£/month per room)</label>
+                            <input type="number" id="rent_amount_offering" name="rent_amount_offering" value="{{ user_roommate_profile.rent_amount_offering|default:'' }}"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                                   min="100" max="5000" placeholder="e.g., 750">
+                        </div>
+                        <div>
+                            <label for="room_size" class="block text-sm font-medium text-gray-700 mb-1">Room Size</label>
+                            <select id="room_size" name="room_size"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
+                                <option value="">Select Room Size</option>
+                                <option value="single" {% if user_roommate_profile.room_size == 'single' %}selected{% endif %}>Single</option>
+                                <option value="double" {% if user_roommate_profile.room_size == 'double' %}selected{% endif %}>Double</option>
+                                <option value="en_suite" {% if user_roommate_profile.room_size == 'en_suite' %}selected{% endif %}>En-suite</option>
+                                <option value="studio" {% if user_roommate_profile.room_size == 'studio' %}selected{% endif %}>Studio</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="availability_date" class="block text-sm font-medium text-gray-700 mb-1">Availability Date</label>
+                            <input type="date" id="availability_date" name="availability_date" value="{{ user_roommate_profile.availability_date|date:'Y-m-d'|default:'' }}"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">House Rules (comma-separated)</label>
+                        <div id="house-rules-tags" class="tag-input-container flex flex-wrap gap-2 p-2 border border-gray-300 rounded-lg bg-gray-50">
+                            <!-- Tags will be injected here by JavaScript -->
+                        </div>
+                        <input type="hidden" id="house_rules_hidden" name="house_rules" value="{{ user_roommate_profile.house_rules|default:'' }}">
+                    </div>
+                    <div class="mt-4">
+                        <label for="property_photos" class="block text-sm font-medium text-gray-700 mb-1">Property Photos (comma-separated URLs)</label>
+                        <textarea id="property_photos" name="property_photos" rows="2"
+                                  class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                                  placeholder="e.g., https://example.com/pic1.jpg, https://example.com/pic2.jpg">{{ user_roommate_profile.property_photos|default:'' }}</textarea>
+                    </div>
+                </div>
+
                 <div class="mt-4">
                     <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
                     <textarea id="bio" name="bio" rows="4"
@@ -1026,7 +1142,7 @@
     <!-- Generic Activity/Service Details Modal -->
     <div id="activity-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="activity-modal-title">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 relative transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
-            <button type="button" id="close-activity-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Close Activity Details Modal"> {# Added aria-label #}
+            <button type="button" id="close-activity-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
                 <i class="fas fa-times fa-lg"></i>
             </button>
             <div id="activity-modal-content" class="text-left activity-detail-modal-content">
@@ -1042,7 +1158,7 @@
     <!-- Chat Modal -->
     <div id="chat-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="chat-modal-title">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg h-[80vh] flex flex-col relative transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full p-8">
-            <button type="button" id="close-chat-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Close Chat Modal"> {# Added aria-label #}
+            <button type="button" id="close-chat-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors">
                 <i class="fas fa-times fa-lg"></i>
             </button>
             <h3 id="chat-modal-title" class="text-2xl font-bold text-gray-900 mb-4">Chat with <span id="chat-partner-name"></span></h3>
@@ -1051,7 +1167,7 @@
             </div>
             <div class="chat-input-container">
                 <input type="text" id="chat-message-input" placeholder="Type your message..." class="flex-grow rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
-                <button id="send-chat-message-btn" aria-label="Send Message"><i class="fas fa-paper-plane"></i> Send</button> {# Added aria-label #}
+                <button id="send-chat-message-btn"><i class="fas fa-paper-plane"></i> Send</button>
             </div>
         </div>
     </div>
@@ -1064,11 +1180,10 @@
     <script>
         // Global variable for current user's UID (Django PK)
         const currentUserId = "{{ request.user.pk|default:'null' }}"; 
-        // Declare global variables once at the top level using 'var'
         var chatPartnerUid = null;
         var chatPartnerName = '';
         var chatPollingInterval = null;
-        var notificationPollingInterval = null;
+        var notificationPollingInterval = null; // New: Polling interval for notifications
 
         // Helper function to show toast notifications
         function showToast(message, type = 'success') {
@@ -1081,6 +1196,8 @@
                 toast.classList.add('bg-green-500');
             } else if (type === 'error') {
                 toast.classList.add('bg-red-500');
+            } else if (type === 'info') { // Added info type
+                toast.classList.add('bg-blue-500');
             } else {
                 toast.classList.add('bg-gray-700');
             }
@@ -1142,28 +1259,44 @@
         const closeProfileModalBtn = document.getElementById('close-profile-modal-btn');
         const profileFormCancelBtn = document.getElementById('profile-form-cancel-btn');
         const roommateProfileForm = document.getElementById('roommate-profile-form');
+        
+        const userTypeLookingBtn = document.getElementById('user-type-looking-btn');
+        const userTypeOfferingBtn = document.getElementById('user-type-offering-btn');
+        const userTypeHiddenInput = document.getElementById('user-type-hidden');
+
+        const lookingForRoomFields = document.getElementById('looking-for-room-fields');
+        const offeringRoomFields = document.getElementById('offering-room-fields');
+
         const lifestylePreferencesTagsContainer = document.getElementById('lifestyle-preferences-tags');
         const lifestylePreferencesHiddenInput = document.getElementById('lifestyle_preferences_hidden');
-        const profileLocationInput = document.getElementById('location'); // Already exists
-        const profileNameInput = document.getElementById('name'); // New: Name input
+        const houseRulesTagsContainer = document.getElementById('house-rules-tags'); // NEW
+        const houseRulesHiddenInput = document.getElementById('house_rules_hidden'); // NEW
 
-        // Pre-defined lifestyle preferences
+        const profileLocationInput = document.getElementById('location');
+        const profileNameInput = document.getElementById('name');
+
+        // Pre-defined lifestyle preferences and house rules
         const ALL_LIFESTYLE_PREFERENCES = [
             'Quiet', 'Social', 'Pet-Friendly', 'Clean', 'Messy', 'Early Bird',
             'Night Owl', 'Studious', 'Party-goer', 'Vegetarian', 'Vegan',
             'Cooks Often', 'Rarely Cooks', 'Non-Smoker', 'Smoker', 'Introvert', 'Extrovert'
         ];
 
-        // Function to render lifestyle preference tags
-        function renderLifestylePreferenceTags(selectedPreferences = []) {
-            if (!lifestylePreferencesTagsContainer) return;
-            lifestylePreferencesTagsContainer.innerHTML = ''; // Clear existing tags
-            ALL_LIFESTYLE_PREFERENCES.forEach(pref => {
+        const ALL_HOUSE_RULES = [ // NEW
+            'No Pets', 'No Smoking', 'Quiet Hours', 'Guests Allowed', 'No Parties',
+            'Shared Chores', 'Bills Included', 'Parking Available'
+        ];
+
+        // Function to render tags (reusable for lifestyle and house rules)
+        function renderTags(container, hiddenInput, allOptions, selectedValues = []) {
+            if (!container) return;
+            container.innerHTML = ''; // Clear existing tags
+            allOptions.forEach(option => {
                 const tag = document.createElement('span');
-                tag.className = 'inline-block bg-gray-200 text-gray-800 text-sm px-3 py-1 rounded-full cursor-pointer mr-2 mb-2 transition-colors duration-200'; // Tailwind classes for tags
-                tag.textContent = pref;
-                if (selectedPreferences.includes(pref)) {
-                    tag.classList.add('bg-blue-500', 'text-white', 'selected'); // Selected state
+                tag.className = 'inline-block bg-gray-200 text-gray-800 text-sm px-3 py-1 rounded-full cursor-pointer mr-2 mb-2 transition-colors duration-200 tag';
+                tag.textContent = option;
+                if (selectedValues.includes(option)) {
+                    tag.classList.add('bg-blue-500', 'text-white', 'selected');
                 }
                 tag.addEventListener('click', () => {
                     tag.classList.toggle('selected');
@@ -1171,29 +1304,82 @@
                     tag.classList.toggle('text-white');
                     tag.classList.toggle('bg-gray-200');
                     tag.classList.toggle('text-gray-800');
-                    updateLifestylePreferencesHiddenInput();
+                    updateHiddenInput(container, hiddenInput);
                 });
-                lifestylePreferencesTagsContainer.appendChild(tag);
+                container.appendChild(tag);
             });
         }
 
-        // Function to update the hidden input based on selected tags
-        function updateLifestylePreferencesHiddenInput() {
-            if (!lifestylePreferencesTagsContainer || !lifestylePreferencesHiddenInput) return;
-            const selectedTags = Array.from(lifestylePreferencesTagsContainer.querySelectorAll('.tag.selected')).map(tag => tag.textContent);
-            lifestylePreferencesHiddenInput.value = selectedTags.join(', ');
+        // Function to update hidden input based on selected tags (reusable)
+        function updateHiddenInput(container, hiddenInput) {
+            if (!container || !hiddenInput) return;
+            const selectedTags = Array.from(container.querySelectorAll('.tag.selected')).map(tag => tag.textContent);
+            hiddenInput.value = selectedTags.join(', ');
         }
 
-        // Event listeners for opening profile modal from different buttons
+        // Function to toggle profile form fields based on user type
+        function toggleProfileFields(userType) {
+            if (userType === 'looking_for_room') {
+                lookingForRoomFields.classList.remove('hidden');
+                offeringRoomFields.classList.add('hidden');
+                userTypeLookingBtn.classList.add('active');
+                userTypeOfferingBtn.classList.remove('active');
+            } else if (userType === 'offering_room') {
+                offeringRoomFields.classList.remove('hidden');
+                lookingForRoomFields.classList.add('hidden');
+                userTypeOfferingBtn.classList.add('active');
+                userTypeLookingBtn.classList.remove('active');
+            } else { // No user type selected yet
+                lookingForRoomFields.classList.add('hidden');
+                offeringRoomFields.classList.add('hidden');
+                userTypeLookingBtn.classList.remove('active');
+                userTypeOfferingBtn.classList.remove('active');
+            }
+            userTypeHiddenInput.value = userType;
+        }
+
+        // Event listeners for user type selection buttons
+        if (userTypeLookingBtn) {
+            userTypeLookingBtn.addEventListener('click', () => toggleProfileFields('looking_for_room'));
+        }
+        if (userTypeOfferingBtn) {
+            userTypeOfferingBtn.addEventListener('click', () => toggleProfileFields('offering_room'));
+        }
+
+        // Function to open profile modal and populate fields
         const openProfileModal = () => {
-            const currentPrefsString = lifestylePreferencesHiddenInput ? lifestylePreferencesHiddenInput.value : '';
-            const currentPrefsArray = currentPrefsString.split(',').map(item => item.trim()).filter(item => item.length > 0);
-            renderLifestylePreferenceTags(currentPrefsArray);
+            // Populate common fields
+            document.getElementById('name').value = "{{ user_roommate_profile.name|default:'' }}";
+            document.getElementById('location').value = "{{ user_roommate_profile.location|default:'' }}";
+            document.getElementById('bio').value = "{{ user_roommate_profile.bio|default:'' }}";
+
+            // Populate and show fields based on existing user_type
+            const currentUserType = "{{ user_roommate_profile.user_type|default:'' }}";
+            if (currentUserType === 'looking_for_room') {
+                document.getElementById('age').value = "{{ user_roommate_profile.age|default:'' }}";
+                document.getElementById('gender').value = "{{ user_roommate_profile.gender|default:'' }}";
+                document.getElementById('sleep_schedule').value = "{{ user_roommate_profile.sleep_schedule|default:'' }}";
+                document.getElementById('cleanliness').value = "{{ user_roommate_profile.cleanliness|default:'' }}";
+                document.getElementById('budget').value = "{{ user_roommate_profile.budget|default:'' }}";
+                const currentLifestylePrefs = "{{ user_roommate_profile.lifestyle_preferences|default:'' }}".split(',').map(item => item.trim()).filter(item => item.length > 0);
+                renderTags(lifestylePreferencesTagsContainer, lifestylePreferencesHiddenInput, ALL_LIFESTYLE_PREFERENCES, currentLifestylePrefs);
+            } else if (currentUserType === 'offering_room') {
+                document.getElementById('num_available_rooms').value = "{{ user_roommate_profile.num_available_rooms|default:'' }}";
+                document.getElementById('rent_amount_offering').value = "{{ user_roommate_profile.rent_amount_offering|default:'' }}";
+                document.getElementById('room_size').value = "{{ user_roommate_profile.room_size|default:'' }}";
+                document.getElementById('availability_date').value = "{{ user_roommate_profile.availability_date|date:'Y-m-d'|default:'' }}";
+                document.getElementById('property_photos').value = "{{ user_roommate_profile.property_photos|default:'' }}";
+                const currentHouseRules = "{{ user_roommate_profile.house_rules|default:'' }}".split(',').map(item => item.trim()).filter(item => item.length > 0);
+                renderTags(houseRulesTagsContainer, houseRulesHiddenInput, ALL_HOUSE_RULES, currentHouseRules);
+            }
+            toggleProfileFields(currentUserType); // Set initial active state and show/hide fields
+
             if (profileModal) {
                 profileModal.classList.remove('hidden');
                 profileModal.classList.add('flex');
             }
         };
+
         if (editProfileBtnDashboardHome) {
             editProfileBtnDashboardHome.addEventListener('click', openProfileModal);
         }
@@ -1228,10 +1414,31 @@
 
                 const formData = new FormData(roommateProfileForm);
                 const data = Object.fromEntries(formData.entries());
-                data.age = data.age ? parseInt(data.age) : null;
-                data.budget = data.budget ? parseInt(data.budget) : null;
-                // Add name to data
-                data.name = profileNameInput.value.trim();
+                
+                // Get user_type from the hidden input
+                data.user_type = userTypeHiddenInput.value;
+
+                // Conditionally collect and clean data based on user_type
+                if (data.user_type === 'looking_for_room') {
+                    data.age = data.age ? parseInt(data.age) : null;
+                    data.budget = data.budget ? parseInt(data.budget) : null;
+                    // lifestyle_preferences is already handled by updateHiddenInput
+                    data.num_available_rooms = null;
+                    data.rent_amount_offering = null;
+                    data.room_size = '';
+                    data.house_rules = '';
+                    data.availability_date = '';
+                    data.property_photos = '';
+                } else if (data.user_type === 'offering_room') {
+                    data.num_available_rooms = data.num_available_rooms ? parseInt(data.num_available_rooms) : null;
+                    data.rent_amount_offering = data.rent_amount_offering ? parseFloat(data.rent_amount_offering) : null;
+                    // house_rules is already handled by updateHiddenInput
+                    data.age = null;
+                    data.gender = '';
+                    data.sleep_schedule = '';
+                    data.cleanliness = '';
+                    data.lifestyle_preferences = '';
+                }
 
                 try {
                     const response = await fetch('/api/save_roommate_profile/', {
@@ -1282,6 +1489,7 @@
 
         let currentMatches = [];
         let currentMatchIndex = 0;
+        const currentUserProfileType = "{{ user_roommate_profile.user_type|default:'' }}"; // Get current user's profile type
 
         function displayCurrentMatch() {
             if (!roommateMatchCardDisplay || !roommatePrompt || !noMoreMatchesPrompt || !swipeButtonsContainer) return;
@@ -1297,18 +1505,38 @@
 
                 // Ensure all fields have fallbacks for display, and handle "undefined" string specifically
                 const name = (match.name && match.name !== 'undefined') ? match.name : 'Unknown User';
-                const age = (match.age && match.age !== 'undefined') ? `${match.age}` : 'N/A';
                 const location = (match.location && match.location !== 'undefined') ? match.location : 'N/A';
                 const compatibilityScore = (match.compatibility_score && match.compatibility_score !== 'undefined') ? `${match.compatibility_score}` : 'N/A';
                 const bio = (match.bio && match.bio !== 'undefined') ? match.bio : 'No bio provided for this user.';
                 const avatarUrl = (match.avatar_url && match.avatar_url !== 'undefined') ? match.avatar_url : 'https://placehold.co/110x110/cccccc/ffffff?text=User'; // Fallback placeholder
 
+                let matchDetailsHtml = '';
+                if (match.user_type === 'looking_for_room') {
+                    const age = (match.age && match.age !== 'undefined') ? `${match.age}` : 'N/A';
+                    const gender = (match.gender && match.gender !== 'undefined') ? match.gender : 'N/A';
+                    const budget = (match.budget && match.budget !== 'undefined') ? `£${match.budget}` : 'N/A';
+                    matchDetailsHtml = `
+                        <h4 class="text-3xl font-bold text-gray-900 mb-2">${name}, ${age}</h4>
+                        <p class="text-lg text-gray-600 mb-2">${location} | ${gender}</p>
+                        <p class="text-md text-gray-600 mb-2">Budget: ${budget}</p>
+                    `;
+                } else if (match.user_type === 'offering_room') {
+                    const rent = (match.rent_amount_offering && match.rent_amount_offering !== 'undefined') ? `£${match.rent_amount_offering}` : 'N/A';
+                    const rooms = (match.num_available_rooms && match.num_available_rooms !== 'undefined') ? `${match.num_available_rooms} room(s)` : 'N/A';
+                    const roomSize = (match.room_size && match.room_size !== 'undefined') ? match.room_size : 'N/A';
+                    const availabilityDate = (match.availability_date && match.availability_date !== 'undefined') ? new Date(match.availability_date).toLocaleDateString() : 'N/A';
+                    matchDetailsHtml = `
+                        <h4 class="text-3xl font-bold text-gray-900 mb-2">${name} (Offering Room)</h4>
+                        <p class="text-lg text-gray-600 mb-2">${location} | ${rooms}</p>
+                        <p class="text-md text-gray-600 mb-2">Rent: ${rent} | Size: ${roomSize} | Available: ${availabilityDate}</p>
+                    `;
+                }
+
                 const matchCard = document.createElement('div');
                 matchCard.className = 'roommate-match-card glass-card'; // Apply styling
                 matchCard.innerHTML = `
                     <img src="${avatarUrl}" alt="${name}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/110x110/cccccc/ffffff?text=User'">
-                    <h4 class="text-3xl font-bold text-gray-900 mb-2">${name}, ${age}</h4>
-                    <p class="text-lg text-gray-600 mb-2">${location}</p>
+                    ${matchDetailsHtml}
                     <div class="compatibility-score">${compatibilityScore}% Match</div>
                     <p class="text-gray-700 text-base italic leading-relaxed mt-2">
                         ${bio}
@@ -1319,9 +1547,8 @@
                 swipeButtonsContainer.classList.remove('hidden');
 
                 matchCard.querySelector('.match-details-btn').addEventListener('click', (e) => {
-                    // Use the original match object for detailed view to avoid issues with stringified data
-                    // Pass the match.uid if available for chat
-                    displayActivityDetails('Liked Profile', match, null, match.uid || null);
+                    // Pass the match.uid and match.user_type for detailed view and chat
+                    displayActivityDetails('Liked Profile', match, null, match.uid || null, match.user_type);
                 });
 
             } else {
@@ -1333,6 +1560,14 @@
 
         async function fetchRoommateMatches() {
             if (!roommatePrompt || !noMoreMatchesPrompt || !roommateMatchesLoader || !roommateMatchCardDisplay || !swipeButtonsContainer) return;
+
+            // Ensure the user has a profile type selected before fetching matches
+            if (!currentUserProfileType || currentUserProfileType === 'null') {
+                showToast("Please complete your profile and select your role (Looking for a Room / Offering a Room) to find matches.", "error");
+                // Show the initial prompt if no profile type is set
+                roommatePrompt.classList.remove('hidden');
+                return;
+            }
 
             roommatePrompt.classList.add('hidden');
             noMoreMatchesPrompt.classList.add('hidden');
@@ -1388,7 +1623,8 @@
                         bio: likedMatchData.bio || '',
                         compatibility_score: likedMatchData.compatibility_score !== undefined && likedMatchData.compatibility_score !== null ? parseInt(likedMatchData.compatibility_score) : null,
                         avatar_url: likedMatchData.avatar_url || '',
-                        uid: likedMatchData.uid || '' // Include UID
+                        uid: likedMatchData.uid || '', // Include UID
+                        user_type: likedMatchData.user_type || '' // NEW: Include user_type
                     };
 
                     try {
@@ -1457,7 +1693,7 @@
         const modalStartChatBtn = document.getElementById('modal-start-chat-btn'); // New chat button
 
         // Function to display activity details (no change needed here, variables are global)
-        function displayActivityDetails(activityType, details, redirectUrl = null, chatUid = null) {
+        function displayActivityDetails(activityType, details, redirectUrl = null, chatUid = null, profileUserType = null) {
             if (!activityModalContent || !activityDetailsModal) return;
 
             activityModalContent.innerHTML = '';
@@ -1482,14 +1718,30 @@
             if (activityType === 'Liked Profile') {
                 contentHtml += `
                     <img src="${details.avatar_url || 'https://placehold.co/112x112/cccccc/ffffff?text=User'}" alt="${details.name || 'User'}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/112x112/cccccc/ffffff?text=User'">
-                    <h4 class="text-xl font-bold text-gray-900 mb-2">${details.name || 'Unknown User'}, ${details.age || 'N/A'}</h4>
-                    <p class="text-md text-gray-700 mb-4">${details.gender || 'N/A'} | ${details.location || 'N/A'}</p>
+                    <h4 class="text-xl font-bold text-gray-900 mb-2">${details.name || 'Unknown User'}</h4>
+                    <p class="text-md text-gray-700 mb-4">Location: ${details.location || 'N/A'}</p>
                     <div class="text-left space-y-3">
-                        <div class="detail-item"><i class="fas fa-money-bill-wave"></i><span class="font-semibold">Budget:</span> ${formatCurrency(details.budget)} / month</div>
                         <div class="detail-item"><i class="fas fa-user-friends"></i><span class="font-semibold">Compatibility:</span> <span class="compatibility-score-modal">${details.compatibility_score || 'N/A'}%</span></div>
-                        <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> <p class="whitespace-pre-wrap">${details.bio || 'No bio provided for this user.'}</p></div>
-                    </div>
                 `;
+                
+                if (profileUserType === 'looking_for_room') { // This is a profile of someone looking for a room
+                    contentHtml += `
+                        <div class="detail-item"><i class="fas fa-venus-mars"></i><span class="font-semibold">Gender:</span> ${details.gender || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-money-bill-wave"></i><span class="font-semibold">Budget:</span> ${formatCurrency(details.budget)} / month</div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Age:</span> ${details.age || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> <p class="whitespace-pre-wrap">${details.bio || 'No bio provided for this user.'}</p></div>
+                    `;
+                } else if (profileUserType === 'offering_room') { // This is a profile of someone offering a room
+                    contentHtml += `
+                        <div class="detail-item"><i class="fas fa-door-open"></i><span class="font-semibold">Available Rooms:</span> ${details.num_available_rooms || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-money-bill-wave"></i><span class="font-semibold">Rent:</span> ${formatCurrency(details.rent_amount_offering)} / month</div>
+                        <div class="detail-item"><i class="fas fa-expand-arrows-alt"></i><span class="font-semibold">Room Size:</span> ${details.room_size || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Available From:</span> ${formatDate(details.availability_date)}</div>
+                        <div class="detail-item"><i class="fas fa-gavel"></i><span class="font-semibold">House Rules:</span> ${details.house_rules || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> <p class="whitespace-pre-wrap">${details.bio || 'No bio provided for this user.'}</p></div>
+                    `;
+                }
+                contentHtml += `</div>`; // Close text-left space-y-3
                 chatPartnerUid = chatUid; // Set the UID for chat
                 chatPartnerName = details.name || 'Unknown User';
             } else if (activityType === 'Rent Check') {
@@ -1605,9 +1857,10 @@
                 if (scriptTag) {
                     try {
                         details = JSON.parse(scriptTag.textContent);
-                        // For liked profiles from activity feed, also pass the UID if available
+                        // For liked profiles from activity feed, also pass the UID and user_type if available
                         const chatUid = (activityType === 'Liked Profile' && details.uid) ? details.uid : null;
-                        displayActivityDetails(activityType, details, redirectUrl, chatUid);
+                        const profileUserType = (activityType === 'Liked Profile' && details.user_type) ? details.user_type : null;
+                        displayActivityDetails(activityType, details, redirectUrl, chatUid, profileUserType);
                     } catch (e) {
                         console.error('Error parsing JSON from activity script tag:', e, scriptTag.textContent);
                         showToast('Error loading activity details (parse error).', 'error');
@@ -1627,9 +1880,10 @@
                 if (scriptTag) {
                     try {
                         details = JSON.parse(scriptTag.textContent);
-                        // For liked profiles from service results, also pass the UID if available
+                        // For liked profiles from service results, also pass the UID and user_type if available
                         const chatUid = (activityType === 'Liked Profile' && details.uid) ? details.uid : null;
-                        displayActivityDetails(activityType, details, null, chatUid); // No redirect for service results typically
+                        const profileUserType = (activityType === 'Liked Profile' && details.user_type) ? details.user_type : null;
+                        displayActivityDetails(activityType, details, null, chatUid, profileUserType); // No redirect for service results typically
                     } catch (e) {
                         console.error('Error parsing JSON from service result script tag:', e, scriptTag.textContent);
                         showToast('Error loading service result details (parse error).', 'error');
@@ -1793,6 +2047,33 @@
             }
         }
 
+        // Event listeners for chat buttons
+        if (modalStartChatBtn) {
+            modalStartChatBtn.addEventListener('click', () => {
+                // Assuming chatPartnerUid and chatPartnerName are set by displayActivityDetails
+                if (chatPartnerUid && chatPartnerName) {
+                    closeActivityModalBtn.click(); // Close activity details modal
+                    openChat(chatPartnerUid, chatPartnerName);
+                } else {
+                    showToast("Could not start chat. Partner details missing.", "error");
+                }
+            });
+        }
+
+        if (closeChatModalBtn) {
+            closeChatModalBtn.addEventListener('click', closeChat);
+        }
+
+        if (sendChatMessageBtn) {
+            sendChatMessageBtn.addEventListener('click', sendMessage);
+            chatMessageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
+
+
         // --- Notification System Logic ---
         const notificationBellBtn = document.getElementById('notification-bell-btn');
         const notificationBadge = document.getElementById('notification-badge');
@@ -1950,6 +2231,6 @@
     </script>
     <!-- Assuming main.js exists and contains additional scripts, if any. -->
     <!-- If main.js is critical, ensure it's loaded AFTER the inline script that sets up global functions/listeners -->
-    <script src="{% static 'fairrent_app/js/main.js' %}"></script>
+    <script src="{% static 'fairrent_app/js/main.js' %}" defer></script> {# Added defer attribute #}
 </body>
 </html>
