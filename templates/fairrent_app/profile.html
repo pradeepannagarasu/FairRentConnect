@@ -35,6 +35,9 @@
             --reject-dark-red: #dc2626;
             --like-green: #22c55e;
             --like-dark-green: #16a34a;
+
+            /* AI Demo Badge Color */
+            --accent-mint: #d1fae5; /* A light mint green */
         }
 
         body {
@@ -733,6 +736,68 @@
             box-shadow: var(--shadow-sm);
         }
 
+        /* Tag input styling */
+        .tag-input-container {
+            min-height: 40px; /* Ensure visibility even with no tags */
+            align-items: flex-start;
+        }
+
+        .tag {
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .tag.selected {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        .tag:not(.selected):hover {
+            background-color: #e0e7ff; /* Light blue hover for unselected */
+        }
+
+        .add-custom-tag-input {
+            border: 1px dashed var(--border-subtle);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-medium);
+            outline: none;
+            flex-grow: 1; /* Allows input to take available space */
+            min-width: 120px; /* Minimum width for input */
+        }
+
+        .add-custom-tag-input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-item i {
+            color: var(--primary-blue);
+            font-size: 1.1rem;
+            margin-top: 0.2rem; /* Align icon with text */
+        }
+
+        .detail-item .font-semibold {
+            flex-shrink: 0; /* Prevent label from shrinking */
+        }
+
+        .detail-item p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .compatibility-score-modal {
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
     </style>
 </head>
 <body>
@@ -812,6 +877,8 @@
                         {% if user_roommate_profile %}
                             <p class="flex items-center"><i class="fas fa-tag w-5 mr-3 text-gray-400"></i>Role: {{ user_roommate_profile.get_user_type_display|default:'N/A' }}</p>
                             <p class="flex items-center"><i class="fas fa-map-marker-alt w-5 mr-3 text-gray-400"></i>Location: {{ user_roommate_profile.location|default:'N/A' }}</p>
+                            <p class="flex items-center"><i class="fas fa-envelope w-5 mr-3 text-gray-400"></i>Contact: {{ user_roommate_profile.contact|default:'N/A' }}</p>
+                            <p class="flex items-center"><i class="fas fa-briefcase w-5 mr-3 text-gray-400"></i>Occupation: {{ user_roommate_profile.occupation|default:'N/A' }}</p>
 
                             {% if user_roommate_profile.user_type == 'looking_for_room' %}
                                 <p class="flex items-center"><i class="fas fa-venus-mars w-5 mr-3 text-gray-400"></i>Gender: {{ user_roommate_profile.get_gender_display|default:'N/A' }}</p>
@@ -825,6 +892,11 @@
                                 <p class="flex items-center"><i class="fas fa-expand-arrows-alt w-5 mr-3 text-gray-400"></i>Room Size: {{ user_roommate_profile.room_size|default:'N/A' }}</p>
                                 <p class="flex items-center"><i class="fas fa-calendar-alt w-5 mr-3 text-gray-400"></i>Available From: {{ user_roommate_profile.availability_date|date:"M d, Y"|default:'N/A' }}</p>
                                 <p class="flex items-center"><i class="fas fa-gavel w-5 mr-3 text-gray-400"></i>House Rules: {{ user_roommate_profile.house_rules|default:'N/A' }}</p>
+                                <p class="flex items-center"><i class="fas fa-couch w-5 mr-3 text-gray-400"></i>Furnished: {{ user_roommate_profile.furnished|default:'N/A' }}</p>
+                                <p class="flex items-center"><i class="fas fa-file-invoice-dollar w-5 mr-3 text-gray-400"></i>Bills Included: {{ user_roommate_profile.bills_included|default:'N/A' }}</p>
+                                {% if user_roommate_profile.property_photos %}
+                                    <p class="flex items-center"><i class="fas fa-image w-5 mr-3 text-gray-400"></i>Photos: {{ user_roommate_profile.property_photos|default:'N/A' }}</p>
+                                {% endif %}
                             {% endif %}
                             <p class="flex items-center"><i class="fas fa-info-circle w-5 mr-3 text-gray-400"></i>Bio: {{ user_roommate_profile.bio|default:'N/A' }}</p>
                         {% else %}
@@ -861,6 +933,10 @@
                             <p class="text-3xl font-bold text-teal-600">{{ user_rental_contracts|length }}</p>
                             <p class="text-gray-600 text-sm">Contracts Analyzed</p>
                         </div>
+                        <div class="p-4 bg-orange-50 rounded-lg shadow-sm">
+                            <p class="text-3xl font-bold text-orange-600">{{ user_rent_declaration_checks|length }}</p>
+                            <p class="text-gray-600 text-sm">Rent Declarations Checked</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -877,7 +953,7 @@
                                 data-redirect-url="{% if activity.redirect_url %}{{ activity.redirect_url }}{% endif %}"
                                 >
                                 <div class="content flex items-start">
-                                    <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
+                                    <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
                                         <i class="fas fa-{{ activity.icon }}"></i>
                                     </div>
                                     <div>
@@ -962,7 +1038,7 @@
                                 data-redirect-url="{% if activity.redirect_url %}{{ activity.redirect_url }}{% endif %}"
                                 >
                                 <div class="content flex items-start">
-                                    <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
+                                    <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
                                         <i class="fas fa-{{ activity.icon }}"></i>
                                     </div>
                                     <div>
@@ -984,17 +1060,17 @@
                 <div id="my-service-results-tab" class="main-content-tab-content hidden space-y-3"> {# Initially hidden #}
                     {% if user_rent_checks or user_reviews or user_complaints or user_forum_posts or user_liked_profiles or user_rental_contracts or user_rent_declaration_checks %}
                         {% for rent_result in user_rent_checks %}
-                            <div class="service-result-card cursor-pointer rent-checker-result-card"
+                            <div class="service-result-card cursor-pointer rent-checker-result-card glass-card p-4 flex items-center"
                                 data-activity-type="Rent Check"
                                 data-service-details-id="service_details_rent_check_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper-small bg-blue-100 text-blue-600">
+                                <div class="icon-wrapper-small bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
                                     <i class="fas fa-gbp-sign"></i>
                                 </div>
                                 <div class="details">
-                                    <p>Rent Check for <span class="highlight">{{ rent_result.postcode }}</span> ({{ rent_result.bedrooms }} bed)</p>
-                                    <p>Estimated Rent: <span class="highlight">£{{ rent_result.estimated_rent|floatformat:0 }}</span></p>
-                                    <p class="timestamp">Checked on {{ rent_result.checked_at|date:"M d, Y" }}</p>
+                                    <p class="font-semibold text-gray-800">Rent Check for <span class="font-bold">{{ rent_result.postcode }}</span> ({{ rent_result.bedrooms }} bed)</p>
+                                    <p class="text-gray-700">Estimated Rent: <span class="font-bold text-blue-600">£{{ rent_result.estimated_rent|floatformat:0 }}</span></p>
+                                    <p class="text-sm text-gray-500">Checked on {{ rent_result.checked_at|date:"M d, Y" }}</p>
                                 </div>
                             </div>
                             <script type="application/json" id="service_details_rent_check_{{ forloop.counter }}">
@@ -1012,7 +1088,7 @@
                                 data-activity-type="Review"
                                 data-service-details-id="service_details_review_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper-small bg-green-100 text-green-600 mr-4">
+                                <div class="icon-wrapper-small bg-green-100 text-green-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
                                     <i class="fas fa-star"></i>
                                 </div>
                                 <div>
@@ -1039,7 +1115,7 @@
                                 data-activity-type="Complaint"
                                 data-service-details-id="service_details_complaint_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper-small bg-red-100 text-red-600 mr-4">
+                                <div class="icon-wrapper-small bg-red-100 text-red-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
                                     <i class="fas fa-exclamation-triangle"></i>
                                 </div>
                                 <div>
@@ -1065,7 +1141,7 @@
                                 data-activity-type="Forum Post"
                                 data-service-details-id="service_details_forum_post_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper-small bg-yellow-100 text-yellow-600 mr-4">
+                                <div class="icon-wrapper-small bg-yellow-100 text-yellow-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
                                     <i class="fas fa-comments"></i>
                                 </div>
                                 <div>
@@ -1090,7 +1166,7 @@
                                 data-activity-type="Liked Profile"
                                 data-service-details-id="service_details_liked_profile_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper-small bg-pink-100 text-pink-500 mr-4">
+                                <div class="icon-wrapper-small bg-pink-100 text-pink-500 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
                                     <i class="fas fa-heart"></i>
                                 </div>
                                 <div>
@@ -1109,7 +1185,8 @@
                                     "bio": "{{ liked_profile.liked_user_bio|escapejs }}",
                                     "compatibility_score": {{ liked_profile.liked_user_compatibility_score|default:"null" }},
                                     "avatar_url": "{{ liked_profile.liked_user_avatar_url|escapejs }}",
-                                    "uid": "{{ liked_profile.liked_user_uid|default:''|escapejs }}" {# IMPORTANT: Pass UID for chat #}
+                                    "uid": "{{ liked_profile.liked_user_uid|default:''|escapejs }}", {# IMPORTANT: Pass UID for chat #}
+                                    "user_type": "{{ liked_profile.user_type|default:''|escapejs }}" {# NEW: Pass user_type for correct modal display #}
                                 }
                             </script>
                         {% endfor %}
@@ -1119,7 +1196,7 @@
                                 data-activity-type="Contract Analysis"
                                 data-service-details-id="service_details_contract_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper-small bg-teal-100 text-teal-600 mr-4">
+                                <div class="icon-wrapper-small bg-teal-100 text-teal-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
                                     <i class="fas fa-file-contract"></i>
                                 </div>
                                 <div>
@@ -1142,7 +1219,7 @@
                                 data-activity-type="Rent Declaration Check"
                                 data-service-details-id="service_details_declaration_check_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper-small bg-orange-100 text-orange-600 mr-4">
+                                <div class="icon-wrapper-small bg-orange-100 text-orange-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
                                     <i class="fas fa-file-invoice-dollar"></i>
                                 </div>
                                 <div>
@@ -1341,8 +1418,9 @@
                     <div class="mt-4">
                         <label for="property_photos" class="block text-sm font-medium text-gray-700 mb-1">Property Photos (comma-separated URLs)</label>
                         <textarea id="property_photos" name="property_photos" rows="2"
-                                  class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
-                                  placeholder="e.g., https://example.com/pic1.jpg, https://example.com/pic2.jpg">{{ user_roommate_profile.property_photos|default:'' }}</textarea>
+                                    class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                                    placeholder="e.g., https://example.com/pic1.jpg, https://example.com/pic2.jpg">{{ user_roommate_profile.property_photos|default:'' }}</textarea>
+                        <p class="text-xs text-gray-500 mt-1">Enter URLs separated by commas. Max 5 photos.</p>
                     </div>
                 </div>
 
@@ -1446,10 +1524,6 @@
         // For get_chat_messages, it takes a UID, so we need a base URL without the UID
         // A common trick is to pass a dummy value and then replace it
         const API_GET_CHAT_MESSAGES_BASE_URL = "{% url 'fairrent_app:api_get_chat_messages' 'DUMMY_UID' %}".replace('DUMMY_UID/', '');
-
-        // Log the resolved URLs for debugging
-        console.log("API_GET_NOTIFICATIONS_URL:", API_GET_NOTIFICATIONS_URL);
-        console.log("API_FIND_ROOMMATE_MATCHES_URL:", API_FIND_ROOMMATE_MATCHES_URL);
 
 
         // Global variable for current user's UID (Django PK)
@@ -1582,6 +1656,8 @@
         // NEW: Furnished and Bills Included selects
         const furnishedSelect = document.getElementById('furnished');
         const billsIncludedSelect = document.getElementById('bills_included');
+        // NEW: Property Photos textarea
+        const propertyPhotosTextarea = document.getElementById('property_photos');
 
 
         // Pre-defined lifestyle preferences and house rules
@@ -1602,11 +1678,13 @@
         function renderTags(container, hiddenInput, allOptions, selectedValues = []) {
             if (!container) return;
             container.innerHTML = ''; // Clear existing tags
+            const currentSelected = new Set(selectedValues);
+
             allOptions.forEach(option => {
                 const tag = document.createElement('span');
-                tag.className = 'inline-block bg-gray-200 text-gray-800 text-sm px-3 py-1 rounded-full cursor-pointer mr-2 mb-2 transition-colors duration-200 tag';
+                tag.className = 'inline-block text-sm px-3 py-1 rounded-full cursor-pointer mr-2 mb-2 transition-colors duration-200 tag';
                 tag.textContent = option;
-                if (selectedValues.includes(option)) {
+                if (currentSelected.has(option)) {
                     tag.classList.add('bg-blue-500', 'text-white', 'selected'); /* Use primary blue for selected tags */
                     tag.classList.remove('bg-gray-200', 'text-gray-800');
                 } else {
@@ -1623,6 +1701,26 @@
                 });
                 container.appendChild(tag);
             });
+
+            // Add an input for custom tags
+            const customTagInput = document.createElement('input');
+            customTagInput.type = 'text';
+            customTagInput.placeholder = 'Add custom tag...';
+            customTagInput.className = 'add-custom-tag-input';
+            customTagInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && customTagInput.value.trim() !== '') {
+                    e.preventDefault(); // Prevent form submission
+                    const newTagText = customTagInput.value.trim();
+                    if (!allOptions.includes(newTagText) && !Array.from(container.querySelectorAll('.tag.selected')).map(t => t.textContent).includes(newTagText)) {
+                        // Add new tag to options and select it
+                        allOptions.push(newTagText); // Add to the list of all options
+                        renderTags(container, hiddenInput, allOptions, Array.from(container.querySelectorAll('.tag.selected')).map(t => t.textContent).concat(newTagText));
+                        updateHiddenInput(container, hiddenInput);
+                    }
+                    customTagInput.value = ''; // Clear input
+                }
+            });
+            container.appendChild(customTagInput);
         }
 
         // Function to update hidden input based on selected tags (reusable)
@@ -1686,7 +1784,7 @@
                 document.getElementById('rent_amount_offering').value = "{{ user_roommate_profile.rent_amount_offering|default:'' }}";
                 document.getElementById('room_size').value = "{{ user_roommate_profile.room_size|default:'' }}";
                 document.getElementById('availability_date').value = "{{ user_roommate_profile.availability_date|date:'Y-m-d'|default:'' }}";
-                document.getElementById('property_photos').value = "{{ user_roommate_profile.property_photos|default:'' }}";
+                propertyPhotosTextarea.value = "{{ user_roommate_profile.property_photos|default:'' }}";
                 furnishedSelect.value = "{{ user_roommate_profile.furnished|default:'' }}"; // NEW
                 billsIncludedSelect.value = "{{ user_roommate_profile.bills_included|default:'' }}"; // NEW
                 const currentHouseRules = "{{ user_roommate_profile.house_rules|default:'' }}".split(',').map(item => item.trim()).filter(item => item.length > 0);
@@ -1766,6 +1864,7 @@
                     data.lifestyle_preferences = '';
                     data.furnished = furnishedSelect.value; // NEW
                     data.bills_included = billsIncludedSelect.value; // NEW
+                    data.property_photos = propertyPhotosTextarea.value.trim(); // NEW
                 }
 
                 try {
@@ -1834,13 +1933,12 @@
             noMoreMatchesPrompt.classList.add('hidden');
 
             // Display 5 to 8 profiles at a time
-            // Ensure we don't try to display more profiles than available
-            const profilesToRenderCount = Math.min(currentMatches.length - currentMatchIndex, Math.floor(Math.random() * 4) + 5); // Randomly 5-8
+            const profilesToShow = Math.min(currentMatches.length - currentMatchIndex, Math.floor(Math.random() * 4) + 5); // Randomly 5-8
             
-            if (profilesToRenderCount > 0) {
-                for (let i = 0; i < profilesToRenderCount; i++) {
+            if (profilesToShow > 0) {
+                for (let i = 0; i < profilesToShow; i++) {
                     const match = currentMatches[currentMatchIndex + i];
-                    if (!match) break; // Should not happen with min check, but good for safety
+                    if (!match) break; // Ensure we don't go out of bounds
 
                     const name = (match.name && match.name !== 'undefined') ? match.name : 'Unknown User';
                     const location = (match.location && match.location !== 'undefined') ? match.location : 'N/A';
@@ -1868,10 +1966,13 @@
                         const rooms = (match.num_available_rooms && match.num_available_rooms !== 'undefined') ? `${match.num_available_rooms} room(s)` : 'N/A';
                         const roomSize = (match.room_size && match.room_size !== 'undefined') ? match.room_size : 'N/A';
                         const availabilityDate = (match.availability_date && match.availability_date !== 'undefined') ? new Date(match.availability_date).toLocaleDateString() : 'N/A';
+                        const furnished = (match.furnished && match.furnished !== 'undefined') ? match.furnished : 'N/A';
+                        const billsIncluded = (match.bills_included && match.bills_included !== 'undefined') ? match.bills_included : 'N/A';
                         matchDetailsHtml = `
                             <h4 class="text-3xl font-bold text-gray-900 mb-2">${name} (Offering Room)</h4>
                             <p class="text-lg text-gray-600 mb-2">${location} | ${rooms}</p>
-                            <p class="text-md text-gray-600 mb-2">Rent: ${rent} | Size: ${roomSize} | Available: ${availabilityDate}</p>
+                            <p class="text-md text-gray-600 mb-2">Rent: ${rent} | Size: ${roomSize}</p>
+                            <p class="text-md text-gray-600 mb-2">Available: ${availabilityDate} | Furnished: ${furnished} | Bills: ${billsIncluded}</p>
                         `;
                     }
 
@@ -1885,24 +1986,26 @@
                         <p class="text-gray-700 text-base italic leading-relaxed mt-2">
                             ${bio}
                         </p>
-                        <button class="match-details-btn btn-secondary mt-4 btn-hover-effect" data-match='${JSON.stringify(match)}'>View Details</button>
+                        <button class="match-details-btn btn-secondary mt-4 btn-hover-effect" data-match='${JSON.stringify(match)}' data-user-type='${match.user_type}'>View Details</button>
                     `;
                     // Position cards in a stack, slightly offset
-                    matchCard.style.setProperty('--card-offset-y', `${i * 10}px`); /* Changed to positive for stacking downwards */
+                    matchCard.style.setProperty('--card-offset-y', `${i * -10}px`);
                     matchCard.style.setProperty('--card-scale', `${1 - i * 0.02}`);
                     matchCard.style.setProperty('--card-rotate-z', `${i * (Math.random() > 0.5 ? 1 : -1) * 2}deg`); /* Slight random rotation */
-                    matchCard.style.zIndex = currentMatches.length - (currentMatchIndex + i); // Ensure top card has highest z-index
+                    matchCard.style.zIndex = currentMatches.length - (currentMatchIndex + i);
 
                     roommateMatchCardDisplay.appendChild(matchCard);
 
-                    // Only add swipe event listeners to the top-most card
+                    // Add swipe event listeners only to the top-most card
                     if (i === 0) {
                         addSwipeListeners(matchCard);
                         swipeButtonsContainer.classList.remove('hidden');
                     }
 
                     matchCard.querySelector('.match-details-btn').addEventListener('click', (e) => {
-                        displayActivityDetails('Liked Profile', match, null, match.uid || null, match.user_type);
+                        const matchData = JSON.parse(e.target.dataset.match);
+                        const profileUserType = e.target.dataset.userType;
+                        displayActivityDetails('Liked Profile', matchData, null, matchData.uid || null, profileUserType);
                     });
                 }
             } else {
@@ -2036,7 +2139,16 @@
                         compatibility_score: likedMatchData.compatibility_score !== undefined && likedMatchData.compatibility_score !== null ? parseInt(likedMatchData.compatibility_score) : null,
                         avatar_url: likedMatchData.avatar_url || '',
                         uid: likedMatchData.uid || '',
-                        user_type: likedMatchData.user_type || ''
+                        user_type: likedMatchData.user_type || '', // Pass user_type
+                        // Include new fields for 'offering_room' profiles if present
+                        num_available_rooms: likedMatchData.num_available_rooms !== undefined && likedMatchData.num_available_rooms !== null ? parseInt(likedMatchData.num_available_rooms) : null,
+                        rent_amount_offering: likedMatchData.rent_amount_offering !== undefined && likedMatchData.rent_amount_offering !== null ? parseFloat(likedMatchData.rent_amount_offering) : null,
+                        room_size: likedMatchData.room_size || '',
+                        house_rules: likedMatchData.house_rules || '',
+                        availability_date: likedMatchData.availability_date || '',
+                        property_photos: likedMatchData.property_photos || '',
+                        furnished: likedMatchData.furnished || '',
+                        bills_included: likedMatchData.bills_included || '',
                     };
 
                     try {
@@ -2166,6 +2278,13 @@
                         <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> <p class="whitespace-pre-wrap">${details.bio || 'No bio provided for this user.'}</p></div>
                         <div class="detail-item"><i class="fas fa-couch"></i><span class="font-semibold">Furnished:</span> ${details.furnished || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-file-invoice-dollar"></i><span class="font-semibold">Bills Included:</span> ${details.bills_included || 'N/A'}</div>
+                        {% comment %} Display property photos if available {% endcomment %}
+                        {% if details.property_photos %}
+                            <div class="detail-item"><i class="fas fa-images"></i><span class="font-semibold">Photos:</span></div>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                ${details.property_photos.split(',').map(url => `<img src="${url.trim()}" class="w-24 h-24 object-cover rounded-md shadow-sm" onerror="this.onerror=null;this.src='https://placehold.co/96x96/cccccc/ffffff?text=No+Image'">`).join('')}
+                            </div>
+                        {% endif %}
                     `;
                 }
                 contentHtml += `</div>`;
@@ -2247,7 +2366,7 @@
                 modalRedirectBtn.classList.add('hidden');
             }
 
-            if (chatUid && currentUserId && chatUid !== 'null' && chatUid !== currentUserId) { // Ensure chatUid is not null and not self
+            if (chatUid && currentUserId && chatUid !== 'null' && chatUid !== currentUserId && !chatUid.startsWith('ai_profile_')) { // Ensure chatUid is not null, not self, and not AI
                 modalStartChatBtn.classList.remove('hidden');
             } else {
                 modalStartChatBtn.classList.add('hidden');
@@ -2279,6 +2398,7 @@
 
                 if (scriptTag) {
                     try {
+                        // Correctly parse JSON from the script tag's text content
                         details = JSON.parse(scriptTag.textContent);
                         const chatUid = (activityType === 'Liked Profile' && details.uid) ? details.uid : null;
                         const profileUserType = (activityType === 'Liked Profile' && details.user_type) ? details.user_type : null;
@@ -2301,6 +2421,7 @@
 
                 if (scriptTag) {
                     try {
+                        // Correctly parse JSON from the script tag's text content
                         details = JSON.parse(scriptTag.textContent);
                         const chatUid = (activityType === 'Liked Profile' && details.uid) ? details.uid : null;
                         const profileUserType = (activityType === 'Liked Profile' && details.user_type) ? details.user_type : null;
@@ -2369,6 +2490,9 @@
 
                 if (data.status === 'success') {
                     chatMessagesDiv.innerHTML = '';
+                    if (data.messages.length === 0) {
+                        chatMessagesDiv.innerHTML = '<div class="text-center text-gray-500">No messages yet. Say hello!</div>';
+                    }
                     data.messages.forEach(msg => {
                         const messageElement = document.createElement('div');
                         messageElement.className = `chat-message ${msg.sender_uid === currentUserId ? 'sent' : 'received'}`;
@@ -2517,20 +2641,10 @@
             sendChatRequestBtn.addEventListener('click', async () => {
                 if (!currentLikedUserUidForChat) return;
 
-                // Simulate sending a chat request. In a real app, this would be a new API endpoint.
-                // For now, we'll just open the chat directly and show a success message.
-                // A real implementation would:
-                // 1. Send request to backend.
-                // 2. Backend creates a `ChatRequest` object (pending).
-                // 3. Backend sends a notification to the recipient.
-                // 4. Recipient accepts/rejects via their profile/notifications.
-                // 5. Only upon acceptance, the chat is 'opened' for both.
-
-                showToast(`Chat request sent to ${confirmChatPartnerNameSpan.textContent}!`, 'success');
-                closeChatRequestConfirmModal();
-                
                 // For demo purposes, immediately open chat if it's a real user.
                 // In a real app, this would only happen after the recipient accepts.
+                showToast(`Chat request sent to ${confirmChatPartnerNameSpan.textContent}!`, 'success');
+                closeChatRequestConfirmModal();
                 openChat(currentLikedUserUidForChat, confirmChatPartnerNameSpan.textContent);
             });
         }
@@ -2569,7 +2683,7 @@
                             'Content-Type': 'application/json',
                             'X-CSRFToken': '{{ csrf_token }}'
                         },
-                        body: JSON.stringify({ notification_id: notificationId })
+                        body: JSON.stringify({ mark_all: true }) // Send mark_all flag
                     });
                     const result = await response.json();
                     if (result.status === 'success') {
@@ -2600,7 +2714,7 @@
                         noNotificationsMessage.classList.remove('hidden');
                         markAllReadBtn.classList.add('hidden');
                     } else {
-                        noNotificationsMessage.classList.remove('hidden');
+                        noNotificationsMessage.classList.add('hidden'); // Hide "No new notifications"
                         markAllReadBtn.classList.remove('hidden');
                         data.notifications.forEach(notif => {
                             const notifElement = document.createElement('div');
@@ -2615,7 +2729,17 @@
                                     await markNotificationAsRead(notif.id);
                                 }
                                 if (notif.link) {
-                                    window.location.href = notif.link;
+                                    // Handle internal hash links for dashboard sections
+                                    if (notif.link.startsWith('/profile/#')) {
+                                        const targetHash = notif.link.split('#')[1];
+                                        switchContentSection(targetHash);
+                                        // If the link is specifically to a chat, open the chat modal
+                                        if (targetHash === 'chat-modal' && notif.sender_uid && notif.sender_name) {
+                                            openChat(notif.sender_uid, notif.sender_name);
+                                        }
+                                    } else {
+                                        window.location.href = notif.link;
+                                    }
                                 }
                                 notificationModal.classList.remove('active');
                             });
