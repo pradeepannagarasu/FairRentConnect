@@ -1447,6 +1447,10 @@
         // A common trick is to pass a dummy value and then replace it
         const API_GET_CHAT_MESSAGES_BASE_URL = "{% url 'fairrent_app:api_get_chat_messages' 'DUMMY_UID' %}".replace('DUMMY_UID/', '');
 
+        // Log the resolved URLs for debugging
+        console.log("API_GET_NOTIFICATIONS_URL:", API_GET_NOTIFICATIONS_URL);
+        console.log("API_FIND_ROOMMATE_MATCHES_URL:", API_FIND_ROOMMATE_MATCHES_URL);
+
 
         // Global variable for current user's UID (Django PK)
         const currentUserId = "{{ request.user.pk|default:'null' }}"; 
@@ -1830,12 +1834,13 @@
             noMoreMatchesPrompt.classList.add('hidden');
 
             // Display 5 to 8 profiles at a time
-            const profilesToShow = Math.min(currentMatches.length - currentMatchIndex, Math.floor(Math.random() * 4) + 5); // Randomly 5-8
+            // Ensure we don't try to display more profiles than available
+            const profilesToRenderCount = Math.min(currentMatches.length - currentMatchIndex, Math.floor(Math.random() * 4) + 5); // Randomly 5-8
             
-            if (profilesToShow > 0) {
-                for (let i = 0; i < profilesToShow; i++) {
+            if (profilesToRenderCount > 0) {
+                for (let i = 0; i < profilesToRenderCount; i++) {
                     const match = currentMatches[currentMatchIndex + i];
-                    if (!match) break; // Ensure we don't go out of bounds
+                    if (!match) break; // Should not happen with min check, but good for safety
 
                     const name = (match.name && match.name !== 'undefined') ? match.name : 'Unknown User';
                     const location = (match.location && match.location !== 'undefined') ? match.location : 'N/A';
@@ -1883,14 +1888,14 @@
                         <button class="match-details-btn btn-secondary mt-4 btn-hover-effect" data-match='${JSON.stringify(match)}'>View Details</button>
                     `;
                     // Position cards in a stack, slightly offset
-                    matchCard.style.setProperty('--card-offset-y', `${i * -10}px`);
+                    matchCard.style.setProperty('--card-offset-y', `${i * 10}px`); /* Changed to positive for stacking downwards */
                     matchCard.style.setProperty('--card-scale', `${1 - i * 0.02}`);
                     matchCard.style.setProperty('--card-rotate-z', `${i * (Math.random() > 0.5 ? 1 : -1) * 2}deg`); /* Slight random rotation */
-                    matchCard.style.zIndex = currentMatches.length - (currentMatchIndex + i);
+                    matchCard.style.zIndex = currentMatches.length - (currentMatchIndex + i); // Ensure top card has highest z-index
 
                     roommateMatchCardDisplay.appendChild(matchCard);
 
-                    // Add swipe event listeners only to the top-most card
+                    // Only add swipe event listeners to the top-most card
                     if (i === 0) {
                         addSwipeListeners(matchCard);
                         swipeButtonsContainer.classList.remove('hidden');
