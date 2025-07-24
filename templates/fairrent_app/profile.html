@@ -1436,6 +1436,7 @@
 
     <script>
         // Define Django URLs as JavaScript variables to ensure they are rendered by the template engine
+        // This ensures the URLs are resolved BEFORE JavaScript tries to use them.
         const API_GET_NOTIFICATIONS_URL = "{% url 'fairrent_app:api_get_notifications' %}";
         const API_MARK_NOTIFICATION_READ_URL = "{% url 'fairrent_app:api_mark_notification_read' %}";
         const API_SAVE_ROOMMATE_PROFILE_URL = "{% url 'fairrent_app:api_save_roommate_profile' %}";
