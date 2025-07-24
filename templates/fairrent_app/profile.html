@@ -2047,8 +2047,9 @@
                             showToast(saveResult.message, saveResult.status);
                             currentCard.classList.add('swiping-right');
                             currentCard.addEventListener('transitionend', () => {
+                                currentCard.remove(); // Remove the swiped card
                                 currentMatchIndex++;
-                                displayCurrentMatch();
+                                displayCurrentMatch(); // Display the next set of cards
                                 // After liking, if it's a real user, prompt for chat request
                                 if (likedMatchData.uid && !likedMatchData.uid.startsWith('ai_profile_')) {
                                     showChatRequestConfirmModal(likedMatchData.uid, likedMatchData.name);
@@ -2077,8 +2078,9 @@
                 } else { // If skipping
                     currentCard.classList.add('swiping-left');
                     currentCard.addEventListener('transitionend', () => {
+                        currentCard.remove(); // Remove the swiped card
                         currentMatchIndex++;
-                        displayCurrentMatch();
+                        displayCurrentMatch(); // Display the next set of cards
                     }, { once: true });
                 }
             }
