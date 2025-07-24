@@ -2,7 +2,7 @@
 # FILE: fairrent_app/views.py
 # =============================================================================
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -1052,3 +1052,68 @@ def check_rent_declaration_api(request):
     except Exception as e:
         logger.exception("An unexpected error occurred in check_rent_declaration_api")
         return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred: {e}'}, status=500)
+
+@csrf_exempt
+@login_required
+@require_http_methods(["POST"])
+def send_chat_message(request):
+    """
+    API endpoint to send a chat message.
+    Messages can be sent between two real users (using their Django PKs)
+    or between a real user and an AI profile (using its UUID).
+    """
+    try:
+        data = json.loads(request.body)
+        receiver_uid = data.get('receiver_uid')
+        message_text = data.get('message', '').strip()
+
+        if not receiver_uid or not message_text:
+            return JsonResponse({'status': 'error', 'message': 'Receiver UID and message are required.'}, status=400)
+        
+        # Determine sender and receiver to store in the database
+        sender_uid = str(request.user.pk)
+
+        # For simplicity, we'll store messages as is.
+        # In a more complex system, you might want to differentiate
+        # between real user UIDs (Django PKs) and AI UIDs (UUID strings).
+        ChatMessage.objects.create(
+            sender_uid=sender_uid,
+            receiver_uid=receiver_uid,
+            message=message_text
+        )
+        return JsonResponse({'status': 'success', 'message': 'Message sent successfully!'})
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON format in request body.'}, status=400)
+    except Exception as e:
+        logger.exception("An unexpected error occurred in send_chat_message")
+        return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred: {e}'}, status=500)
+
+
+@login_required
+@require_http_methods(["GET"])
+def get_chat_messages(request, partner_uid):
+    """
+    API endpoint to retrieve chat messages between the current user and a specific partner (real user or AI).
+    Messages are ordered by timestamp.
+    """
+    current_user_uid = str(request.user.pk)
+
+    # Fetch messages where current user is sender AND partner is receiver
+    # OR where partner is sender AND current user is receiver
+    messages = ChatMessage.objects.filter(
+        (models.Q(sender_uid=current_user_uid) & models.Q(receiver_uid=partner_uid)) |
+        (models.Q(sender_uid=partner_uid) & models.Q(receiver_uid=current_user_uid))
+    ).order_by('timestamp').values('sender_uid', 'message', 'timestamp')
+
+    # Convert messages to a list of dicts for JSON serialization
+    message_list = []
+    for msg in messages:
+        # Convert datetime objects to ISO format string for JSON
+        msg_timestamp = msg['timestamp'].isoformat() if msg['timestamp'] else None
+        message_list.append({
+            'sender_uid': msg['sender_uid'],
+            'message': msg['message'],
+            'timestamp': msg_timestamp
+        })
+
+    return JsonResponse({'status': 'success', 'messages': message_list})
