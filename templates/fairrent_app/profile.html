@@ -16,21 +16,25 @@
     <style>
         /* --- Root Variables for Refined Professional Theme --- */
         :root {
-            --primary-blue: #2563eb; /* Stronger, more vibrant blue */
-            --primary-dark-blue: #1d4ed8; /* Darker primary for accents */
-            --secondary-gray: #f3f4f6; /* Very light gray for backgrounds */
+            --primary-navy: #1A1F71; /* Primary: Navy Blue (Trust) */
+            --accent-mint: #98F5E1; /* Accent 1: Mint Green */
+            --accent-sky: #00BFFF; /* Accent 2: Sky Blue */
+            
             --text-dark: #111827; /* Near black for main text */
             --text-medium: #4b5563; /* Medium gray for secondary text */
             --text-light: #6b7280; /* Lighter gray for subtle text */
+            
             --bg-page: #f9fafb; /* Overall page background */
             --bg-card: #ffffff; /* Pure white for cards */
             --border-subtle: #e5e7eb; /* Light border color */
+            
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            
             --transition-ease: all 0.2s ease-in-out;
 
-            /* NEW: Custom colors for swipe buttons */
+            /* Custom colors for swipe buttons */
             --reject-red: #ef4444;
             --reject-dark-red: #dc2626;
             --like-green: #22c55e;
@@ -128,13 +132,13 @@
             font-size: 1.35rem; /* Larger title */
             font-weight: 700;
             margin-bottom: 1rem;
-            color: var(--primary-blue);
+            color: var(--primary-navy); /* Use primary navy */
             display: flex;
             align-items: center;
             gap: 0.75rem; /* More space */
         }
         .dashboard-card .card-title i {
-            color: var(--primary-dark-blue);
+            color: var(--accent-sky); /* Use accent color for icons */
         }
 
         .dashboard-card .card-value {
@@ -175,12 +179,12 @@
         }
 
         @keyframes swipe-left {
-            from { transform: translateX(0) rotate(0deg); opacity: 1; }
-            to { transform: translateX(-150%) rotate(-30deg); opacity: 0; }
+            from { transform: translateX(-50%) translateY(var(--card-offset-y)) rotate(var(--card-rotate-z)); opacity: 1; }
+            to { transform: translateX(-150%) translateY(var(--card-offset-y)) rotate(calc(var(--card-rotate-z) - 30deg)); opacity: 0; }
         }
         @keyframes swipe-right {
-            from { transform: translateX(0) rotate(0deg); opacity: 1; }
-            to { transform: translateX(150%) rotate(30deg); opacity: 0; }
+            from { transform: translateX(-50%) translateY(var(--card-offset-y)) rotate(var(--card-rotate-z)); opacity: 1; }
+            to { transform: translateX(50%) translateY(var(--card-offset-y)) rotate(calc(var(--card-rotate-z) + 30deg)); opacity: 0; }
         }
 
         /* --- Responsive Styles --- */
@@ -279,7 +283,7 @@
         }
 
         .gradient-text {
-            background: linear-gradient(90deg, var(--primary-blue) 0%, var(--primary-dark-blue) 100%); /* Blue gradient */
+            background: linear-gradient(90deg, var(--primary-navy) 0%, var(--accent-sky) 100%); /* Blue gradient */
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -298,7 +302,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, var(--primary-dark-blue), var(--primary-blue)); /* Blue gradient for buttons */
+            background: linear-gradient(45deg, var(--primary-navy), var(--accent-sky)); /* Blue gradient for buttons */
             z-index: -1;
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -309,7 +313,7 @@
         }
 
         .btn-primary {
-            background-color: var(--primary-blue);
+            background-color: var(--primary-navy); /* Use primary navy */
             color: white;
             padding: 0.9rem 1.8rem; /* Increased padding */
             border-radius: 0.75rem; /* More rounded */
@@ -319,14 +323,14 @@
         }
 
         .btn-primary:hover {
-            background-color: var(--primary-dark-blue);
+            background-color: var(--primary-dark-blue); /* Darker shade of primary for hover */
             transform: translateY(-3px);
             box-shadow: var(--shadow-lg);
         }
 
         .btn-secondary {
             background-color: var(--secondary-gray);
-            color: var(--primary-blue);
+            color: var(--primary-navy); /* Use primary navy for text */
             padding: 0.9rem 1.8rem; /* Increased padding */
             border-radius: 0.75rem; /* More rounded */
             font-weight: 600;
@@ -337,13 +341,13 @@
 
         .btn-secondary:hover {
             background-color: #d1d5db; /* Slightly darker gray */
-            color: var(--primary-dark-blue);
+            color: var(--primary-navy);
             transform: translateY(-3px);
             box-shadow: var(--shadow-md);
         }
 
         .spinner {
-            border-top-color: var(--primary-blue);
+            border-top-color: var(--primary-navy); /* Use primary navy */
             animation: spin 1s linear infinite;
         }
 
@@ -387,7 +391,7 @@
         }
 
         .chat-message.sent {
-            background-color: var(--primary-blue);
+            background-color: var(--primary-navy); /* Use primary navy */
             color: white;
             align-self: flex-end;
             border-bottom-right-radius: 0.25rem;
@@ -416,14 +420,14 @@
         .chat-input-container button {
             padding: 0.75rem 1.25rem;
             border-radius: 0.75rem;
-            background-color: var(--primary-blue);
+            background-color: var(--primary-navy); /* Use primary navy */
             color: white;
             font-weight: 600;
             transition: background-color 0.2s ease;
         }
 
         .chat-input-container button:hover {
-            background-color: var(--primary-dark-blue);
+            background-color: var(--primary-dark-blue); /* Darker shade of primary */
         }
 
         /* Notification Bell Specific Styles */
@@ -523,7 +527,7 @@
             width: 100%;
             padding: 0.75rem;
             margin-top: 0.5rem;
-            background-color: var(--primary-blue);
+            background-color: var(--primary-navy); /* Use primary navy */
             color: white;
             border-radius: 0.5rem;
             font-weight: 600;
@@ -531,7 +535,7 @@
         }
 
         .notification-modal .mark-all-read-btn:hover {
-            background-color: var(--primary-dark-blue);
+            background-color: var(--primary-dark-blue); /* Darker shade of primary */
         }
 
         /* NEW: User Type Selection in Modal */
@@ -557,15 +561,15 @@
         }
 
         .user-type-button.active {
-            background-color: var(--primary-blue);
+            background-color: var(--primary-navy); /* Use primary navy */
             color: white;
-            border-color: var(--primary-blue);
+            border-color: var(--primary-navy);
             box-shadow: var(--shadow-md);
         }
 
         .user-type-button:hover:not(.active) {
             background-color: #e0e7ff; /* Light blue hover for inactive */
-            border-color: var(--primary-blue);
+            border-color: var(--primary-navy);
         }
 
         /* NEW: Swipe buttons styling */
@@ -618,7 +622,7 @@
             max-width: 400px; /* Constrain width for better mobile experience */
             padding: 2.5rem;
             text-align: center;
-            background: linear-gradient(135deg, #ffffff, #f0f8ff); /* Subtle gradient background */
+            background: linear-gradient(135deg, #ffffff, var(--bg-page)); /* Subtle gradient background */
             border: 1px solid #e2e8f0;
             box-shadow: 0 10px 20px rgba(0,0,0,0.08); /* More pronounced shadow */
             border-radius: 1.5rem; /* Even more rounded */
@@ -628,17 +632,22 @@
             left: 50%;
             transform: translate(-50%, -50%); /* Center the card */
             touch-action: pan-y; /* Allow vertical scrolling, but handle horizontal swipe */
+
+            /* Variables for stacking effect */
+            --card-offset-y: 0px;
+            --card-scale: 1;
+            --card-rotate-z: 0deg;
         }
 
         .roommate-match-card img {
-            border: 5px solid var(--primary-blue); /* More prominent border */
+            border: 5px solid var(--accent-mint); /* Use accent color for border */
             box-shadow: var(--shadow-sm);
         }
 
         .roommate-match-card .compatibility-score {
             font-size: 2.5rem;
             font-weight: 800;
-            color: var(--primary-blue);
+            color: var(--primary-navy); /* Use primary navy */
             margin-top: 1rem;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
@@ -658,6 +667,76 @@
             scrollbar-width: none;  /* Firefox */
         }
 
+        /* NEW: Sticky Bottom Navbar */
+        .bottom-navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--bg-card);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem 0;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .bottom-navbar a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-medium);
+            text-decoration: none;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .bottom-navbar a i {
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .bottom-navbar a.active,
+        .bottom-navbar a:hover {
+            color: var(--primary-navy);
+            background-color: var(--secondary-gray);
+        }
+
+        /* Adjust main content padding for bottom navbar */
+        @media (max-width: 768px) {
+            .main-content {
+                padding-bottom: 5rem; /* Space for fixed bottom navbar */
+            }
+            header nav {
+                display: none; /* Hide top nav on mobile, use bottom nav */
+            }
+        }
+        @media (min-width: 769px) {
+            .bottom-navbar {
+                display: none; /* Hide bottom nav on desktop */
+            }
+        }
+
+        /* AI Demo Badge */
+        .ai-demo-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: var(--accent-mint);
+            color: var(--primary-navy);
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: var(--shadow-sm);
+        }
+
     </style>
 </head>
 <body>
@@ -666,7 +745,7 @@
         <!-- Top Navigation Bar -->
         <header class="flex justify-between items-center mb-10 p-4 bg-white rounded-xl shadow-md border border-gray-200">
             <a href="{% url 'fairrent_app:index' %}" class="logo-container">
-                <svg class="w-8 h-8 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--primary-navy);">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                 </svg>
                 <span class="gradient-text">Roomto.Live</span>
@@ -829,7 +908,7 @@
                 <div class="flex justify-between items-center w-full mb-8">
                     <div>
                         <h3 class="text-3xl font-bold text-gray-900">AI Roommate Finder</h3>
-                        <p class="text-gray-500 mt-1">Discover compatible roommates with our smart AI.</p>
+                        <p class="text-gray-500 mt-1">Find your perfect roommate match — real people, real homes, no guesswork.</p>
                     </div>
                     <button id="edit-profile-btn-roommate-section" class="btn-primary flex items-center btn-hover-effect">
                         <i class="fas fa-edit mr-2"></i>{% if user_roommate_profile %}Edit Profile{% else %}Create Profile{% endif %}
@@ -1125,14 +1204,27 @@
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
                         <input type="text" id="name" name="name" value="{{ user_roommate_profile.name|default:'' }}"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3"
                                placeholder="e.g., John Doe">
                     </div>
                     <div>
                         <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location (Desired / Property)</label>
                         <input type="text" id="location" name="location" value="{{ user_roommate_profile.location|default:'' }}"
                                placeholder="e.g., East London"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
+                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3">
+                    </div>
+                    {# NEW: Contact and Occupation fields for both types #}
+                    <div>
+                        <label for="contact" class="block text-sm font-medium text-gray-700 mb-1">Contact Email/Phone (Optional)</label>
+                        <input type="text" id="contact" name="contact" value="{{ user_roommate_profile.contact|default:'' }}"
+                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3"
+                               placeholder="e.g., your@email.com or 07XXXXXXXXX">
+                    </div>
+                    <div>
+                        <label for="occupation" class="block text-sm font-medium text-gray-700 mb-1">Occupation (Optional)</label>
+                        <input type="text" id="occupation" name="occupation" value="{{ user_roommate_profile.occupation|default:'' }}"
+                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3"
+                               placeholder="e.g., Student, Software Engineer">
                     </div>
                 </div>
 
@@ -1142,13 +1234,13 @@
                         <div>
                             <label for="age" class="block text-sm font-medium text-gray-700 mb-1">Age</label>
                             <input type="number" id="age" name="age" value="{{ user_roommate_profile.age|default:'' }}"
-                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3"
                                    min="18" max="99" placeholder="e.g., 25">
                         </div>
                         <div>
                             <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
                             <select id="gender" name="gender"
-                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3">
                                 <option value="">Select Gender</option>
                                 <option value="male" {% if user_roommate_profile.gender == 'male' %}selected{% endif %}>Male</option>
                                 <option value="female" {% if user_roommate_profile.gender == 'female' %}selected{% endif %}>Female</option>
@@ -1158,7 +1250,7 @@
                         <div>
                             <label for="sleep_schedule" class="block text-sm font-medium text-gray-700 mb-1">Sleep Schedule</label>
                             <select id="sleep_schedule" name="sleep_schedule"
-                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3">
                                 <option value="">Select Schedule</option>
                                 <option value="early_bird" {% if user_roommate_profile.sleep_schedule == 'early_bird' %}selected{% endif %}>Early Bird</option>
                                 <option value="night_owl" {% if user_roommate_profile.sleep_schedule == 'night_owl' %}selected{% endif %}>Night Owl</option>
@@ -1168,7 +1260,7 @@
                         <div>
                             <label for="cleanliness" class="block text-sm font-medium text-gray-700 mb-1">Cleanliness</label>
                             <select id="cleanliness" name="cleanliness"
-                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3">
                                 <option value="">Select Cleanliness</option>
                                 <option value="very_tidy" {% if user_roommate_profile.cleanliness == 'very_tidy' %}selected{% endif %}>Very Tidy</option>
                                 <option value="average" {% if user_roommate_profile.cleanliness == 'average' %}selected{% endif %}>Average</option>
@@ -1178,7 +1270,7 @@
                         <div class="md:col-span-2">
                             <label for="budget" class="block text-sm font-medium text-gray-700 mb-1">Max Budget (£/month)</label>
                             <input type="number" id="budget" name="budget" value="{{ user_roommate_profile.budget|default:'' }}"
-                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3"
                                    min="100" max="5000" placeholder="e.g., 800">
                         </div>
                     </div>
@@ -1197,19 +1289,19 @@
                         <div>
                             <label for="num_available_rooms" class="block text-sm font-medium text-gray-700 mb-1">Number of Available Rooms</label>
                             <input type="number" id="num_available_rooms" name="num_available_rooms" value="{{ user_roommate_profile.num_available_rooms|default:'' }}"
-                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3"
                                    min="1" max="10" placeholder="e.g., 1">
                         </div>
                         <div>
                             <label for="rent_amount_offering" class="block text-sm font-medium text-gray-700 mb-1">Rent Amount (£/month per room)</label>
                             <input type="number" id="rent_amount_offering" name="rent_amount_offering" value="{{ user_roommate_profile.rent_amount_offering|default:'' }}"
-                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3"
                                    min="100" max="5000" placeholder="e.g., 750">
                         </div>
                         <div>
                             <label for="room_size" class="block text-sm font-medium text-gray-700 mb-1">Room Size</label>
                             <select id="room_size" name="room_size"
-                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3">
                                 <option value="">Select Room Size</option>
                                 <option value="single" {% if user_roommate_profile.room_size == 'single' %}selected{% endif %}>Single</option>
                                 <option value="double" {% if user_roommate_profile.room_size == 'double' %}selected{% endif %}>Double</option>
@@ -1220,7 +1312,27 @@
                         <div>
                             <label for="availability_date" class="block text-sm font-medium text-gray-700 mb-1">Availability Date</label>
                             <input type="date" id="availability_date" name="availability_date" value="{{ user_roommate_profile.availability_date|date:'Y-m-d'|default:'' }}"
-                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3">
+                        </div>
+                        {# NEW: Furnished and Bills Included #}
+                        <div class="col-span-1">
+                            <label for="furnished" class="block text-sm font-medium text-gray-700 mb-1">Furnished?</label>
+                            <select id="furnished" name="furnished"
+                                    class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3">
+                                <option value="">Select Option</option>
+                                <option value="yes" {% if user_roommate_profile.furnished == 'yes' %}selected{% endif %}>Yes</option>
+                                <option value="no" {% if user_roommate_profile.furnished == 'no' %}selected{% endif %}>No</option>
+                                <option value="partially" {% if user_roommate_profile.furnished == 'partially' %}selected{% endif %}>Partially</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1">
+                            <label for="bills_included" class="block text-sm font-medium text-gray-700 mb-1">Bills Included?</label>
+                            <select id="bills_included" name="bills_included"
+                                    class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3">
+                                <option value="">Select Option</option>
+                                <option value="yes" {% if user_roommate_profile.bills_included == 'yes' %}selected{% endif %}>Yes</option>
+                                <option value="no" {% if user_roommate_profile.bills_included == 'no' %}selected{% endif %}>No</option>
+                            </select>
                         </div>
                     </div>
                     <div class="mt-4">
@@ -1233,7 +1345,7 @@
                     <div class="mt-4">
                         <label for="property_photos" class="block text-sm font-medium text-gray-700 mb-1">Property Photos (comma-separated URLs)</label>
                         <textarea id="property_photos" name="property_photos" rows="2"
-                                  class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                                  class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3"
                                   placeholder="e.g., https://example.com/pic1.jpg, https://example.com/pic2.jpg">{{ user_roommate_profile.property_photos|default:'' }}</textarea>
                     </div>
                 </div>
@@ -1241,7 +1353,7 @@
                 <div class="mt-4">
                     <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
                     <textarea id="bio" name="bio" rows="4"
-                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                               class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3"
                                placeholder="Tell us about yourself and what you're looking for... (max 500 words)">{{ user_roommate_profile.bio|default:'' }}</textarea>
                 </div>
                 <div class="mt-8 flex justify-end space-x-4">
@@ -1279,7 +1391,7 @@
                 <!-- Chat messages will be loaded here -->
             </div>
             <div class="chat-input-container">
-                <input type="text" id="chat-message-input" placeholder="Type your message..." class="flex-grow rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3">
+                <input type="text" id="chat-message-input" placeholder="Type your message..." class="flex-grow rounded-lg border-gray-300 shadow-sm focus:border-navy-500 focus:ring focus:ring-navy-200 focus:ring-opacity-50 p-3">
                 <button id="send-chat-message-btn"><i class="fas fa-paper-plane"></i> Send</button>
             </div>
         </div>
@@ -1302,7 +1414,43 @@
         </div>
     </div>
 
+    {# NEW: Sticky Bottom Navigation Bar for Mobile #}
+    <nav class="bottom-navbar">
+        <a href="{% url 'fairrent_app:profile' %}" class="active" data-content-target="dashboard-home">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="#" data-content-target="roommate-finder-section" id="bottom-nav-roommate-finder">
+            <i class="fas fa-users"></i>
+            <span>Matches</span>
+        </a>
+        <a href="#" data-content-target="my-services-section" id="bottom-nav-my-services">
+            <i class="fas fa-tools"></i>
+            <span>Services</span>
+        </a>
+        <a href="#" id="bottom-nav-chat">
+            <i class="fas fa-comment-dots"></i>
+            <span>Chat</span>
+        </a>
+        <a href="{% url 'fairrent_app:logout' %}">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </nav>
+
     <script>
+        // Define Django URLs as JavaScript variables to ensure they are rendered by the template engine
+        const API_GET_NOTIFICATIONS_URL = "{% url 'fairrent_app:api_get_notifications' %}";
+        const API_MARK_NOTIFICATION_READ_URL = "{% url 'fairrent_app:api_mark_notification_read' %}";
+        const API_SAVE_ROOMMATE_PROFILE_URL = "{% url 'fairrent_app:api_save_roommate_profile' %}";
+        const API_FIND_ROOMMATE_MATCHES_URL = "{% url 'fairrent_app:api_find_roommate_matches' %}";
+        const API_SAVE_LIKED_PROFILE_URL = "{% url 'fairrent_app:api_save_liked_profile' %}";
+        const API_SEND_CHAT_MESSAGE_URL = "{% url 'fairrent_app:api_send_chat_message' %}";
+        // For get_chat_messages, it takes a UID, so we need a base URL without the UID
+        // A common trick is to pass a dummy value and then replace it
+        const API_GET_CHAT_MESSAGES_BASE_URL = "{% url 'fairrent_app:api_get_chat_messages' 'DUMMY_UID' %}".replace('DUMMY_UID/', '');
+
+
         // Global variable for current user's UID (Django PK)
         const currentUserId = "{{ request.user.pk|default:'null' }}"; 
         var chatPartnerUid = null;
@@ -1336,6 +1484,7 @@
         // --- Dashboard Navigation Logic ---
         const contentSections = document.querySelectorAll('.content-section');
         const headerNavButtons = document.querySelectorAll('header nav a[data-content-target]');
+        const bottomNavButtons = document.querySelectorAll('.bottom-navbar a[data-content-target]'); // NEW for bottom nav
 
         // Function to switch content sections
         function switchContentSection(targetId) {
@@ -1356,20 +1505,47 @@
                     btn.classList.add('btn-secondary');
                 }
             });
+
+            // Update active state for bottom nav buttons
+            bottomNavButtons.forEach(btn => {
+                if (btn.dataset.contentTarget === targetId) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
         }
 
         // Event listeners for header navigation buttons
         headerNavButtons.forEach(button => {
             button.addEventListener('click', (e) => {
                 const targetId = button.dataset.contentTarget;
-                // Only prevent default for internal content targets
                 if (targetId) { 
                     e.preventDefault(); 
-                    window.location.hash = targetId; // Update URL hash for direct linking
+                    window.location.hash = targetId;
                     switchContentSection(targetId);
                 }
             });
         });
+
+        // Event listeners for bottom navigation buttons
+        bottomNavButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const targetId = button.dataset.contentTarget;
+                if (targetId) {
+                    e.preventDefault();
+                    window.location.hash = targetId;
+                    switchContentSection(targetId);
+                } else if (button.id === 'bottom-nav-chat') { // Special handling for chat button
+                    e.preventDefault();
+                    // For now, if no specific chat partner is selected, maybe open a "chat list" or a default chat
+                    // Or, if the user is on the matches page, this could lead to the last chatted person
+                    // For simplicity, let's just show a toast if no chat is active.
+                    showToast("Please select a match to start chatting!", "info");
+                }
+            });
+        });
+
 
         // Initialize active content section on load based on URL hash or default
         document.addEventListener('DOMContentLoaded', () => {
@@ -1399,6 +1575,13 @@
 
         const profileLocationInput = document.getElementById('location');
         const profileNameInput = document.getElementById('name');
+        // NEW: Contact and Occupation inputs
+        const contactInput = document.getElementById('contact');
+        const occupationInput = document.getElementById('occupation');
+        // NEW: Furnished and Bills Included selects
+        const furnishedSelect = document.getElementById('furnished');
+        const billsIncludedSelect = document.getElementById('bills_included');
+
 
         // Pre-defined lifestyle preferences and house rules
         const ALL_LIFESTYLE_PREFERENCES = [
@@ -1423,11 +1606,15 @@
                 tag.className = 'inline-block bg-gray-200 text-gray-800 text-sm px-3 py-1 rounded-full cursor-pointer mr-2 mb-2 transition-colors duration-200 tag';
                 tag.textContent = option;
                 if (selectedValues.includes(option)) {
-                    tag.classList.add('bg-blue-500', 'text-white', 'selected');
+                    tag.classList.add('bg-navy-500', 'text-white', 'selected'); /* Use navy for selected tags */
+                    tag.classList.remove('bg-gray-200', 'text-gray-800');
+                } else {
+                    tag.classList.remove('bg-navy-500', 'text-white');
+                    tag.classList.add('bg-gray-200', 'text-gray-800');
                 }
                 tag.addEventListener('click', () => {
                     tag.classList.toggle('selected');
-                    tag.classList.toggle('bg-blue-500');
+                    tag.classList.toggle('bg-navy-500');
                     tag.classList.toggle('text-white');
                     tag.classList.toggle('bg-gray-200');
                     tag.classList.toggle('text-gray-800');
@@ -1479,6 +1666,9 @@
             document.getElementById('name').value = "{{ user_roommate_profile.name|default:'' }}";
             document.getElementById('location').value = "{{ user_roommate_profile.location|default:'' }}";
             document.getElementById('bio').value = "{{ user_roommate_profile.bio|default:'' }}";
+            contactInput.value = "{{ user_roommate_profile.contact|default:'' }}"; // NEW
+            occupationInput.value = "{{ user_roommate_profile.occupation|default:'' }}"; // NEW
+
 
             // Populate and show fields based on existing user_type
             const currentUserType = "{{ user_roommate_profile.user_type|default:'' }}";
@@ -1496,6 +1686,8 @@
                 document.getElementById('room_size').value = "{{ user_roommate_profile.room_size|default:'' }}";
                 document.getElementById('availability_date').value = "{{ user_roommate_profile.availability_date|date:'Y-m-d'|default:'' }}";
                 document.getElementById('property_photos').value = "{{ user_roommate_profile.property_photos|default:'' }}";
+                furnishedSelect.value = "{{ user_roommate_profile.furnished|default:'' }}"; // NEW
+                billsIncludedSelect.value = "{{ user_roommate_profile.bills_included|default:'' }}"; // NEW
                 const currentHouseRules = "{{ user_roommate_profile.house_rules|default:'' }}".split(',').map(item => item.trim()).filter(item => item.length > 0);
                 renderTags(houseRulesTagsContainer, houseRulesHiddenInput, ALL_HOUSE_RULES, currentHouseRules);
             }
@@ -1545,6 +1737,10 @@
                 // Get user_type from the hidden input
                 data.user_type = userTypeHiddenInput.value;
 
+                // Common fields
+                data.contact = contactInput.value.trim(); // NEW
+                data.occupation = occupationInput.value.trim(); // NEW
+
                 // Conditionally collect and clean data based on user_type
                 if (data.user_type === 'looking_for_room') {
                     data.age = data.age ? parseInt(data.age) : null;
@@ -1556,6 +1752,8 @@
                     data.house_rules = '';
                     data.availability_date = '';
                     data.property_photos = '';
+                    data.furnished = ''; // Clear
+                    data.bills_included = ''; // Clear
                 } else if (data.user_type === 'offering_room') {
                     data.num_available_rooms = data.num_available_rooms ? parseInt(data.num_available_rooms) : null;
                     data.rent_amount_offering = data.rent_amount_offering ? parseFloat(data.rent_amount_offering) : null;
@@ -1565,10 +1763,12 @@
                     data.sleep_schedule = '';
                     data.cleanliness = '';
                     data.lifestyle_preferences = '';
+                    data.furnished = furnishedSelect.value; // NEW
+                    data.bills_included = billsIncludedSelect.value; // NEW
                 }
 
                 try {
-                    const response = await fetch('/api/save_roommate_profile/', {
+                    const response = await fetch(API_SAVE_ROOMMATE_PROFILE_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1632,59 +1832,77 @@
             roommatePrompt.classList.add('hidden');
             noMoreMatchesPrompt.classList.add('hidden');
 
-            if (currentMatchIndex < currentMatches.length) {
-                const match = currentMatches[currentMatchIndex];
-                console.log("Displaying match:", match);
+            // Display 5 to 8 profiles at a time
+            const profilesToShow = Math.min(currentMatches.length - currentMatchIndex, Math.floor(Math.random() * 4) + 5); // Randomly 5-8
+            
+            if (profilesToShow > 0) {
+                for (let i = 0; i < profilesToShow; i++) {
+                    const match = currentMatches[currentMatchIndex + i];
+                    if (!match) break; // Ensure we don't go out of bounds
 
-                const name = (match.name && match.name !== 'undefined') ? match.name : 'Unknown User';
-                const location = (match.location && match.location !== 'undefined') ? match.location : 'N/A';
-                const compatibilityScore = (match.compatibility_score && match.compatibility_score !== 'undefined') ? `${match.compatibility_score}` : 'N/A';
-                const bio = (match.bio && match.bio !== 'undefined') ? match.bio : 'No bio provided for this user.';
-                const avatarUrl = (match.avatar_url && match.avatar_url !== 'undefined') ? match.avatar_url : 'https://placehold.co/110x110/cccccc/ffffff?text=User';
+                    const name = (match.name && match.name !== 'undefined') ? match.name : 'Unknown User';
+                    const location = (match.location && match.location !== 'undefined') ? match.location : 'N/A';
+                    const compatibilityScore = (match.compatibility_score && match.compatibility_score !== 'undefined') ? `${match.compatibility_score}` : 'N/A';
+                    const bio = (match.bio && match.bio !== 'undefined') ? match.bio : 'No bio provided for this user.';
+                    const avatarUrl = (match.avatar_url && match.avatar_url !== 'undefined') ? match.avatar_url : 'https://placehold.co/110x110/cccccc/ffffff?text=User';
 
-                let matchDetailsHtml = '';
-                if (match.user_type === 'looking_for_room') {
-                    const age = (match.age && match.age !== 'undefined') ? `${match.age}` : 'N/A';
-                    const gender = (match.gender && match.gender !== 'undefined') ? match.gender : 'N/A';
-                    const budget = (match.budget && match.budget !== 'undefined') ? `£${match.budget}` : 'N/A';
-                    matchDetailsHtml = `
-                        <h4 class="text-3xl font-bold text-gray-900 mb-2">${name}, ${age}</h4>
-                        <p class="text-lg text-gray-600 mb-2">${location} | ${gender}</p>
-                        <p class="text-md text-gray-600 mb-2">Budget: ${budget}</p>
+                    let matchDetailsHtml = '';
+                    let aiBadge = '';
+                    if (match.uid && match.uid.startsWith('ai_profile_')) {
+                        aiBadge = '<span class="ai-demo-badge">Verified AI Demo</span>';
+                    }
+
+                    if (match.user_type === 'looking_for_room') {
+                        const age = (match.age && match.age !== 'undefined') ? `${match.age}` : 'N/A';
+                        const gender = (match.gender && match.gender !== 'undefined') ? match.gender : 'N/A';
+                        const budget = (match.budget && match.budget !== 'undefined') ? `£${match.budget}` : 'N/A';
+                        matchDetailsHtml = `
+                            <h4 class="text-3xl font-bold text-gray-900 mb-2">${name}, ${age}</h4>
+                            <p class="text-lg text-gray-600 mb-2">${location} | ${gender}</p>
+                            <p class="text-md text-gray-600 mb-2">Budget: ${budget}</p>
+                        `;
+                    } else if (match.user_type === 'offering_room') {
+                        const rent = (match.rent_amount_offering && match.rent_amount_offering !== 'undefined') ? `£${match.rent_amount_offering}` : 'N/A';
+                        const rooms = (match.num_available_rooms && match.num_available_rooms !== 'undefined') ? `${match.num_available_rooms} room(s)` : 'N/A';
+                        const roomSize = (match.room_size && match.room_size !== 'undefined') ? match.room_size : 'N/A';
+                        const availabilityDate = (match.availability_date && match.availability_date !== 'undefined') ? new Date(match.availability_date).toLocaleDateString() : 'N/A';
+                        matchDetailsHtml = `
+                            <h4 class="text-3xl font-bold text-gray-900 mb-2">${name} (Offering Room)</h4>
+                            <p class="text-lg text-gray-600 mb-2">${location} | ${rooms}</p>
+                            <p class="text-md text-gray-600 mb-2">Rent: ${rent} | Size: ${roomSize} | Available: ${availabilityDate}</p>
+                        `;
+                    }
+
+                    const matchCard = document.createElement('div');
+                    matchCard.className = 'roommate-match-card glass-card';
+                    matchCard.innerHTML = `
+                        ${aiBadge}
+                        <img src="${avatarUrl}" alt="${name}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/110x110/cccccc/ffffff?text=User'">
+                        ${matchDetailsHtml}
+                        <div class="compatibility-score">${compatibilityScore}% Match</div>
+                        <p class="text-gray-700 text-base italic leading-relaxed mt-2">
+                            ${bio}
+                        </p>
+                        <button class="match-details-btn btn-secondary mt-4 btn-hover-effect" data-match='${JSON.stringify(match)}'>View Details</button>
                     `;
-                } else if (match.user_type === 'offering_room') {
-                    const rent = (match.rent_amount_offering && match.rent_amount_offering !== 'undefined') ? `£${match.rent_amount_offering}` : 'N/A';
-                    const rooms = (match.num_available_rooms && match.num_available_rooms !== 'undefined') ? `${match.num_available_rooms} room(s)` : 'N/A';
-                    const roomSize = (match.room_size && match.room_size !== 'undefined') ? match.room_size : 'N/A';
-                    const availabilityDate = (match.availability_date && match.availability_date !== 'undefined') ? new Date(match.availability_date).toLocaleDateString() : 'N/A';
-                    matchDetailsHtml = `
-                        <h4 class="text-3xl font-bold text-gray-900 mb-2">${name} (Offering Room)</h4>
-                        <p class="text-lg text-gray-600 mb-2">${location} | ${rooms}</p>
-                        <p class="text-md text-gray-600 mb-2">Rent: ${rent} | Size: ${roomSize} | Available: ${availabilityDate}</p>
-                    `;
+                    // Position cards in a stack, slightly offset
+                    matchCard.style.setProperty('--card-offset-y', `${i * -10}px`);
+                    matchCard.style.setProperty('--card-scale', `${1 - i * 0.02}`);
+                    matchCard.style.setProperty('--card-rotate-z', `${i * (Math.random() > 0.5 ? 1 : -1) * 2}deg`); /* Slight random rotation */
+                    matchCard.style.zIndex = currentMatches.length - (currentMatchIndex + i);
+
+                    roommateMatchCardDisplay.appendChild(matchCard);
+
+                    // Add swipe event listeners only to the top-most card
+                    if (i === 0) {
+                        addSwipeListeners(matchCard);
+                        swipeButtonsContainer.classList.remove('hidden');
+                    }
+
+                    matchCard.querySelector('.match-details-btn').addEventListener('click', (e) => {
+                        displayActivityDetails('Liked Profile', match, null, match.uid || null, match.user_type);
+                    });
                 }
-
-                const matchCard = document.createElement('div');
-                matchCard.className = 'roommate-match-card glass-card';
-                matchCard.innerHTML = `
-                    <img src="${avatarUrl}" alt="${name}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/110x110/cccccc/ffffff?text=User'">
-                    ${matchDetailsHtml}
-                    <div class="compatibility-score">${compatibilityScore}% Match</div>
-                    <p class="text-gray-700 text-base italic leading-relaxed mt-2">
-                        ${bio}
-                    </p>
-                    <button class="match-details-btn btn-secondary mt-4 btn-hover-effect" data-match='${JSON.stringify(match)}'>View Details</button>
-                `;
-                roommateMatchCardDisplay.appendChild(matchCard);
-                swipeButtonsContainer.classList.remove('hidden');
-
-                // Add swipe event listeners to the new card
-                addSwipeListeners(matchCard);
-
-                matchCard.querySelector('.match-details-btn').addEventListener('click', (e) => {
-                    displayActivityDetails('Liked Profile', match, null, match.uid || null, match.user_type);
-                });
-
             } else {
                 roommateMatchCardDisplay.innerHTML = '';
                 swipeButtonsContainer.classList.add('hidden');
@@ -1692,35 +1910,61 @@
             }
         }
 
-        // NEW: Swipe event listeners function
+        // NEW: Swipe event listeners function (unified for mouse and touch)
         function addSwipeListeners(cardElement) {
-            cardElement.addEventListener('touchstart', (e) => {
-                startX = e.touches[0].clientX;
-                isSwiping = true;
-                cardElement.style.transition = 'none'; // Disable transition during swipe
-            });
+            let initialX = 0;
+            let currentX = 0;
+            let isDragging = false;
 
-            cardElement.addEventListener('touchmove', (e) => {
-                if (!isSwiping) return;
-                currentX = e.touches[0].clientX;
-                const diffX = currentX - startX;
-                cardElement.style.transform = `translate(-50%, -50%) translateX(${diffX}px) rotate(${diffX / 20}deg)`; // Move and rotate
-            });
+            const startDrag = (clientX) => {
+                initialX = clientX;
+                isDragging = true;
+                cardElement.style.transition = 'none'; // Disable transition during drag
+            };
 
-            cardElement.addEventListener('touchend', () => {
-                if (!isSwiping) return;
-                isSwiping = false;
-                const diffX = currentX - startX;
-                cardElement.style.transition = 'transform 0.3s ease-out'; // Re-enable transition
+            const dragMove = (clientX) => {
+                if (!isDragging) return;
+                currentX = clientX;
+                const diffX = currentX - initialX;
+                // Apply the offset and scale from stacking, then add swipe transform
+                const offsetY = parseFloat(cardElement.style.getPropertyValue('--card-offset-y') || '0px');
+                const scale = parseFloat(cardElement.style.getPropertyValue('--card-scale') || '1');
+                const rotateZ = parseFloat(cardElement.style.getPropertyValue('--card-rotate-z') || '0deg');
+
+                cardElement.style.transform = `translate(-50%, -50%) translateY(${offsetY}px) scale(${scale}) translateX(${diffX}px) rotate(${rotateZ + (diffX / 20)}deg)`;
+            };
+
+            const endDrag = () => {
+                if (!isDragging) return;
+                isDragging = false;
+                const diffX = currentX - initialX;
+                cardElement.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out'; // Re-enable transition
 
                 if (diffX > swipeThreshold) {
                     animateAndAdvance('like');
                 } else if (diffX < -swipeThreshold) {
                     animateAndAdvance('skip');
                 } else {
-                    cardElement.style.transform = 'translate(-50%, -50%) translateX(0) rotate(0deg)'; // Reset position
+                    // Reset to original stacked position
+                    const offsetY = parseFloat(cardElement.style.getPropertyValue('--card-offset-y') || '0px');
+                    const scale = parseFloat(cardElement.style.getPropertyValue('--card-scale') || '1');
+                    const rotateZ = parseFloat(cardElement.style.getPropertyValue('--card-rotate-z') || '0deg');
+                    cardElement.style.transform = `translate(-50%, -50%) translateY(${offsetY}px) scale(${scale}) translateX(0) rotate(${rotateZ}deg)`;
                 }
+            };
+
+            // Mouse events
+            cardElement.addEventListener('mousedown', (e) => startDrag(e.clientX));
+            cardElement.addEventListener('mousemove', (e) => dragMove(e.clientX));
+            cardElement.addEventListener('mouseup', endDrag);
+            cardElement.addEventListener('mouseleave', () => { // End drag if mouse leaves card area
+                if (isDragging) endDrag();
             });
+
+            // Touch events
+            cardElement.addEventListener('touchstart', (e) => startDrag(e.touches[0].clientX));
+            cardElement.addEventListener('touchmove', (e) => dragMove(e.touches[0].clientX));
+            cardElement.addEventListener('touchend', endDrag);
         }
 
 
@@ -1742,7 +1986,7 @@
             swipeButtonsContainer.classList.add('hidden');
 
             try {
-                const result = await fetch('/api/find_roommate_matches/', {
+                const result = await fetch(API_FIND_ROOMMATE_MATCHES_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1794,7 +2038,7 @@
                     };
 
                     try {
-                        const saveResponse = await fetch('/api/save_liked_profile/', {
+                        const saveResponse = await fetch(API_SAVE_LIKED_PROFILE_URL, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1818,12 +2062,21 @@
                         } else {
                             showToast(saveResult.message || 'Failed to save liked profile.', 'error');
                             console.error('Error saving liked profile:', saveResult.errors);
-                            currentCard.style.transform = 'translate(-50%, -50%) translateX(0) rotate(0deg)';
+                            // If saving fails, reset the card position
+                            // Re-apply original stacked position properties
+                            const offsetY = parseFloat(currentCard.style.getPropertyValue('--card-offset-y') || '0px');
+                            const scale = parseFloat(currentCard.style.getPropertyValue('--card-scale') || '1');
+                            const rotateZ = parseFloat(currentCard.style.getPropertyValue('--card-rotate-z') || '0deg');
+                            currentCard.style.transform = `translate(-50%, -50%) translateY(${offsetY}px) scale(${scale}) translateX(0) rotate(${rotateZ}deg)`;
                         }
                     } catch (error) {
                         console.error('Network error saving liked profile:', error);
                         showToast('Network error saving liked profile. Please try again.', 'error');
-                        currentCard.style.transform = 'translate(-50%, -50%) translateX(0) rotate(0deg)';
+                        // Reset on network error
+                        const offsetY = parseFloat(currentCard.style.getPropertyValue('--card-offset-y') || '0px');
+                        const scale = parseFloat(currentCard.style.getPropertyValue('--card-scale') || '1');
+                        const rotateZ = parseFloat(currentCard.style.getPropertyValue('--card-rotate-z') || '0deg');
+                        currentCard.style.transform = `translate(-50%, -50%) translateY(${offsetY}px) scale(${scale}) translateX(0) rotate(${rotateZ}deg)`;
                     }
                 } else { // If skipping
                     currentCard.classList.add('swiping-left');
@@ -1885,7 +2138,7 @@
 
             if (activityType === 'Liked Profile') {
                 contentHtml += `
-                    <img src="${details.avatar_url || 'https://placehold.co/112x112/cccccc/ffffff?text=User'}" alt="${details.name || 'User'}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/112x112/cccccc/ffffff?text=User'">
+                    <img src="${details.avatar_url || 'https://placehold.co/112x112/cccccc/ffffff?text=User'}" alt="${details.name || 'User'}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-navy-400" onerror="this.onerror=null;this.src='https://placehold.co/112x112/cccccc/ffffff?text=User'">
                     <h4 class="text-xl font-bold text-gray-900 mb-2">${details.name || 'Unknown User'}</h4>
                     <p class="text-md text-gray-700 mb-4">Location: ${details.location || 'N/A'}</p>
                     <div class="text-left space-y-3">
@@ -1907,6 +2160,8 @@
                         <div class="detail-item"><i class="fas fa-calendar-alt"></i><span class="font-semibold">Available From:</span> ${formatDate(details.availability_date)}</div>
                         <div class="detail-item"><i class="fas fa-gavel"></i><span class="font-semibold">House Rules:</span> ${details.house_rules || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> <p class="whitespace-pre-wrap">${details.bio || 'No bio provided for this user.'}</p></div>
+                        <div class="detail-item"><i class="fas fa-couch"></i><span class="font-semibold">Furnished:</span> ${details.furnished || 'N/A'}</div>
+                        <div class="detail-item"><i class="fas fa-file-invoice-dollar"></i><span class="font-semibold">Bills Included:</span> ${details.bills_included || 'N/A'}</div>
                     `;
                 }
                 contentHtml += `</div>`;
@@ -1988,7 +2243,7 @@
                 modalRedirectBtn.classList.add('hidden');
             }
 
-            if (chatUid && currentUserId && chatUid !== currentUserId) {
+            if (chatUid && currentUserId && chatUid !== 'null' && chatUid !== currentUserId) { // Ensure chatUid is not null and not self
                 modalStartChatBtn.classList.remove('hidden');
             } else {
                 modalStartChatBtn.classList.add('hidden');
@@ -2105,7 +2360,7 @@
                 return;
             }
             try {
-                const response = await fetch(`/api/chat/get_messages/${chatPartnerUid}/`);
+                const response = await fetch(`${API_GET_CHAT_MESSAGES_BASE_URL}${chatPartnerUid}/`);
                 const data = await response.json();
 
                 if (data.status === 'success') {
@@ -2187,7 +2442,7 @@
             }
 
             try {
-                const response = await fetch('/api/chat/send_message/', {
+                const response = await fetch(API_SEND_CHAT_MESSAGE_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2304,13 +2559,13 @@
         if (markAllReadBtn) {
             markAllReadBtn.addEventListener('click', async () => {
                 try {
-                    const response = await fetch('/api/notifications/mark_read/', {
+                    const response = await fetch(API_MARK_NOTIFICATION_READ_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRFToken': '{{ csrf_token }}'
                         },
-                        body: JSON.stringify({ mark_all: true })
+                        body: JSON.stringify({ notification_id: notificationId })
                     });
                     const result = await response.json();
                     if (result.status === 'success') {
@@ -2332,7 +2587,7 @@
                 return;
             }
             try {
-                const response = await fetch("{% url 'fairrent_app:api_get_notifications' %}?unread_only=false"); 
+                const response = await fetch(`${API_GET_NOTIFICATIONS_URL}?unread_only=false`); 
                 const data = await response.json();
 
                 if (data.status === 'success') {
@@ -2386,7 +2641,7 @@
 
         async function markNotificationAsRead(notificationId) {
             try {
-                const response = await fetch('/api/notifications/mark_read/', {
+                const response = await fetch(API_MARK_NOTIFICATION_READ_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
