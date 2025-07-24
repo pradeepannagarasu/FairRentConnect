@@ -137,7 +137,7 @@ class LikedProfile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='liked_profiles')
     # NEW: Store the Firebase UID of the liked user for chat functionality
     # Changed to CharField as it will store Django PK for real users or UUID string for AI profiles
-    liked_user_uid = models.CharField(max_length=255, blank=True, null=True, unique=True, help_text="Unique ID (Django PK or UUID) of the liked user.")
+    liked_user_uid = models.CharField(max_length=255, blank=True, null=True, help_text="Unique ID (Django PK or UUID) of the liked user.")
     liked_user_name = models.CharField(max_length=255)
     liked_user_age = models.IntegerField(null=True, blank=True)
     liked_user_gender = models.CharField(max_length=100, blank=True)
@@ -196,4 +196,30 @@ class ChatMessage(models.Model):
 
     def __str__(self):
         return f"From {self.sender_uid} to {self.receiver_uid}: {self.message[:50]}..."
+
+# NEW: Notification Model
+class Notification(models.Model):
+    # The user who receives the notification
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    # The user who triggered the notification (e.g., liked a profile). Can be null for system notifications.
+    sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sent_notifications')
+    
+    NOTIFICATION_TYPES = [
+        ('like', 'Profile Like'),
+        ('message', 'New Message'),
+        ('update', 'System Update'),
+        ('match', 'New Match'), # For future use, if AI finds a new match for a user
+    ]
+    type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    message = models.TextField()
+    # Optional: A link related to the notification (e.g., to a profile, chat, or specific service result)
+    link = models.URLField(max_length=500, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at'] # Order by most recent first
+
+    def __str__(self):
+        return f"Notification for {self.recipient.username}: {self.message[:50]}..."
 

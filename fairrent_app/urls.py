@@ -42,7 +42,12 @@ urlpatterns = [
     path('api/chat/send_message/', views.send_chat_message, name='api_send_chat_message'),
     path('api/chat/get_messages/<str:partner_uid>/', views.get_chat_messages, name='api_get_chat_messages'),
 
+    # NEW: Notification APIs
+    path('api/notifications/', views.get_notifications, name='api_get_notifications'),
+    path('api/notifications/mark_read/', views.mark_notification_read, name='api_mark_notification_read'),
+
     # Utility APIs
     path('api/address_suggestions/', views.get_address_suggestions, name='api_address_suggestions'),
     path('api/check_rent_declaration/', views.check_rent_declaration_api, name='check_rent_declaration_api'),
 ]
+

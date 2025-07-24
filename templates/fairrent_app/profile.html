@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Roomto.Live Dashboard</title>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{% static 'fairrent_app/favicon.ico' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}"> {# Corrected favicon path #}
     <!-- Tailwind CSS for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font for a clean, modern look -->
@@ -402,6 +402,115 @@
         .chat-input-container button:hover {
             background-color: var(--primary-dark-blue);
         }
+
+        /* Notification Bell Specific Styles */
+        .notification-bell-container {
+            position: relative;
+            margin-left: 1rem; /* Space from other nav items */
+        }
+
+        .notification-bell-button {
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+
+        .notification-bell-button:hover {
+            background-color: var(--secondary-gray);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -0.5rem;
+            right: -0.5rem;
+            background-color: #ef4444; /* Red for unread */
+            color: white;
+            border-radius: 50%;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            min-width: 1.5rem;
+            text-align: center;
+            line-height: 1;
+        }
+
+        /* Notification Modal/Dropdown styles */
+        .notification-modal {
+            position: absolute;
+            top: 100%; /* Position below the bell icon */
+            right: 0;
+            width: 350px; /* Adjust width as needed */
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: var(--bg-card);
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-subtle);
+            z-index: 100; /* Ensure it's above other content */
+            padding: 1rem;
+            transform: translateY(10px); /* Slight dropdown animation */
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease-out;
+        }
+
+        .notification-modal.active {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .notification-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-subtle);
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-item:hover {
+            background-color: var(--secondary-gray);
+        }
+
+        .notification-item.unread {
+            background-color: #fef2f2; /* Very light red for unread */
+            font-weight: 600;
+        }
+
+        .notification-item .notification-message {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-item .notification-timestamp {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .notification-modal .mark-all-read-btn {
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            background-color: var(--primary-blue);
+            color: white;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+
+        .notification-modal .mark-all-read-btn:hover {
+            background-color: var(--primary-dark-blue);
+        }
+
     </style>
 </head>
 <body>
@@ -415,8 +524,8 @@
                 </svg>
                 <span class="gradient-text">Roomto.Live</span>
             </a>
-            <nav>
-                <a href="{% url 'fairrent_app:index' %}" class="btn-secondary flex items-center justify-center btn-hover-effect text-base px-4 py-2"> {# REMOVED data-content-target #}
+            <nav class="flex items-center"> {# Added items-center to align bell vertically #}
+                <a href="{% url 'fairrent_app:index' %}" class="btn-secondary flex items-center justify-center btn-hover-effect text-base px-4 py-2">
                     <i class="fas fa-home mr-2"></i>Homepage
                 </a>
                 <a href="#" class="btn-primary flex items-center justify-center btn-hover-effect text-base px-4 py-2" data-content-target="roommate-finder-section" id="roommate-finder-header-btn">
@@ -425,6 +534,28 @@
                 <a href="#" class="btn-primary flex items-center justify-center btn-hover-effect text-base px-4 py-2" data-content-target="my-services-section" id="my-services-header-btn">
                     <i class="fas fa-tools mr-2"></i>My Services
                 </a>
+                
+                {# NEW: Notification Bell Button #}
+                <div class="notification-bell-container">
+                    <button id="notification-bell-btn" class="notification-bell-button">
+                        <i class="fas fa-bell"></i>
+                        {% if unread_notifications_count > 0 %}
+                            <span id="notification-badge" class="notification-badge">{{ unread_notifications_count }}</span>
+                        {% else %}
+                            <span id="notification-badge" class="notification-badge hidden">0</span>
+                        {% endif %}
+                    </button>
+                    {# Notification Dropdown/Modal #}
+                    <div id="notification-modal" class="notification-modal hidden">
+                        <h4 class="text-xl font-bold text-gray-900 mb-3">Notifications</h4>
+                        <div id="notification-list" class="space-y-2">
+                            {# Notifications will be loaded here by JavaScript #}
+                            <p class="text-center text-gray-500 py-4" id="no-notifications-message">No new notifications.</p>
+                        </div>
+                        <button id="mark-all-read-btn" class="mark-all-read-btn mt-4 hidden">Mark All As Read</button>
+                    </div>
+                </div>
+
                 <a href="{% url 'fairrent_app:logout' %}" class="btn-secondary flex items-center justify-center btn-hover-effect text-base px-4 py-2">
                     <i class="fas fa-sign-out-alt mr-2"></i>Logout
                 </a>
@@ -930,14 +1061,11 @@
 
     <script>
         // Global variable for current user's UID (Django PK)
-        // This will be set from a Django template variable if the user is authenticated.
-        // For anonymous users, it will remain null or a temporary ID.
         const currentUserId = "{{ request.user.pk|default:'null' }}"; 
-        // These variables are intentionally NOT declared with let/const here to avoid redeclaration errors.
-        // They will be implicitly global if not already declared in a broader scope.
         var chatPartnerUid = null;
         var chatPartnerName = '';
         var chatPollingInterval = null;
+        var notificationPollingInterval = null; // New: Polling interval for notifications
 
         // Helper function to show toast notifications
         function showToast(message, type = 'success') {
@@ -1029,13 +1157,17 @@
             lifestylePreferencesTagsContainer.innerHTML = ''; // Clear existing tags
             ALL_LIFESTYLE_PREFERENCES.forEach(pref => {
                 const tag = document.createElement('span');
-                tag.className = 'tag';
+                tag.className = 'inline-block bg-gray-200 text-gray-800 text-sm px-3 py-1 rounded-full cursor-pointer mr-2 mb-2 transition-colors duration-200'; // Tailwind classes for tags
                 tag.textContent = pref;
                 if (selectedPreferences.includes(pref)) {
-                    tag.classList.add('selected');
+                    tag.classList.add('bg-blue-500', 'text-white', 'selected'); // Selected state
                 }
                 tag.addEventListener('click', () => {
                     tag.classList.toggle('selected');
+                    tag.classList.toggle('bg-blue-500');
+                    tag.classList.toggle('text-white');
+                    tag.classList.toggle('bg-gray-200');
+                    tag.classList.toggle('text-gray-800');
                     updateLifestylePreferencesHiddenInput();
                 });
                 lifestylePreferencesTagsContainer.appendChild(tag);
@@ -1114,7 +1246,7 @@
                             profileModal.classList.add('hidden');
                             profileModal.classList.remove('flex');
                         }
-                        location.reload();
+                        location.reload(); // Reload to update profile info on dashboard
                     } else {
                         showToast(result.message || 'Failed to save profile.', 'error');
                         if (profileModal) {
@@ -1231,10 +1363,10 @@
                     roommatePrompt.classList.remove('hidden');
                 }
             } catch (error) {
-                console.error('Network error:', error);
+                console.error('Network error fetching roommate matches:', error);
                 roommateMatchesLoader.classList.add('hidden');
-                showToast('Network error. Please try again.', 'error');
-                roommatePrompt.classList.remove('hidden');
+                showToast('Network error finding matches. Please check your internet connection or try again later.', 'error');
+                roommatePrompt.classList.remove('hidden'); // Show prompt again on network error
             }
         }
 
@@ -1266,13 +1398,15 @@
                             body: JSON.stringify(dataToSend)
                         });
                         const saveResult = await saveResponse.json();
-                        if (saveResult.status === 'success') {
-                            showToast(saveResult.message, 'success');
+                        if (saveResult.status === 'success' || saveResult.status === 'info') { // 'info' for already liked
+                            showToast(saveResult.message, saveResult.status);
                             currentCard.classList.add('swiping-right');
                             currentCard.addEventListener('transitionend', () => {
                                 currentMatchIndex++;
                                 displayCurrentMatch();
                             }, { once: true });
+                            // After liking, refresh notifications (if it was a real user)
+                            fetchNotifications(); 
                         } else {
                             showToast(saveResult.message || 'Failed to save liked profile.', 'error');
                             console.error('Error saving liked profile:', saveResult.errors);
@@ -1535,110 +1669,12 @@
 
 
         // --- Chat Functionality (Django Polling) ---
-        // Removed Firebase SDK imports as we are using Django polling
-        // import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Global Firebase variables (no longer needed for Django polling chat)
-        // let app;
-        // let db;
-        // let auth;
-        // let userId = null; // Will be set after auth
-        // let currentChatUnsubscribe = null; // To manage chat listeners
-
-        // Firebase Configuration (no longer needed for Django polling chat)
-        // const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        // const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-        // Initialize Firebase and authenticate (no longer needed for Django polling chat)
-        /*
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (Object.keys(firebaseConfig).length > 0) {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        console.log("Firebase user authenticated:", userId);
-                    } else {
-                        try {
-                            // If no user, sign in anonymously
-                            const anonymousUser = await signInAnonymously(auth);
-                            userId = anonymousUser.user.uid;
-                            console.log("Signed in anonymously:", userId);
-                        } catch (error) {
-                            console.error("Firebase Anonymous Auth Error:", error);
-                            showToast("Failed to authenticate with Firebase. Chat may not work.", "error");
-                        }
-                    }
-                });
-
-                // Attempt custom token sign-in if available
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    try {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                        console.log("Signed in with custom token.");
-                    } catch (error) {
-                        console.error("Firebase Custom Token Auth Error:", error);
-                        showToast("Failed to authenticate with custom token. Chat may not work.", "error");
-                    }
-                }
-            } else {
-                console.warn("Firebase config not found. Chat functionality will be disabled.");
-                showToast("Firebase not configured. Chat functionality disabled.", "error");
-            }
-        });
-        */
-
         const chatModal = document.getElementById('chat-modal');
         const closeChatModalBtn = document.getElementById('close-chat-modal-btn');
         const chatPartnerNameSpan = document.getElementById('chat-partner-name');
         const chatMessagesDiv = document.getElementById('chat-messages');
         const chatMessageInput = document.getElementById('chat-message-input');
         const sendChatMessageBtn = document.getElementById('send-chat-message-btn');
-
-        // These are now declared once globally using 'var' to avoid redeclaration errors
-        // if the script is somehow re-evaluated in the same global scope.
-        var chatPartnerUid = null;
-        var chatPartnerName = '';
-        var chatPollingInterval = null;
-
-        // Event listener for "Start Chat" button in activity details modal
-        if (modalStartChatBtn) {
-            modalStartChatBtn.addEventListener('click', () => {
-                if (!currentUserId) { // Check if the current user is authenticated
-                    showToast("Please log in to start a chat.", "error");
-                    return;
-                }
-                if (chatPartnerUid && chatPartnerUid !== currentUserId) {
-                    activityDetailsModal.classList.add('hidden'); // Close activity modal
-                    activityDetailsModal.classList.remove('flex');
-                    openChat(chatPartnerUid, chatPartnerName);
-                } else {
-                    showToast("Cannot start chat. Invalid chat partner or self-chat.", "error");
-                    console.error("Attempted to start chat with invalid partner:", chatPartnerUid, "current user:", currentUserId);
-                }
-            });
-        }
-
-        if (closeChatModalBtn) {
-            closeChatModalBtn.addEventListener('click', closeChat);
-        }
-
-        if (sendChatMessageBtn) {
-            sendChatMessageBtn.addEventListener('click', sendMessage);
-        }
-
-        if (chatMessageInput) {
-            chatMessageInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                }
-            });
-        }
 
         async function fetchMessages() {
             if (!currentUserId || !chatPartnerUid) {
@@ -1685,7 +1721,7 @@
         }
 
         function openChat(targetUid, targetName) {
-            if (!currentUserId) {
+            if (!currentUserId || currentUserId === 'null') { // Ensure currentUserId is a valid ID
                 showToast("You must be logged in to chat.", "error");
                 return;
             }
@@ -1718,7 +1754,7 @@
         }
 
         async function sendMessage() {
-            if (!currentUserId) {
+            if (!currentUserId || currentUserId === 'null') {
                 showToast("You must be logged in to send messages.", "error");
                 return;
             }
@@ -1748,6 +1784,7 @@
                 if (result.status === 'success') {
                     chatMessageInput.value = ''; // Clear input after sending
                     fetchMessages(); // Immediately refresh messages after sending
+                    fetchNotifications(); // Refresh notifications in case a new message notification was created
                 } else {
                     showToast(result.message || 'Failed to send message.', 'error');
                 }
@@ -1756,6 +1793,161 @@
                 showToast('Network error sending message. Please try again.', 'error');
             }
         }
+
+        // --- Notification System Logic ---
+        const notificationBellBtn = document.getElementById('notification-bell-btn');
+        const notificationBadge = document.getElementById('notification-badge');
+        const notificationModal = document.getElementById('notification-modal');
+        const notificationList = document.getElementById('notification-list');
+        const noNotificationsMessage = document.getElementById('no-notifications-message');
+        const markAllReadBtn = document.getElementById('mark-all-read-btn');
+
+        // Toggle notification modal visibility
+        if (notificationBellBtn) {
+            notificationBellBtn.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent document click from closing it immediately
+                notificationModal.classList.toggle('active');
+                if (notificationModal.classList.contains('active')) {
+                    fetchNotifications(); // Fetch notifications when opening modal
+                }
+            });
+        }
+
+        // Close notification modal when clicking outside
+        document.addEventListener('click', (event) => {
+            if (notificationModal && !notificationModal.contains(event.target) && !notificationBellBtn.contains(event.target)) {
+                notificationModal.classList.remove('active');
+            }
+        });
+
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/api/notifications/mark_read/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ mark_all: true })
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showToast(result.message, 'success');
+                        fetchNotifications(); // Refresh notifications after marking all as read
+                    } else {
+                        showToast(result.message || 'Failed to mark all as read.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error marking all notifications as read:', error);
+                    showToast('Network error marking notifications as read.', 'error');
+                }
+            });
+        }
+
+        async function fetchNotifications() {
+            if (!currentUserId || currentUserId === 'null') {
+                console.warn("Not authenticated. Cannot fetch notifications.");
+                return;
+            }
+            try {
+                const response = await fetch('/api/notifications/?unread_only=false'); // Fetch all notifications for display
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    notificationList.innerHTML = ''; // Clear current list
+                    if (data.notifications.length === 0) {
+                        noNotificationsMessage.classList.remove('hidden');
+                        markAllReadBtn.classList.add('hidden');
+                    } else {
+                        noNotificationsMessage.classList.add('hidden');
+                        markAllReadBtn.classList.remove('hidden');
+                        data.notifications.forEach(notif => {
+                            const notifElement = document.createElement('div');
+                            notifElement.className = `notification-item ${notif.is_read ? '' : 'unread'}`;
+                            notifElement.dataset.notificationId = notif.id;
+                            notifElement.innerHTML = `
+                                <p class="notification-message">${notif.message}</p>
+                                <p class="notification-timestamp">${new Date(notif.created_at).toLocaleString()}</p>
+                            `;
+                            notifElement.addEventListener('click', async () => {
+                                // Mark as read when clicked
+                                if (!notif.is_read) {
+                                    await markNotificationAsRead(notif.id);
+                                }
+                                // Redirect if a link exists
+                                if (notif.link) {
+                                    window.location.href = notif.link;
+                                }
+                                notificationModal.classList.remove('active'); // Close modal after clicking
+                            });
+                            notificationList.appendChild(notifElement);
+                        });
+                    }
+                    
+                    // Update badge count
+                    if (notificationBadge) {
+                        if (data.unread_count > 0) {
+                            notificationBadge.textContent = data.unread_count;
+                            notificationBadge.classList.remove('hidden');
+                        } else {
+                            notificationBadge.classList.add('hidden');
+                        }
+                    }
+
+                } else {
+                    showToast(data.message || 'Failed to load notifications.', 'error');
+                }
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+                // Only show toast if it's a critical network error, not just no notifications
+                if (error instanceof TypeError) { // e.g., network down
+                    showToast('Network error fetching notifications.', 'error');
+                }
+            }
+        }
+
+        async function markNotificationAsRead(notificationId) {
+            try {
+                const response = await fetch('/api/notifications/mark_read/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ notification_id: notificationId })
+                });
+                const result = await response.json();
+                if (result.status === 'success' || result.status === 'info') {
+                    // Update UI immediately without full re-fetch for better UX
+                    const markedNotifElement = notificationList.querySelector(`[data-notification-id="${notificationId}"]`);
+                    if (markedNotifElement) {
+                        markedNotifElement.classList.remove('unread');
+                        markedNotifElement.classList.remove('bg-fef2f2'); // Remove light red background
+                        markedNotifElement.classList.remove('font-semibold');
+                    }
+                    // Re-fetch to update the badge count accurately
+                    fetchNotifications(); 
+                } else {
+                    showToast(result.message || 'Failed to mark notification as read.', 'error');
+                }
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+                showToast('Network error marking notification as read.', 'error');
+            }
+        }
+
+        // Start polling for notifications when the user is authenticated
+        document.addEventListener('DOMContentLoaded', () => {
+            if (currentUserId && currentUserId !== 'null') {
+                fetchNotifications(); // Initial fetch
+                if (notificationPollingInterval) {
+                    clearInterval(notificationPollingInterval);
+                }
+                notificationPollingInterval = setInterval(fetchNotifications, 10000); // Poll every 10 seconds
+            }
+        });
+
     </script>
     <!-- Assuming main.js exists and contains additional scripts, if any. -->
     <!-- If main.js is critical, ensure it's loaded AFTER the inline script that sets up global functions/listeners -->

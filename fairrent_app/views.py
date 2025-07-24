@@ -13,6 +13,8 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.conf import settings # Import settings to access API keys
+from django.db import transaction # For atomic operations
+
 import json
 import requests
 import random
@@ -20,7 +22,7 @@ import logging
 import uuid # Import uuid for generating unique IDs for AI profiles
 from decimal import Decimal # Import Decimal to handle precise numbers
 
-from .models import Complaint, LandlordReview, RoommateProfile, ForumPost, ForumReply, RentCheck, LikedProfile, RentalContract, RentDeclarationCheck, ChatMessage # Import all models
+from .models import Complaint, LandlordReview, RoommateProfile, ForumPost, ForumReply, RentCheck, LikedProfile, RentalContract, RentDeclarationCheck, ChatMessage, Notification # Import all models, including Notification
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -57,6 +59,9 @@ def profile_view(request):
     user_liked_profiles = LikedProfile.objects.filter(user=request.user).order_by('-liked_at')[:5] 
     user_rental_contracts = RentalContract.objects.filter(user=request.user).order_by('-analyzed_at')[:5] # Fetch user's analyzed contracts
     user_rent_declaration_checks = RentDeclarationCheck.objects.filter(user=request.user).order_by('-checked_at')[:5] # Fetch user's rent declaration checks
+
+    # Fetch unread notifications count
+    unread_notifications_count = Notification.objects.filter(recipient=request.user, is_read=False).count()
 
 
     # Combine all user activities for the 'Recent Activity' section, sort by timestamp
@@ -187,7 +192,8 @@ def profile_view(request):
         'user_rental_contracts': user_rental_contracts,
         'user_rent_declaration_checks': user_rent_declaration_checks,
         'recent_activities': all_activities[:5],
-        'current_date': timezone.now()
+        'current_date': timezone.now(),
+        'unread_notifications_count': unread_notifications_count, # Pass count to template
     }
     return render(request, 'fairrent_app/profile.html', context)
 
@@ -327,6 +333,7 @@ def find_roommate_matches_api(request):
     try:
         user_profile = RoommateProfile.objects.get(user=request.user)
     except RoommateProfile.DoesNotExist:
+        logger.warning(f"User {request.user.username} tried to find matches without a profile.")
         return JsonResponse({'status': 'error', 'message': 'Please create your profile first to find matches.'}, status=404)
 
     # Define lifestyle_prefs_str here so it's always available
@@ -334,8 +341,7 @@ def find_roommate_matches_api(request):
 
     openai_api_key = settings.OPENAI_API_KEY
     if not openai_api_key:
-        logger.warning("OpenAI API key not configured. Only real user matches will be attempted.")
-        # If OpenAI API key is missing, return an error that indicates this
+        logger.error("OpenAI API key not configured. AI matching disabled.")
         return JsonResponse({'status': 'error', 'message': 'AI service is currently unavailable. OpenAI API key not configured.'}, status=503)
 
     target_matches_count = 5
@@ -457,7 +463,7 @@ def find_roommate_matches_api(request):
             except json.JSONDecodeError:
                 # If it's not valid JSON, treat as empty list
                 ai_matches = []
-                logger.error(f"Failed to decode AI response as JSON list: {ai_content}")
+                logger.error(f"Failed to decode AI response as JSON list for roommate matches: {ai_content}")
 
             # Ensure AI matches also have a unique UID and are dictionaries
             for match in ai_matches:
@@ -491,12 +497,13 @@ def find_roommate_matches_api(request):
 @login_required
 @require_http_methods(["POST"])
 def save_liked_profile(request):
-    """API endpoint to save a liked roommate profile."""
+    """
+    API endpoint to save a liked roommate profile and create a notification for the liked user.
+    """
     try:
         data = json.loads(request.body)
         # Explicitly get and sanitize/convert each field
         liked_user_name = data.get('name', '')
-        # Safely convert to int, default to None if not a valid digit string or None
         liked_user_age = None
         if isinstance(data.get('age'), (int, float)):
             liked_user_age = int(data.get('age'))
@@ -521,30 +528,58 @@ def save_liked_profile(request):
             liked_user_compatibility_score = int(data.get('compatibility_score'))
 
         liked_user_avatar_url = data.get('avatar_url', '')
-        liked_user_uid = data.get('uid', '') # NEW: Get the liked user's UID
+        liked_user_uid = data.get('uid', '') # The UID of the liked profile (Django PK or AI UUID)
 
-        # Basic validation for required fields (adjust as per your model's null/blank settings)
-        if not liked_user_name:
-            return JsonResponse({'status': 'error', 'message': 'Liked user name is required.'}, status=400)
-        # Add more validation if other fields are strictly required in your model
+        # Basic validation for required fields
+        if not liked_user_name or not liked_user_uid:
+            return JsonResponse({'status': 'error', 'message': 'Liked user name and UID are required.'}, status=400)
 
         # Check if a LikedProfile with this user and liked_user_uid already exists
-        # This prevents duplicate entries if the user likes the same profile multiple times
         if LikedProfile.objects.filter(user=request.user, liked_user_uid=liked_user_uid).exists():
             return JsonResponse({'status': 'info', 'message': 'You have already liked this profile.'})
 
-        LikedProfile.objects.create(
-            user=request.user,
-            liked_user_uid=liked_user_uid, # NEW: Save the liked user's UID
-            liked_user_name=liked_user_name,
-            liked_user_age=liked_user_age,
-            liked_user_gender=liked_user_gender,
-            liked_user_location=liked_user_location,
-            liked_user_budget=liked_user_budget,
-            liked_user_bio=liked_user_bio,
-            liked_user_compatibility_score=liked_user_compatibility_score,
-            liked_user_avatar_url=liked_user_avatar_url
-        )
+        with transaction.atomic(): # Ensure both operations succeed or fail together
+            # Save the liked profile
+            LikedProfile.objects.create(
+                user=request.user,
+                liked_user_uid=liked_user_uid,
+                liked_user_name=liked_user_name,
+                liked_user_age=liked_user_age,
+                liked_user_gender=liked_user_gender,
+                liked_user_location=liked_user_location,
+                liked_user_budget=liked_user_budget,
+                liked_user_bio=liked_user_bio,
+                liked_user_compatibility_score=liked_user_compatibility_score,
+                liked_user_avatar_url=liked_user_avatar_url
+            )
+
+            # Create a notification for the liked user (if it's a real user)
+            # Check if liked_user_uid corresponds to a real User's primary key
+            try:
+                # Attempt to get the User object for the liked_user_uid
+                # This works if liked_user_uid is a string representation of a Django User's PK
+                target_user = User.objects.get(pk=liked_user_uid)
+                
+                # Ensure the user is not liking their own profile
+                if target_user != request.user:
+                    notification_message = f"{request.user.username} liked your profile!"
+                    notification_link = f"/profile/#roommate-finder-section" # Link back to their profile/roommate finder
+                    Notification.objects.create(
+                        recipient=target_user,
+                        sender=request.user, # The user who performed the like
+                        type='like',
+                        message=notification_message,
+                        link=notification_link
+                    )
+                    logger.info(f"Notification created for {target_user.username}: {notification_message}")
+                else:
+                    logger.info(f"User {request.user.username} liked their own profile. No notification generated.")
+            except User.DoesNotExist:
+                # If liked_user_uid does not correspond to a real User (e.g., it's an AI profile UUID)
+                logger.info(f"Liked profile with UID {liked_user_uid} is not a real user. No notification generated.")
+            except Exception as e:
+                logger.error(f"Error creating notification for liked profile {liked_user_uid}: {e}")
+
         return JsonResponse({'status': 'success', 'message': 'Profile liked and saved successfully!'})
     except json.JSONDecodeError:
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON format in request body.'}, status=400)
@@ -562,6 +597,7 @@ def predict_rent(request):
     """
     openai_api_key = settings.OPENAI_API_KEY
     if not openai_api_key:
+        logger.error("OpenAI API key not configured. Rent prediction service disabled.")
         return JsonResponse({'status': 'error', 'message': 'Rent prediction service is currently unavailable. API key not configured.'}, status=503)
 
     try:
@@ -765,6 +801,7 @@ def refine_text_api(request):
     """API endpoint to refine text using OpenAI API."""
     openai_api_key = settings.OPENAI_API_KEY
     if not openai_api_key:
+        logger.error("OpenAI API key not configured. Text refinement service disabled.")
         return JsonResponse({'status': 'error', 'message': 'Text refinement service is currently unavailable. API key not configured.'}, status=503)
     try:
         data = json.loads(request.body)
@@ -804,6 +841,7 @@ def generate_forum_idea_api(request):
     """API endpoint to generate forum post ideas using OpenAI API."""
     openai_api_key = settings.OPENAI_API_KEY
     if not openai_api_key:
+        logger.error("OpenAI API key not configured. Forum idea generation service disabled.")
         return JsonResponse({'status': 'error', 'message': 'Forum idea generation service is currently unavailable. API key not configured.'}, status=503)
     try:
         data = json.loads(request.body)
@@ -843,6 +881,7 @@ def get_address_suggestions(request):
     """API endpoint for address suggestions using OpenCage."""
     opencage_api_key = settings.OPENCAGE_API_KEY
     if not opencage_api_key:
+        logger.error("OpenCage API key not configured. Address suggestion service disabled.")
         return JsonResponse({'status': 'error', 'message': 'Address suggestion service is not configured. API key missing.'}, status=503)
     try:
         data = json.loads(request.body)
@@ -878,6 +917,7 @@ def analyze_contract_api(request):
     """
     openai_api_key = settings.OPENAI_API_KEY # Use OpenAI API key
     if not openai_api_key:
+        logger.error("OpenAI API key not configured. Contract analysis service disabled.")
         return JsonResponse({'status': 'error', 'message': 'Contract analysis service is currently unavailable. API key not configured.'}, status=503)
 
     try:
@@ -959,6 +999,7 @@ def check_rent_declaration_api(request):
     """
     openai_api_key = settings.OPENAI_API_KEY
     if not openai_api_key:
+        logger.error("OpenAI API key not configured. Rent declaration check service disabled.")
         return JsonResponse({'status': 'error', 'message': 'Rent declaration check service is currently unavailable. API key not configured.'}, status=503)
 
     try:
@@ -1081,6 +1122,23 @@ def send_chat_message(request):
             receiver_uid=receiver_uid,
             message=message_text
         )
+
+        # Optional: Create a notification for the receiver if they are a real user
+        try:
+            target_user = User.objects.get(pk=receiver_uid)
+            if target_user != request.user: # Don't notify self
+                Notification.objects.create(
+                    recipient=target_user,
+                    sender=request.user,
+                    type='message',
+                    message=f"New message from {request.user.username}: '{message_text[:50]}...'",
+                    link=f"/profile/#chat-modal" # Could link directly to chat with sender if possible
+                )
+        except User.DoesNotExist:
+            logger.info(f"Receiver {receiver_uid} is not a real user (or does not exist). No message notification created.")
+        except Exception as e:
+            logger.error(f"Error creating message notification for {receiver_uid}: {e}")
+
         return JsonResponse({'status': 'success', 'message': 'Message sent successfully!'})
     except json.JSONDecodeError:
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON format in request body.'}, status=400)
@@ -1117,3 +1175,76 @@ def get_chat_messages(request, partner_uid):
         })
 
     return JsonResponse({'status': 'success', 'messages': message_list})
+
+@login_required
+@require_http_methods(["GET"])
+def get_notifications(request):
+    """
+    API endpoint to retrieve notifications for the current user.
+    Includes an optional 'unread_only' parameter.
+    """
+    unread_only = request.GET.get('unread_only', 'false').lower() == 'true'
+    
+    notifications_query = Notification.objects.filter(recipient=request.user)
+    if unread_only:
+        notifications_query = notifications_query.filter(is_read=False)
+    
+    notifications = notifications_query.order_by('-created_at').values(
+        'id', 'type', 'message', 'link', 'created_at', 'is_read', 'sender__username'
+    )
+
+    notification_list = []
+    for notif in notifications:
+        notification_list.append({
+            'id': notif['id'],
+            'type': notif['type'],
+            'message': notif['message'],
+            'link': notif['link'],
+            'created_at': notif['created_at'].isoformat() if notif['created_at'] else None,
+            'is_read': notif['is_read'],
+            'sender_username': notif['sender__username'] if notif['sender__username'] else 'System'
+        })
+    
+    unread_count = Notification.objects.filter(recipient=request.user, is_read=False).count()
+
+    return JsonResponse({
+        'status': 'success',
+        'notifications': notification_list,
+        'unread_count': unread_count
+    })
+
+@csrf_exempt
+@login_required
+@require_http_methods(["POST"])
+def mark_notification_read(request):
+    """
+    API endpoint to mark one or all notifications as read for the current user.
+    Expects 'notification_id' (single ID) or 'mark_all' (boolean) in the request body.
+    """
+    try:
+        data = json.loads(request.body)
+        notification_id = data.get('notification_id')
+        mark_all = data.get('mark_all', False)
+
+        if mark_all:
+            # Mark all unread notifications for the user as read
+            count, _ = Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+            return JsonResponse({'status': 'success', 'message': f'Marked {count} notifications as read.'})
+        elif notification_id:
+            # Mark a specific notification as read
+            notification = get_object_or_404(Notification, id=notification_id, recipient=request.user)
+            if not notification.is_read:
+                notification.is_read = True
+                notification.save()
+                return JsonResponse({'status': 'success', 'message': 'Notification marked as read.'})
+            else:
+                return JsonResponse({'status': 'info', 'message': 'Notification was already read.'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'No notification ID or mark_all flag provided.'}, status=400)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON format in request body.'}, status=400)
+    except Exception as e:
+        logger.exception("An unexpected error occurred in mark_notification_read")
+        return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred: {e}'}, status=500)
+
