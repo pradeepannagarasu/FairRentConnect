@@ -43,6 +43,9 @@ class RoommateProfile(models.Model):
     budget = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Max monthly budget for a room (if looking)")
     location = models.CharField(max_length=255, blank=True, null=True, help_text="Desired location (if looking) or property location (if offering)")
     bio = models.TextField(blank=True, null=True, help_text="Tell us about yourself and what you're looking for/offering.")
+    contact = models.CharField(max_length=255, blank=True, null=True, help_text="Contact email or phone number.")
+    occupation = models.CharField(max_length=255, blank=True, null=True, help_text="Your occupation.")
+
 
     # NEW: Fields for 'Offering a Room'
     num_available_rooms = models.IntegerField(blank=True, null=True, help_text="Number of rooms available in your property.")
@@ -51,6 +54,8 @@ class RoommateProfile(models.Model):
     house_rules = models.TextField(blank=True, null=True, help_text="Comma-separated house rules (e.g., 'No pets, Quiet after 10 PM')")
     availability_date = models.DateField(blank=True, null=True, help_text="Date room becomes available")
     property_photos = models.TextField(blank=True, null=True, help_text="Comma-separated URLs of property photos") # For simplicity, store URLs as text
+    furnished = models.CharField(max_length=20, blank=True, null=True, help_text="Is the room furnished? (Yes, No, Partially)")
+    bills_included = models.CharField(max_length=20, blank=True, null=True, help_text="Are bills included? (Yes, No)")
 
     # ADDED: created_at and updated_at fields for RoommateProfile
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
@@ -168,6 +173,9 @@ class LikedProfile(models.Model):
     liked_user_compatibility_score = models.IntegerField(null=True, blank=True)
     liked_user_avatar_url = models.URLField(max_length=500, blank=True)
     liked_at = models.DateTimeField(auto_now_add=True)
+    # NEW: Store the user_type of the liked profile
+    user_type = models.CharField(max_length=20, choices=RoommateProfile.USER_TYPE_CHOICES, blank=True, null=True, help_text="Type of the liked user (Looking for a Room / Offering a Room).")
+
 
     class Meta:
         unique_together = ('user', 'liked_user_uid') # Prevent liking the same profile multiple times

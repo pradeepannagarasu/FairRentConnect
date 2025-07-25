@@ -146,7 +146,8 @@ def profile_view(request):
                 'bio': liked_profile.liked_user_bio,
                 'compatibility_score': liked_profile.liked_user_compatibility_score,
                 'avatar_url': liked_profile.liked_user_avatar_url,
-                'uid': liked_profile.liked_user_uid # NEW: Pass the liked user's UID for chat
+                'uid': liked_profile.liked_user_uid, # NEW: Pass the liked user's UID for chat
+                'user_type': liked_profile.user_type # Pass the liked user's user_type for correct modal display
             }
         })
     for contract in user_rental_contracts: # Add rental contracts to activities
@@ -275,7 +276,9 @@ def save_roommate_profile(request):
             'name': name,
             'user_type': user_type,
             'location': data.get('location'),
-            'bio': data.get('bio')
+            'bio': data.get('bio'),
+            'contact': data.get('contact'), # Added contact
+            'occupation': data.get('occupation'), # Added occupation
         }
 
         if user_type == 'looking_for_room':
@@ -321,6 +324,8 @@ def save_roommate_profile(request):
                 'house_rules': None,
                 'availability_date': None,
                 'property_photos': None,
+                'furnished': None, # Clear
+                'bills_included': None, # Clear
             })
         elif user_type == 'offering_room':
             num_available_rooms = data.get('num_available_rooms')
@@ -360,6 +365,8 @@ def save_roommate_profile(request):
                 'house_rules': data.get('house_rules', ''), # Assuming comma-separated string
                 'property_photos': data.get('property_photos', ''), # Assuming comma-separated URLs
                 'availability_date': availability_date,
+                'furnished': data.get('furnished'), # Added furnished
+                'bills_included': data.get('bills_included'), # Added bills_included
                 # Clear fields specific to 'looking_for_room' if switching type
                 'age': None,
                 'gender': None,
@@ -411,7 +418,7 @@ def find_roommate_matches_api(request):
         logger.error("OpenAI API key not configured. AI matching disabled.")
         return JsonResponse({'status': 'error', 'message': 'AI service is currently unavailable. OpenAI API key not configured.'}, status=503)
 
-    target_matches_count = 5
+    target_matches_count = 8 # Aim for 8 matches total (real + AI)
     found_matches = []
 
     # Determine the type of profiles to search for
@@ -445,9 +452,7 @@ def find_roommate_matches_api(request):
                     score += 1 # User can afford with some flexibility (20% above budget)
 
             # Room size preference (simple match)
-            # Assuming a 'desired_room_size' field might be added to RoommateProfile for 'looking_for_room'
-            # For now, a simple check if the offered room size is present
-            if other_profile.room_size:
+            if other_profile.room_size: # Just check if a room size is specified
                 score += 0.5 
 
             # Lifestyle/House Rules compatibility
@@ -455,18 +460,14 @@ def find_roommate_matches_api(request):
             other_rules = set(p.strip().lower() for p in (other_profile.house_rules or '').split(',') if p.strip())
             
             # Penalize for direct conflicts (e.g., smoker vs. no smoking rule)
-            if 'non-smoker' in user_prefs and 'smoker' in other_rules:
+            if 'non-smoker' in user_prefs and 'no smoking' in other_rules:
                 score -= 2
             if 'pet-friendly' in user_prefs and 'no pets' in other_rules: # User wants pets, but rule says no
-                 score -= 1
-            if 'pet-friendly' not in user_prefs and 'pets allowed' in other_rules: # User doesn't care, rule allows
-                 score += 0.5 # Small positive if not a conflict
-
-            # Reward for alignment (e.g., quiet preference and quiet hours rule)
-            if 'quiet' in user_prefs and 'quiet hours' in other_rules:
+                score -= 1
+            if 'quiet' in user_prefs and 'quiet hours (after 10 pm)' in other_rules: # User wants quiet, and rule enforces it
                 score += 1
-            if 'social' in user_prefs and 'no parties' not in other_rules: # Social user, and no strict party ban
-                score += 0.5
+            if 'party-goer' in user_prefs and 'no parties' in other_rules: # User likes parties, but rule bans them
+                score -= 1.5
             
             # Gender preference (if user has one)
             if user_profile.gender and other_profile.gender:
@@ -480,7 +481,6 @@ def find_roommate_matches_api(request):
                 age_diff = abs(user_profile.age - other_profile.age)
                 if age_diff <= 5: score += 1.5
                 elif age_diff <= 10: score += 0.5
-
 
             potential_real_matches.append({
                 'score': score,
@@ -520,7 +520,7 @@ def find_roommate_matches_api(request):
                 score -= 2
             if 'no pets' in user_rules and 'pet-friendly' in other_prefs:
                 score -= 1
-            if 'quiet hours' in user_rules and 'quiet' in other_prefs:
+            if 'quiet hours (after 10 pm)' in user_rules and 'quiet' in other_prefs:
                 score += 1
             if 'no parties' in user_rules and 'party-goer' in other_prefs:
                 score -= 1.5
@@ -555,25 +555,20 @@ def find_roommate_matches_api(request):
     # Sort real matches by score and select the best ones
     potential_real_matches.sort(key=lambda x: x['score'], reverse=True)
     
+    # Add real matches first, up to target_matches_count
+    found_matches.extend(potential_real_matches[:target_matches_count])
+
     # Determine how many AI profiles to generate based on total user count
     total_real_users = User.objects.count()
     AI_THRESHOLD = 50 # The number of real users after which AI profiles start to reduce
     
+    num_ai_to_generate = 0
     if total_real_users < AI_THRESHOLD:
         # If below threshold, generate enough AI profiles to reach target_matches_count
-        num_ai_to_generate = target_matches_count - len(potential_real_matches)
-    else:
-        # If above threshold, reduce AI profiles (e.g., no AI profiles)
-        num_ai_to_generate = 0 
-        # You could implement a more gradual reduction here, e.g.,
-        # num_ai_to_generate = max(0, target_matches_count - len(potential_real_matches) - (total_real_users - AI_THRESHOLD) // 10)
-        # This would reduce AI by 1 for every 10 users over the threshold.
-
+        num_ai_to_generate = target_matches_count - len(found_matches)
+    
     # Ensure we don't try to generate negative number of AI profiles
     num_ai_to_generate = max(0, num_ai_to_generate)
-
-    # Add real matches first
-    found_matches.extend(potential_real_matches[:target_matches_count])
 
     # Generate AI matches if needed
     if num_ai_to_generate > 0 and openai_api_key:
@@ -591,7 +586,7 @@ def find_roommate_matches_api(request):
                 prompt_parts.append(f"- Cleanliness: {user_profile.get_cleanliness_display() or 'average cleanliness'}")
                 prompt_parts.append(f"- Lifestyle Preferences: {user_profile.lifestyle_preferences or 'Not specified'}")
                 prompt_parts.append(f"- Bio: \"{user_profile.bio or 'Not specified'}\"")
-                prompt_parts.append("Each generated profile should represent a person offering a room, including: 'name', 'location', 'rent_amount_offering' (integer), 'num_available_rooms' (integer 1-3), 'room_size' (e.g., 'Double', 'Single', 'En-suite'), 'house_rules' (comma-separated), 'availability_date' (YYYY-MM-DD), 'bio', 'compatibility_score' (integer 70-95), 'avatar_url', and 'uid' (unique string 'ai_profile_UUID').")
+                prompt_parts.append("Each generated profile should represent a person offering a room, including: 'name', 'location', 'rent_amount_offering' (integer), 'num_available_rooms' (integer 1-3), 'room_size' (e.g., 'Double', 'Single', 'En-suite'), 'house_rules' (comma-separated), 'availability_date' (YYYY-MM-DD, in the near future), 'bio', 'compatibility_score' (integer 70-95), 'avatar_url', and 'uid' (unique string 'ai_profile_UUID').")
                 prompt_parts.append("Ensure 'rent_amount_offering' is within a reasonable range of the user's budget.")
 
             else: # user_profile.user_type == 'offering_room'
@@ -630,35 +625,53 @@ def find_roommate_matches_api(request):
             ai_content = response.json()['choices'][0]['message']['content']
             
             try:
-                ai_matches = json.loads(ai_content)
-                if not isinstance(ai_matches, list):
-                    ai_matches = [ai_matches]
+                ai_matches_raw = json.loads(ai_content)
+                # OpenAI might return a dict with a "matches" key or directly an array
+                if isinstance(ai_matches_raw, dict) and "matches" in ai_matches_raw:
+                    ai_matches = ai_matches_raw["matches"]
+                elif isinstance(ai_matches_raw, list):
+                    ai_matches = ai_matches_raw
+                else:
+                    ai_matches = []
+                    logger.error(f"Unexpected AI response format: {ai_content}")
+
             except json.JSONDecodeError:
                 ai_matches = []
                 logger.error(f"Failed to decode AI response as JSON list for roommate matches: {ai_content}")
 
-            # Only add AI profiles if we haven't reached the target count with real users
-            current_found_count = len(found_matches)
+            # Add AI profiles if we haven't reached the target count with real users
             for match in ai_matches:
-                if current_found_count >= target_matches_count:
+                if len(found_matches) >= target_matches_count:
                     break # Stop adding AI profiles if we have enough matches
                 if isinstance(match, dict):
-                    match['uid'] = f"ai_profile_{uuid.uuid4()}"
-                    match['user_type'] = target_user_type 
+                    match['uid'] = f"ai_profile_{uuid.uuid4()}" # Assign unique AI UID
+                    match['user_type'] = target_user_type # Ensure user_type is set for AI profiles
+                    # Ensure avatar_url is present, or use a placeholder
+                    if 'avatar_url' not in match or not match['avatar_url']:
+                        match['avatar_url'] = f"https://placehold.co/160x160/cccccc/ffffff?text=AI+User"
                     found_matches.append(match)
-                    current_found_count += 1
                 else:
                     logger.warning(f"Skipping non-dictionary AI match: {match}")
             
         except requests.exceptions.RequestException as e:
             logger.error(f"OpenAI API request failed for AI matches: {e}")
-            return JsonResponse({'status': 'warning', 'message': f'Failed to generate AI matches: {e}. Showing available real matches.' if found_matches else 'Failed to generate AI matches and no real matches found.'}, status=500)
+            # If AI generation fails, still return any real matches found
+            if not found_matches:
+                return JsonResponse({'status': 'error', 'message': f'Failed to generate AI matches: {e}. No matches available.'}, status=500)
+            else:
+                return JsonResponse({'status': 'warning', 'message': f'Failed to generate AI matches: {e}. Showing available real matches.'}, status=200)
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse OpenAI response JSON for AI matches: {e}. Content: {ai_content}")
-            return JsonResponse({'status': 'error', 'message': 'AI service returned an unreadable response for matches.'}, status=500)
+            if not found_matches:
+                return JsonResponse({'status': 'error', 'message': 'AI service returned an unreadable response for matches. No matches available.'}, status=500)
+            else:
+                return JsonResponse({'status': 'warning', 'message': 'AI service returned an unreadable response for matches. Showing available real matches.'}, status=200)
         except Exception as e:
             logger.exception("An unexpected error occurred during AI match generation")
-            return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred during AI matching: {e}'}, status=500)
+            if not found_matches:
+                return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred during AI matching: {e}. No matches available.'}, status=500)
+            else:
+                return JsonResponse({'status': 'warning', 'message': f'An unexpected server error occurred during AI matching: {e}. Showing available real matches.'}, status=200)
 
     if not found_matches:
         return JsonResponse({'status': 'info', 'message': 'No compatible roommates found at this time. Try updating your profile preferences.'}, status=200)
@@ -703,7 +716,7 @@ def save_liked_profile(request):
 
         liked_user_avatar_url = data.get('avatar_url', '')
         liked_user_uid = data.get('uid', '') # The UID of the liked profile (Django PK or AI UUID)
-        # liked_user_type = data.get('user_type', '') # If you add this to LikedProfile model
+        liked_user_type = data.get('user_type', '') # Get user_type from the payload
 
         # Basic validation for required fields
         if not liked_user_name or not liked_user_uid:
@@ -726,7 +739,7 @@ def save_liked_profile(request):
                 liked_user_bio=liked_user_bio,
                 liked_user_compatibility_score=liked_user_compatibility_score,
                 liked_user_avatar_url=liked_user_avatar_url,
-                # liked_user_type=liked_user_type # Uncomment if you add this field to LikedProfile model
+                user_type=liked_user_type # Save the user_type
             )
 
             # Create a notification for the liked user (if it's a real user)

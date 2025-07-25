@@ -1130,7 +1130,7 @@
                                     "property_address": "{{ complaint.property_address|escapejs }}",
                                     "landlord_name": "{{ complaint.landlord_name|default:''|escapejs }}",
                                     "description": "{{ complaint.description|escapejs }}",
-                                    "status": "{{ complaint.get_status_display|escapejs }}", 
+                                    "status": "{{ complaint.get_status_display|escapejs }}",  
                                     "submitted_at": "{{ complaint.submitted_at|date:"Y-m-d H:i:s" }}"
                                 }
                             </script>
@@ -1418,8 +1418,8 @@
                     <div class="mt-4">
                         <label for="property_photos" class="block text-sm font-medium text-gray-700 mb-1">Property Photos (comma-separated URLs)</label>
                         <textarea id="property_photos" name="property_photos" rows="2"
-                                    class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
-                                    placeholder="e.g., https://example.com/pic1.jpg, https://example.com/pic2.jpg">{{ user_roommate_profile.property_photos|default:'' }}</textarea>
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                                   placeholder="e.g., https://example.com/pic1.jpg, https://example.com/pic2.jpg">{{ user_roommate_profile.property_photos|default:'' }}</textarea>
                         <p class="text-xs text-gray-500 mt-1">Enter URLs separated by commas. Max 5 photos.</p>
                     </div>
                 </div>
@@ -1512,22 +1512,56 @@
         </a>
     </nav>
 
+    {# NEW: Hidden script tag to pass Django URLs to JavaScript #}
+    <script type="application/json" id="django-urls-data">
+        {
+            "API_GET_NOTIFICATIONS_URL": "{% url 'fairrent_app:api_get_notifications' %}",
+            "API_MARK_NOTIFICATION_READ_URL": "{% url 'fairrent_app:api_mark_notification_read' %}",
+            "API_SAVE_ROOMMATE_PROFILE_URL": "{% url 'fairrent_app:api_save_roommate_profile' %}",
+            "API_FIND_ROOMMATE_MATCHES_URL": "{% url 'fairrent_app:api_find_roommate_matches' %}",
+            "API_SAVE_LIKED_PROFILE_URL": "{% url 'fairrent_app:api_save_liked_profile' %}",
+            "API_SEND_CHAT_MESSAGE_URL": "{% url 'fairrent_app:api_send_chat_message' %}",
+            "API_GET_CHAT_MESSAGES_BASE_URL": "{% url 'fairrent_app:api_get_chat_messages' 'DUMMY_UID' %}"
+        }
+    </script>
+
     <script>
-        // Define Django URLs as JavaScript variables to ensure they are rendered by the template engine
-        // This ensures the URLs are resolved BEFORE JavaScript tries to use them.
-        const API_GET_NOTIFICATIONS_URL = "{% url 'fairrent_app:api_get_notifications' %}";
-        const API_MARK_NOTIFICATION_READ_URL = "{% url 'fairrent_app:api_mark_notification_read' %}";
-        const API_SAVE_ROOMMATE_PROFILE_URL = "{% url 'fairrent_app:api_save_roommate_profile' %}";
-        const API_FIND_ROOMMATE_MATCHES_URL = "{% url 'fairrent_app:api_find_roommate_matches' %}";
-        const API_SAVE_LIKED_PROFILE_URL = "{% url 'fairrent_app:api_save_liked_profile' %}";
-        const API_SEND_CHAT_MESSAGE_URL = "{% url 'fairrent_app:api_send_chat_message' %}";
-        // For get_chat_messages, it takes a UID, so we need a base URL without the UID
-        // A common trick is to pass a dummy value and then replace it
-        const API_GET_CHAT_MESSAGES_BASE_URL = "{% url 'fairrent_app:api_get_chat_messages' 'DUMMY_UID' %}".replace('DUMMY_UID/', '');
+        // Parse Django URLs from the hidden script tag
+        const djangoUrlsElement = document.getElementById('django-urls-data');
+        const djangoUrls = JSON.parse(djangoUrlsElement.textContent);
+
+        // Assign to window scope for access from main.js
+        window.API_GET_NOTIFICATIONS_URL = djangoUrls.API_GET_NOTIFICATIONS_URL;
+        window.API_MARK_NOTIFICATION_READ_URL = djangoUrls.API_MARK_NOTIFICATION_READ_URL;
+        window.API_SAVE_ROOMMATE_PROFILE_URL = djangoUrls.API_SAVE_ROOMMATE_PROFILE_URL;
+        window.API_FIND_ROOMMATE_MATCHES_URL = djangoUrls.API_FIND_ROOMMATE_MATCHES_URL;
+        window.API_SAVE_LIKED_PROFILE_URL = djangoUrls.API_SAVE_LIKED_PROFILE_URL;
+        window.API_SEND_CHAT_MESSAGE_URL = djangoUrls.API_SEND_CHAT_MESSAGE_URL;
+        // Correctly handle the base URL for chat messages, replacing the dummy UID
+        window.API_GET_CHAT_MESSAGES_BASE_URL = djangoUrls.API_GET_CHAT_MESSAGES_BASE_URL.replace('DUMMY_UID', '');
 
 
         // Global variable for current user's UID (Django PK)
-        const currentUserId = "{{ request.user.pk|default:'null' }}"; 
+        window.currentUserId = "{{ request.user.pk|default:'null' }}";
+        // Ensure these are correctly populated from Django context for profile editing
+        window.currentUserProfileType = "{{ user_roommate_profile.user_type|default:'' }}";
+        window.currentUserLocation = "{{ user_roommate_profile.location|default:'' }}";
+        window.currentUserBio = "{{ user_roommate_profile.bio|default:'' }}";
+        window.currentUserAge = "{{ user_roommate_profile.age|default:'' }}";
+        window.currentUserGender = "{{ user_roommate_profile.gender|default:'' }}";
+        window.currentUserBudget = "{{ user_roommate_profile.budget|default:'' }}";
+        window.currentUserSleepSchedule = "{{ user_roommate_profile.sleep_schedule|default:'' }}";
+        window.currentUserCleanliness = "{{ user_roommate_profile.cleanliness|default:'' }}";
+        window.currentUserLifestyle = "{{ user_roommate_profile.lifestyle_preferences|default:'' }}";
+        window.currentUserNumRooms = "{{ user_roommate_profile.num_available_rooms|default:'' }}";
+        window.currentUserRentOffering = "{{ user_roommate_profile.rent_amount_offering|default:'' }}";
+        window.currentUserRoomSize = "{{ user_roommate_profile.room_size|default:'' }}";
+        window.currentUserHouseRules = "{{ user_roommate_profile.house_rules|default:'' }}";
+        window.currentUserAvailabilityDate = "{{ user_roommate_profile.availability_date|date:'Y-m-d'|default:'' }}";
+        window.currentUserFurnished = "{{ user_roommate_profile.furnished|default:'' }}";
+        window.currentUserBillsIncluded = "{{ user_roommate_profile.bills_included|default:'' }}";
+
+
         var chatPartnerUid = null;
         var chatPartnerName = '';
         var chatPollingInterval = null;
@@ -1595,8 +1629,8 @@
         headerNavButtons.forEach(button => {
             button.addEventListener('click', (e) => {
                 const targetId = button.dataset.contentTarget;
-                if (targetId) { 
-                    e.preventDefault(); 
+                if (targetId) {  
+                    e.preventDefault();  
                     window.location.hash = targetId;
                     switchContentSection(targetId);
                 }
@@ -1751,14 +1785,6 @@
             userTypeHiddenInput.value = userType;
         }
 
-        // Event listeners for user type selection buttons
-        if (userTypeLookingBtn) {
-            userTypeLookingBtn.addEventListener('click', () => toggleProfileFields('looking_for_room'));
-        }
-        if (userTypeOfferingBtn) {
-            userTypeOfferingBtn.addEventListener('click', () => toggleProfileFields('offering_room'));
-        }
-
         // Function to open profile modal and populate fields
         const openProfileModal = () => {
             // Populate common fields
@@ -1868,7 +1894,7 @@
                 }
 
                 try {
-                    const response = await fetch(API_SAVE_ROOMMATE_PROFILE_URL, {
+                    const response = await fetch(window.API_SAVE_ROOMMATE_PROFILE_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1916,8 +1942,7 @@
 
         let currentMatches = [];
         let currentMatchIndex = 0;
-        const currentUserProfileType = "{{ user_roommate_profile.user_type|default:'' }}";
-
+        
         // Swipe variables
         let startX = 0;
         let currentX = 0;
@@ -1933,37 +1958,40 @@
             noMoreMatchesPrompt.classList.add('hidden');
 
             // Display 5 to 8 profiles at a time
-            const profilesToShow = Math.min(currentMatches.length - currentMatchIndex, Math.floor(Math.random() * 4) + 5); // Randomly 5-8
+            const profilesToShow = Math.min(currentMatches.length - currentMatchIndex, Math.floor(Math.random() * 4) + 5);
             
             if (profilesToShow > 0) {
                 for (let i = 0; i < profilesToShow; i++) {
                     const match = currentMatches[currentMatchIndex + i];
                     if (!match) break; // Ensure we don't go out of bounds
 
+                    // Safely access properties, providing defaults for undefined/null
                     const name = (match.name && match.name !== 'undefined') ? match.name : 'Unknown User';
                     const location = (match.location && match.location !== 'undefined') ? match.location : 'N/A';
-                    const compatibilityScore = (match.compatibility_score && match.compatibility_score !== 'undefined') ? `${match.compatibility_score}` : 'N/A';
+                    const compatibilityScore = (match.compatibility_score !== undefined && match.compatibility_score !== null) ? `${match.compatibility_score}` : 'N/A';
                     const bio = (match.bio && match.bio !== 'undefined') ? match.bio : 'No bio provided for this user.';
                     const avatarUrl = (match.avatar_url && match.avatar_url !== 'undefined') ? match.avatar_url : 'https://placehold.co/110x110/cccccc/ffffff?text=User';
 
                     let matchDetailsHtml = '';
                     let aiBadge = '';
-                    if (match.uid && match.uid.startsWith('ai_profile_')) {
+                    let isAIMatch = match.uid && match.uid.startsWith('ai_profile_');
+
+                    if (isAIMatch) {
                         aiBadge = '<span class="ai-demo-badge">Verified AI Demo</span>';
                     }
 
                     if (match.user_type === 'looking_for_room') {
-                        const age = (match.age && match.age !== 'undefined') ? `${match.age}` : 'N/A';
+                        const age = (match.age !== undefined && match.age !== null) ? `${match.age}` : 'N/A';
                         const gender = (match.gender && match.gender !== 'undefined') ? match.gender : 'N/A';
-                        const budget = (match.budget && match.budget !== 'undefined') ? `£${match.budget}` : 'N/A';
+                        const budget = (match.budget !== undefined && match.budget !== null) ? `£${match.budget}` : 'N/A';
                         matchDetailsHtml = `
                             <h4 class="text-3xl font-bold text-gray-900 mb-2">${name}, ${age}</h4>
                             <p class="text-lg text-gray-600 mb-2">${location} | ${gender}</p>
                             <p class="text-md text-gray-600 mb-2">Budget: ${budget}</p>
                         `;
                     } else if (match.user_type === 'offering_room') {
-                        const rent = (match.rent_amount_offering && match.rent_amount_offering !== 'undefined') ? `£${match.rent_amount_offering}` : 'N/A';
-                        const rooms = (match.num_available_rooms && match.num_available_rooms !== 'undefined') ? `${match.num_available_rooms} room(s)` : 'N/A';
+                        const rent = (match.rent_amount_offering !== undefined && match.rent_amount_offering !== null) ? `£${match.rent_amount_offering}` : 'N/A';
+                        const rooms = (match.num_available_rooms !== undefined && match.num_available_rooms !== null) ? `${match.num_available_rooms} room(s)` : 'N/A';
                         const roomSize = (match.room_size && match.room_size !== 'undefined') ? match.room_size : 'N/A';
                         const availabilityDate = (match.availability_date && match.availability_date !== 'undefined') ? new Date(match.availability_date).toLocaleDateString() : 'N/A';
                         const furnished = (match.furnished && match.furnished !== 'undefined') ? match.furnished : 'N/A';
@@ -1986,7 +2014,7 @@
                         <p class="text-gray-700 text-base italic leading-relaxed mt-2">
                             ${bio}
                         </p>
-                        <button class="match-details-btn btn-secondary mt-4 btn-hover-effect" data-match='${JSON.stringify(match)}' data-user-type='${match.user_type}'>View Details</button>
+                        <button class="match-details-btn btn-secondary mt-4 btn-hover-effect" data-match='${JSON.stringify(match)}' data-user-type='${match.user_type}' ${isAIMatch ? 'disabled' : ''}>View Details</button>
                     `;
                     // Position cards in a stack, slightly offset
                     matchCard.style.setProperty('--card-offset-y', `${i * -10}px`);
@@ -2000,6 +2028,13 @@
                     if (i === 0) {
                         addSwipeListeners(matchCard);
                         swipeButtonsContainer.classList.remove('hidden');
+                        if (isAIMatch) { // Disable swipe buttons for AI profiles
+                            skipMatchBtn.disabled = true;
+                            likeMatchBtn.disabled = true;
+                        } else {
+                            skipMatchBtn.disabled = false;
+                            likeMatchBtn.disabled = false;
+                        }
                     }
 
                     matchCard.querySelector('.match-details-btn').addEventListener('click', (e) => {
@@ -2072,14 +2107,11 @@
             cardElement.addEventListener('touchend', endDrag);
         }
 
-
         async function fetchRoommateMatches() {
             if (!roommatePrompt || !noMoreMatchesPrompt || !roommateMatchesLoader || !roommateMatchCardDisplay || !swipeButtonsContainer) return;
 
-            // Ensure the user has a profile type selected before fetching matches
-            if (!currentUserProfileType || currentUserProfileType === 'null') {
+            if (!window.currentUserId || window.currentUserId === 'null' || !window.currentUserProfileType || window.currentUserProfileType === 'null') {
                 showToast("Please complete your profile and select your role (Looking for a Room / Offering a Room) to find matches.", "error");
-                // Show the initial prompt if no profile type is set
                 roommatePrompt.classList.remove('hidden');
                 return;
             }
@@ -2091,7 +2123,8 @@
             swipeButtonsContainer.classList.add('hidden');
 
             try {
-                const result = await fetch(API_FIND_ROOMMATE_MATCHES_URL, {
+                // Fetch matches from Django backend (which now handles AI generation)
+                const response = await fetch(window.API_FIND_ROOMMATE_MATCHES_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2099,7 +2132,7 @@
                     },
                     body: JSON.stringify({})
                 });
-                const data = await result.json();
+                const data = await response.json();
 
                 roommateMatchesLoader.classList.add('hidden');
 
@@ -2115,11 +2148,12 @@
                     showToast(data.message || 'Failed to find matches.', 'error');
                     roommatePrompt.classList.remove('hidden');
                 }
+
             } catch (error) {
                 console.error('Network error fetching roommate matches:', error);
                 roommateMatchesLoader.classList.add('hidden');
                 showToast('Network error finding matches. Please check your internet connection or try again later.', 'error');
-                roommatePrompt.classList.remove('hidden'); // Show prompt again on network error
+                roommatePrompt.classList.remove('hidden');
             }
         }
 
@@ -2127,32 +2161,42 @@
             const currentCard = roommateMatchCardDisplay.querySelector('.roommate-match-card');
             if (currentCard) {
                 currentCard.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out'; // Ensure animation
+                const currentMatchData = currentMatches[currentMatchIndex];
+                const isAIMatch = currentMatchData.uid && currentMatchData.uid.startsWith('ai_profile_');
+
                 if (direction === 'like') {
-                    const likedMatchData = currentMatches[currentMatchIndex];
+                    if (isAIMatch) {
+                        showToast("Cannot like AI demo profiles.", "info");
+                        // Reset card position if it's an AI profile and tried to like
+                        const offsetY = parseFloat(currentCard.style.getPropertyValue('--card-offset-y') || '0px');
+                        const scale = parseFloat(currentCard.style.getPropertyValue('--card-scale') || '1');
+                        const rotateZ = parseFloat(currentCard.style.getPropertyValue('--card-rotate-z') || '0deg');
+                        currentCard.style.transform = `translate(-50%, -50%) translateY(${offsetY}px) scale(${scale}) translateX(0) rotate(${rotateZ}deg)`;
+                        return; // Do not advance if it's an AI profile
+                    }
+
                     const dataToSend = {
-                        name: likedMatchData.name || '',
-                        age: likedMatchData.age !== undefined && likedMatchData.age !== null ? parseInt(likedMatchData.age) : null,
-                        gender: likedMatchData.gender || '',
-                        location: likedMatchData.location || '',
-                        budget: likedMatchData.budget !== undefined && likedMatchData.budget !== null ? parseInt(likedMatchData.budget) : null,
-                        bio: likedMatchData.bio || '',
-                        compatibility_score: likedMatchData.compatibility_score !== undefined && likedMatchData.compatibility_score !== null ? parseInt(likedMatchData.compatibility_score) : null,
-                        avatar_url: likedMatchData.avatar_url || '',
-                        uid: likedMatchData.uid || '',
-                        user_type: likedMatchData.user_type || '', // Pass user_type
-                        // Include new fields for 'offering_room' profiles if present
-                        num_available_rooms: likedMatchData.num_available_rooms !== undefined && likedMatchData.num_available_rooms !== null ? parseInt(likedMatchData.num_available_rooms) : null,
-                        rent_amount_offering: likedMatchData.rent_amount_offering !== undefined && likedMatchData.rent_amount_offering !== null ? parseFloat(likedMatchData.rent_amount_offering) : null,
-                        room_size: likedMatchData.room_size || '',
-                        house_rules: likedMatchData.house_rules || '',
-                        availability_date: likedMatchData.availability_date || '',
-                        property_photos: likedMatchData.property_photos || '',
-                        furnished: likedMatchData.furnished || '',
-                        bills_included: likedMatchData.bills_included || '',
+                        name: currentMatchData.name || '',
+                        age: currentMatchData.age !== undefined && currentMatchData.age !== null ? parseInt(currentMatchData.age) : null,
+                        gender: currentMatchData.gender || '',
+                        location: currentMatchData.location || '',
+                        budget: currentMatchData.budget !== undefined && currentMatchData.budget !== null ? parseInt(currentMatchData.budget) : null,
+                        bio: currentMatchData.bio || '',
+                        compatibility_score: currentMatchData.compatibility_score !== undefined && currentMatchData.compatibility_score !== null ? parseInt(currentMatchData.compatibility_score) : null,
+                        avatar_url: currentMatchData.avatar_url || '',
+                        uid: currentMatchData.uid || '',
+                        user_type: currentMatchData.user_type || '', // Pass user_type
+                        num_available_rooms: currentMatchData.num_available_rooms !== undefined && currentMatchData.num_available_rooms !== null ? parseInt(currentMatchData.num_available_rooms) : null,
+                        rent_amount_offering: currentMatchData.rent_amount_offering !== undefined && currentMatchData.rent_amount_offering !== null ? parseFloat(currentMatchData.rent_amount_offering) : null,
+                        room_size: currentMatchData.room_size || '',
+                        house_rules: currentMatchData.house_rules || '',
+                        availability_date: currentMatchData.availability_date || '',
+                        furnished: currentMatchData.furnished || '',
+                        bills_included: currentMatchData.bills_included || '',
                     };
 
                     try {
-                        const saveResponse = await fetch(API_SAVE_LIKED_PROFILE_URL, {
+                        const saveResponse = await fetch(window.API_SAVE_LIKED_PROFILE_URL, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -2169,16 +2213,15 @@
                                 currentMatchIndex++;
                                 displayCurrentMatch(); // Display the next set of cards
                                 // After liking, if it's a real user, prompt for chat request
-                                if (likedMatchData.uid && !likedMatchData.uid.startsWith('ai_profile_')) {
-                                    showChatRequestConfirmModal(likedMatchData.uid, likedMatchData.name);
+                                if (currentMatchData.uid && !currentMatchData.uid.startsWith('ai_profile_')) {
+                                    showChatRequestConfirmModal(currentMatchData.uid, currentMatchData.name);
                                 }
                             }, { once: true });
-                            fetchNotifications(); 
+                            fetchNotifications();
                         } else {
                             showToast(saveResult.message || 'Failed to save liked profile.', 'error');
                             console.error('Error saving liked profile:', saveResult.errors);
                             // If saving fails, reset the card position
-                            // Re-apply original stacked position properties
                             const offsetY = parseFloat(currentCard.style.getPropertyValue('--card-offset-y') || '0px');
                             const scale = parseFloat(currentCard.style.getPropertyValue('--card-scale') || '1');
                             const rotateZ = parseFloat(currentCard.style.getPropertyValue('--card-rotate-z') || '0deg');
@@ -2279,12 +2322,13 @@
                         <div class="detail-item"><i class="fas fa-couch"></i><span class="font-semibold">Furnished:</span> ${details.furnished || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-file-invoice-dollar"></i><span class="font-semibold">Bills Included:</span> ${details.bills_included || 'N/A'}</div>
                         {% comment %} Display property photos if available {% endcomment %}
-                        {% if details.property_photos %}
-                            <div class="detail-item"><i class="fas fa-images"></i><span class="font-semibold">Photos:</span></div>
-                            <div class="flex flex-wrap gap-2 mt-2">
-                                ${details.property_photos.split(',').map(url => `<img src="${url.trim()}" class="w-24 h-24 object-cover rounded-md shadow-sm" onerror="this.onerror=null;this.src='https://placehold.co/96x96/cccccc/ffffff?text=No+Image'">`).join('')}
-                            </div>
-                        {% endif %}
+                        <div class="detail-item"><i class="fas fa-images"></i><span class="font-semibold">Photos:</span></div>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            ${details.property_photos && details.property_photos.split(',').length > 0 ? 
+                                details.property_photos.split(',').map(url => `<img src="${url.trim()}" class="w-24 h-24 object-cover rounded-md shadow-sm" onerror="this.onerror=null;this.src='https://placehold.co/96x96/cccccc/ffffff?text=No+Image'">`).join('')
+                                : '<p>No photos available.</p>'
+                            }
+                        </div>
                     `;
                 }
                 contentHtml += `</div>`;
@@ -2366,7 +2410,8 @@
                 modalRedirectBtn.classList.add('hidden');
             }
 
-            if (chatUid && currentUserId && chatUid !== 'null' && chatUid !== currentUserId && !chatUid.startsWith('ai_profile_')) { // Ensure chatUid is not null, not self, and not AI
+            // Only show chat button if it's a liked profile, it's a real user, and not the current user
+            if (activityType === 'Liked Profile' && chatUid && window.currentUserId && chatUid !== 'null' && chatUid !== window.currentUserId && !chatUid.startsWith('ai_profile_')) {
                 modalStartChatBtn.classList.remove('hidden');
             } else {
                 modalStartChatBtn.classList.add('hidden');
@@ -2480,12 +2525,14 @@
         let currentLikedUserUidForChat = null; // Store UID for chat request
 
         async function fetchMessages() {
-            if (!currentUserId || !chatPartnerUid) {
+            if (!window.currentUserId || window.currentUserId === 'null') {
                 console.warn("Cannot fetch messages: currentUserId or chatPartnerUid is missing.");
                 return;
             }
             try {
-                const response = await fetch(`${API_GET_CHAT_MESSAGES_BASE_URL}${chatPartnerUid}/`);
+                // Ensure the URL is correctly formed by appending the UID
+                const url = `${window.API_GET_CHAT_MESSAGES_BASE_URL}${chatPartnerUid}/`;
+                const response = await fetch(url);
                 const data = await response.json();
 
                 if (data.status === 'success') {
@@ -2495,7 +2542,7 @@
                     }
                     data.messages.forEach(msg => {
                         const messageElement = document.createElement('div');
-                        messageElement.className = `chat-message ${msg.sender_uid === currentUserId ? 'sent' : 'received'}`;
+                        messageElement.className = `chat-message ${msg.sender_uid === window.currentUserId ? 'sent' : 'received'}`;
                         
                         const timestampSpan = document.createElement('span');
                         timestampSpan.className = 'text-xs text-gray-500 ml-2';
@@ -2523,10 +2570,16 @@
         }
 
         function openChat(targetUid, targetName) {
-            if (!currentUserId || currentUserId === 'null') {
+            if (!window.currentUserId || window.currentUserId === 'null') {
                 showToast("You must be logged in to chat.", "error");
                 return;
             }
+            // Prevent chat with AI profiles
+            if (targetUid.startsWith('ai_profile_')) {
+                showToast("Cannot chat with AI demo profiles.", "info");
+                return;
+            }
+
             chatPartnerUid = targetUid;
             chatPartnerName = targetName;
             chatPartnerNameSpan.textContent = targetName;
@@ -2537,7 +2590,7 @@
             if (chatPollingInterval) {
                 clearInterval(chatPollingInterval);
             }
-            chatPollingInterval = setInterval(fetchMessages, 2000);
+            chatPollingInterval = setInterval(fetchMessages, 2000); // Poll every 2 seconds
             fetchMessages();
         }
 
@@ -2555,12 +2608,17 @@
         }
 
         async function sendMessage() {
-            if (!currentUserId || currentUserId === 'null') {
+            if (!window.currentUserId || window.currentUserId === 'null') {
                 showToast("You must be logged in to send messages.", "error");
                 return;
             }
             if (!chatPartnerUid) {
                 showToast("No chat partner selected.", "error");
+                return;
+            }
+            if (chatPartnerUid.startsWith('ai_profile_')) { // Double check to prevent sending messages to AI
+                showToast("Cannot send messages to AI demo profiles.", "info");
+                chatMessageInput.value = '';
                 return;
             }
 
@@ -2570,7 +2628,7 @@
             }
 
             try {
-                const response = await fetch(API_SEND_CHAT_MESSAGE_URL, {
+                const response = await fetch(window.API_SEND_CHAT_MESSAGE_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2621,6 +2679,9 @@
 
         // --- NEW: Chat Request Confirmation Modal Logic ---
         function showChatRequestConfirmModal(uid, name) {
+            if (uid.startsWith('ai_profile_')) { // Do not show confirm modal for AI profiles
+                return;
+            }
             currentLikedUserUidForChat = uid;
             confirmChatPartnerNameSpan.textContent = name;
             chatRequestConfirmModal.classList.remove('hidden');
@@ -2641,8 +2702,9 @@
             sendChatRequestBtn.addEventListener('click', async () => {
                 if (!currentLikedUserUidForChat) return;
 
-                // For demo purposes, immediately open chat if it's a real user.
-                // In a real app, this would only happen after the recipient accepts.
+                // In a real app, this would send a request to the backend,
+                // and the chat would only open if the recipient accepts.
+                // For this demo, we simulate immediate acceptance.
                 showToast(`Chat request sent to ${confirmChatPartnerNameSpan.textContent}!`, 'success');
                 closeChatRequestConfirmModal();
                 openChat(currentLikedUserUidForChat, confirmChatPartnerNameSpan.textContent);
@@ -2677,7 +2739,7 @@
         if (markAllReadBtn) {
             markAllReadBtn.addEventListener('click', async () => {
                 try {
-                    const response = await fetch(API_MARK_NOTIFICATION_READ_URL, {
+                    const response = await fetch(window.API_MARK_NOTIFICATION_READ_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -2700,12 +2762,12 @@
         }
 
         async function fetchNotifications() {
-            if (!currentUserId || currentUserId === 'null') {
+            if (!window.currentUserId || window.currentUserId === 'null') {
                 console.warn("Not authenticated. Cannot fetch notifications.");
                 return;
             }
             try {
-                const response = await fetch(`${API_GET_NOTIFICATIONS_URL}?unread_only=false`); 
+                const response = await fetch(`${window.API_GET_NOTIFICATIONS_URL}?unread_only=false`);  
                 const data = await response.json();
 
                 if (data.status === 'success') {
@@ -2734,6 +2796,7 @@
                                         const targetHash = notif.link.split('#')[1];
                                         switchContentSection(targetHash);
                                         // If the link is specifically to a chat, open the chat modal
+                                        // Ensure sender_uid and sender_username are available in notification data
                                         if (targetHash === 'chat-modal' && notif.sender_uid && notif.sender_name) {
                                             openChat(notif.sender_uid, notif.sender_name);
                                         }
@@ -2769,7 +2832,7 @@
 
         async function markNotificationAsRead(notificationId) {
             try {
-                const response = await fetch(API_MARK_NOTIFICATION_READ_URL, {
+                const response = await fetch(window.API_MARK_NOTIFICATION_READ_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2785,7 +2848,7 @@
                         markedNotifElement.classList.remove('bg-fef2f2');
                         markedNotifElement.classList.remove('font-semibold');
                     }
-                    fetchNotifications(); 
+                    fetchNotifications();  // Re-fetch to update counts and list state
                 } else {
                     showToast(result.message || 'Failed to mark notification as read.', 'error');
                 }
@@ -2796,12 +2859,12 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (currentUserId && currentUserId !== 'null') {
+            if (window.currentUserId && window.currentUserId !== 'null') {
                 fetchNotifications();
                 if (notificationPollingInterval) {
                     clearInterval(notificationPollingInterval);
                 }
-                notificationPollingInterval = setInterval(fetchNotifications, 10000);
+                notificationPollingInterval = setInterval(fetchNotifications, 10000); // Poll every 10 seconds
             }
         });
 
