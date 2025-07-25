@@ -1528,17 +1528,26 @@
     <script>
         // Parse Django URLs from the hidden script tag
         const djangoUrlsElement = document.getElementById('django-urls-data');
-        const djangoUrls = JSON.parse(djangoUrlsElement.textContent);
+        // Check if the element exists and has content before parsing
+        let djangoUrls = {};
+        if (djangoUrlsElement && djangoUrlsElement.textContent) {
+            try {
+                djangoUrls = JSON.parse(djangoUrlsElement.textContent);
+            } catch (e) {
+                console.error("Error parsing Django URLs from script tag:", e);
+            }
+        }
 
         // Assign to window scope for access from main.js
-        window.API_GET_NOTIFICATIONS_URL = djangoUrls.API_GET_NOTIFICATIONS_URL;
-        window.API_MARK_NOTIFICATION_READ_URL = djangoUrls.API_MARK_NOTIFICATION_READ_URL;
-        window.API_SAVE_ROOMMATE_PROFILE_URL = djangoUrls.API_SAVE_ROOMMATE_PROFILE_URL;
-        window.API_FIND_ROOMMATE_MATCHES_URL = djangoUrls.API_FIND_ROOMMATE_MATCHES_URL;
-        window.API_SAVE_LIKED_PROFILE_URL = djangoUrls.API_SAVE_LIKED_PROFILE_URL;
-        window.API_SEND_CHAT_MESSAGE_URL = djangoUrls.API_SEND_CHAT_MESSAGE_URL;
+        // Provide fallback empty strings if URLs are not defined, to prevent errors
+        window.API_GET_NOTIFICATIONS_URL = djangoUrls.API_GET_NOTIFICATIONS_URL || '';
+        window.API_MARK_NOTIFICATION_READ_URL = djangoUrls.API_MARK_NOTIFICATION_READ_URL || '';
+        window.API_SAVE_ROOMMATE_PROFILE_URL = djangoUrls.API_SAVE_ROOMMATE_PROFILE_URL || '';
+        window.API_FIND_ROOMMATE_MATCHES_URL = djangoUrls.API_FIND_ROOMMATE_MATCHES_URL || '';
+        window.API_SAVE_LIKED_PROFILE_URL = djangoUrls.API_SAVE_LIKED_PROFILE_URL || '';
+        window.API_SEND_CHAT_MESSAGE_URL = djangoUrls.API_SEND_CHAT_MESSAGE_URL || '';
         // Correctly handle the base URL for chat messages, replacing the dummy UID
-        window.API_GET_CHAT_MESSAGES_BASE_URL = djangoUrls.API_GET_CHAT_MESSAGES_BASE_URL.replace('DUMMY_UID', '');
+        window.API_GET_CHAT_MESSAGES_BASE_URL = (djangoUrls.API_GET_CHAT_MESSAGES_BASE_URL || '').replace('DUMMY_UID', '');
 
 
         // Global variable for current user's UID (Django PK)
@@ -1861,10 +1870,6 @@
                 
                 // Get user_type from the hidden input
                 data.user_type = userTypeHiddenInput.value;
-
-                // Common fields
-                data.contact = contactInput.value.trim(); // NEW
-                data.occupation = occupationInput.value.trim(); // NEW
 
                 // Conditionally collect and clean data based on user_type
                 if (data.user_type === 'looking_for_room') {

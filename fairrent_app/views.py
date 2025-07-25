@@ -367,13 +367,6 @@ def save_roommate_profile(request):
                 'availability_date': availability_date,
                 'furnished': data.get('furnished'), # Added furnished
                 'bills_included': data.get('bills_included'), # Added bills_included
-                # Clear fields specific to 'looking_for_room' if switching type
-                'age': None,
-                'gender': None,
-                'sleep_schedule': None,
-                'cleanliness': None,
-                'lifestyle_preferences': None,
-                'budget': None,
             })
 
         profile, created = RoommateProfile.objects.update_or_create(
@@ -627,8 +620,8 @@ def find_roommate_matches_api(request):
             try:
                 ai_matches_raw = json.loads(ai_content)
                 # OpenAI might return a dict with a "matches" key or directly an array
-                if isinstance(ai_matches_raw, dict) and "matches" in ai_matches_raw:
-                    ai_matches = ai_matches_raw["matches"]
+                if isinstance(ai_matches_raw, dict) and ("roommates" in ai_matches_raw or "roommate_profiles" in ai_matches_raw):
+                    ai_matches = ai_matches_raw.get("roommates") or ai_matches_raw.get("roommate_profiles")
                 elif isinstance(ai_matches_raw, list):
                     ai_matches = ai_matches_raw
                 else:
@@ -648,7 +641,7 @@ def find_roommate_matches_api(request):
                     match['user_type'] = target_user_type # Ensure user_type is set for AI profiles
                     # Ensure avatar_url is present, or use a placeholder
                     if 'avatar_url' not in match or not match['avatar_url']:
-                        match['avatar_url'] = f"https://placehold.co/160x160/cccccc/ffffff?text=AI+User"
+                        match['avatar_url'] = f"https://picsum.photos/seed/{random.randint(1, 1000)}/160/160" # Generate a random image seed
                     found_matches.append(match)
                 else:
                     logger.warning(f"Skipping non-dictionary AI match: {match}")
