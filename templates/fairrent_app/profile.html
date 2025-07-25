@@ -1256,7 +1256,7 @@
             <button type="button" id="close-profile-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Close Profile Modal">
                 <i class="fas fa-times fa-lg"></i>
             </button>
-            <form id="roommate-profile-form" class="space-y-6 pb-16">
+            <form id="roommate-profile-form" class="space-y-6 pb-24">
                 <h3 id="profile-modal-title" class="text-3xl font-bold mb-6 text-gray-900">Your Roommate Profile</h3>
                 
                 <!-- NEW: User Type Selection -->
@@ -2056,7 +2056,6 @@
         async function animateAndAdvance(direction) {
             const currentCard = roommateMatchCardDisplay.querySelector('.roommate-match-card');
             if (currentCard) {
-                currentCard.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out';
                 if (direction === 'like') {
                     const likedMatchData = currentMatches[currentMatchIndex];
                     const dataToSend = {
@@ -2093,7 +2092,7 @@
                         if (saveResult.status === 'success' || saveResult.status === 'info') {
                             showToast(saveResult.message, saveResult.status);
                             currentCard.classList.add('swiping-right');
-                            currentCard.addEventListener('transitionend', () => {
+                            currentCard.addEventListener('animationend', () => {
                                 currentCard.remove();
                                 currentMatchIndex++;
                                 displayCurrentMatch();
@@ -2112,7 +2111,7 @@
                     }
                 } else { // If skipping
                     currentCard.classList.add('swiping-left');
-                    currentCard.addEventListener('transitionend', () => {
+                    currentCard.addEventListener('animationend', () => {
                         currentCard.remove();
                         currentMatchIndex++;
                         displayCurrentMatch();
