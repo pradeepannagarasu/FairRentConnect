@@ -411,7 +411,8 @@ def find_roommate_matches_api(request):
         logger.error("OpenAI API key not configured. AI matching disabled.")
         return JsonResponse({'status': 'error', 'message': 'AI service is currently unavailable. OpenAI API key not configured.'}, status=503)
 
-    target_matches_count = 5
+    # **MODIFIED**: Increased target matches to provide a larger pool for the front-end feed.
+    target_matches_count = 30 
     found_matches = []
 
     # Determine the type of profiles to search for
@@ -458,9 +459,9 @@ def find_roommate_matches_api(request):
             if 'non-smoker' in user_prefs and 'smoker' in other_rules:
                 score -= 2
             if 'pet-friendly' in user_prefs and 'no pets' in other_rules: # User wants pets, but rule says no
-                 score -= 1
+                score -= 1
             if 'pet-friendly' not in user_prefs and 'pets allowed' in other_rules: # User doesn't care, rule allows
-                 score += 0.5 # Small positive if not a conflict
+                score += 0.5 # Small positive if not a conflict
 
             # Reward for alignment (e.g., quiet preference and quiet hours rule)
             if 'quiet' in user_prefs and 'quiet hours' in other_rules:

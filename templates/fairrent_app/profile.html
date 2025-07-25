@@ -178,12 +178,12 @@
         }
 
         @keyframes swipe-left {
-            from { transform: translateX(-50%) translateY(var(--card-offset-y)) rotate(var(--card-rotate-z)); opacity: 1; }
-            to { transform: translateX(-150%) translateY(var(--card-offset-y)) rotate(calc(var(--card-rotate-z) - 30deg)); opacity: 0; }
+            from { transform: translate(-50%, -50%) translateY(var(--card-offset-y)) scale(var(--card-scale)) rotate(var(--card-rotate-z)); opacity: 1; }
+            to { transform: translate(-150%, -50%) translateY(var(--card-offset-y)) scale(var(--card-scale)) rotate(calc(var(--card-rotate-z) - 30deg)); opacity: 0; }
         }
         @keyframes swipe-right {
-            from { transform: translateX(-50%) translateY(var(--card-offset-y)) rotate(var(--card-rotate-z)); opacity: 1; }
-            to { transform: translateX(50%) translateY(var(--card-offset-y)) rotate(calc(var(--card-rotate-z) + 30deg)); opacity: 0; }
+            from { transform: translate(-50%, -50%) translateY(var(--card-offset-y)) scale(var(--card-scale)) rotate(var(--card-rotate-z)); opacity: 1; }
+            to { transform: translate(50%, -50%) translateY(var(--card-offset-y)) scale(var(--card-scale)) rotate(calc(var(--card-rotate-z) + 30deg)); opacity: 0; }
         }
 
         /* --- Responsive Styles --- */
