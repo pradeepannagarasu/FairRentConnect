@@ -14,8 +14,8 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.conf import settings # Import settings to access API keys
 from django.db import transaction # For atomic operations
-from django.contrib.auth.models import User  # Import User model
-from django.db.models import Q  # Import Q for complex queries
+from django.contrib.auth.models import User # Import User model - Removed U+00A0 character
+from django.db.models import Q # Import Q for complex queries
 
 import json
 import requests
@@ -25,7 +25,12 @@ import uuid # Import uuid for generating unique IDs for AI profiles
 from decimal import Decimal # Import Decimal to handle precise numbers
 from datetime import datetime # Import datetime for date parsing
 
-from .models import Complaint, LandlordReview, RoommateProfile, ForumPost, ForumReply, RentCheck, LikedProfile, RentalContract, RentDeclarationCheck, ChatMessage, Notification # Import all models, including Notification
+# Import all models, including Notification and the NEW Connection model
+from .models import (
+    Complaint, LandlordReview, RoommateProfile, ForumPost, ForumReply,
+    RentCheck, LikedProfile, RentalContract, RentDeclarationCheck,
+    ChatMessage, Notification, Connection # NEW: Import Connection
+)
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -146,7 +151,8 @@ def profile_view(request):
                 'bio': liked_profile.liked_user_bio,
                 'compatibility_score': liked_profile.liked_user_compatibility_score,
                 'avatar_url': liked_profile.liked_user_avatar_url,
-                'uid': liked_profile.liked_user_uid # NEW: Pass the liked user's UID for chat
+                'uid': liked_profile.liked_user_uid, # NEW: Pass the liked user's UID for chat
+                'user_type': liked_profile.user_type # NEW: Pass the liked user's profile type
             }
         })
     for contract in user_rental_contracts: # Add rental contracts to activities
@@ -275,7 +281,9 @@ def save_roommate_profile(request):
             'name': name,
             'user_type': user_type,
             'location': data.get('location'),
-            'bio': data.get('bio')
+            'bio': data.get('bio'),
+            'contact': data.get('contact'), # NEW: Contact field
+            'occupation': data.get('occupation') # NEW: Occupation field
         }
 
         if user_type == 'looking_for_room':
@@ -321,6 +329,8 @@ def save_roommate_profile(request):
                 'house_rules': None,
                 'availability_date': None,
                 'property_photos': None,
+                'furnished': None, # Clear
+                'bills_included': None, # Clear
             })
         elif user_type == 'offering_room':
             num_available_rooms = data.get('num_available_rooms')
@@ -360,6 +370,8 @@ def save_roommate_profile(request):
                 'house_rules': data.get('house_rules', ''), # Assuming comma-separated string
                 'property_photos': data.get('property_photos', ''), # Assuming comma-separated URLs
                 'availability_date': availability_date,
+                'furnished': data.get('furnished'), # NEW
+                'bills_included': data.get('bills_included'), # NEW
                 # Clear fields specific to 'looking_for_room' if switching type
                 'age': None,
                 'gender': None,
@@ -412,7 +424,7 @@ def find_roommate_matches_api(request):
         return JsonResponse({'status': 'error', 'message': 'AI service is currently unavailable. OpenAI API key not configured.'}, status=503)
 
     # **MODIFIED**: Adjusted target matches to a more reasonable number for performance.
-    target_matches_count = 15 
+    target_matches_count = 15  
     found_matches = []
 
     # Determine the type of profiles to search for
@@ -494,7 +506,12 @@ def find_roommate_matches_api(request):
                 'bio': other_profile.bio,
                 'compatibility_score': min(95, max(50, 70 + int(score * 3))), # Scale score to 50-95 range
                 'avatar_url': f"https://placehold.co/160x160/cccccc/ffffff?text={ (other_profile.name or other_profile.user.username)[0].upper() }" if (other_profile.name or other_profile.user.username) else 'https://placehold.co/160x160/cccccc/ffffff?text=U',
-                'uid': str(other_profile.user.pk)
+                'uid': str(other_profile.user.pk),
+                'furnished': other_profile.furnished, # NEW
+                'bills_included': other_profile.bills_included, # NEW
+                'contact': other_profile.contact, # NEW
+                'occupation': other_profile.occupation, # NEW
+                'property_photos': other_profile.property_photos, # NEW
             })
 
         else: # User is offering a room, matching with someone looking for a room
@@ -548,7 +565,9 @@ def find_roommate_matches_api(request):
                 'bio': other_profile.bio,
                 'compatibility_score': min(95, max(50, 70 + int(score * 3))),
                 'avatar_url': f"https://placehold.co/160x160/cccccc/ffffff?text={ (other_profile.name or other_profile.user.username)[0].upper() }" if (other_profile.name or other_profile.user.username) else 'https://placehold.co/160x160/cccccc/ffffff?text=U',
-                'uid': str(other_profile.user.pk)
+                'uid': str(other_profile.user.pk),
+                'contact': other_profile.contact, # NEW
+                'occupation': other_profile.occupation, # NEW
             })
 
     # Sort real matches by score and select the best ones
@@ -578,7 +597,7 @@ def find_roommate_matches_api(request):
             if user_profile.user_type == 'looking_for_room':
                 prompt_parts.append(f"Generate a JSON object with a single key 'matches' which contains a JSON array of {num_ai_to_generate} fictional roommate profiles OFFERING a room.")
                 prompt_parts.append(f"These profiles should be compatible with a user who is LOOKING for a room with these preferences: Location: {user_profile.location or 'any'}, Budget: £{user_profile.budget or 'any'}, Lifestyle: {user_profile.lifestyle_preferences or 'any'}.")
-                prompt_parts.append("Each generated profile must include: 'name', 'location', 'rent_amount_offering' (integer), 'num_available_rooms' (integer 1-3), 'room_size' (e.g., 'Double'), 'house_rules' (comma-separated), 'availability_date' (YYYY-MM-DD), 'bio' (2-3 sentences), 'compatibility_score' (integer 70-95), 'avatar_url' (using https://picsum.photos/seed/UNIQUE_NUMBER/160/160), and 'uid' (unique string 'ai_profile_UUID').")
+                prompt_parts.append("Each generated profile must include: 'name', 'location', 'rent_amount_offering' (integer), 'num_available_rooms' (integer 1-3), 'room_size' (e.g., 'Double'), 'house_rules' (comma-separated), 'availability_date' (YYYY-MM-DD), 'bio' (2-3 sentences), 'compatibility_score' (integer 70-95), 'avatar_url' (using https://picsum.photos/seed/UNIQUE_NUMBER/160/160), 'uid' (unique string 'ai_profile_UUID'), 'furnished' (yes/no/partially), 'bills_included' (yes/no).")
             else: # user_profile.user_type == 'offering_room'
                 prompt_parts.append(f"Generate a JSON object with a single key 'matches' which contains a JSON array of {num_ai_to_generate} fictional roommate profiles LOOKING for a room.")
                 prompt_parts.append(f"These profiles should be compatible with a user who is OFFERING a room with these details: Location: {user_profile.location or 'any'}, Rent: £{user_profile.rent_amount_offering or 'any'}, House Rules: {user_profile.house_rules or 'any'}.")
@@ -616,7 +635,7 @@ def find_roommate_matches_api(request):
                     break # Stop adding AI profiles if we have enough matches
                 if isinstance(match, dict):
                     match['uid'] = f"ai_profile_{uuid.uuid4()}"
-                    match['user_type'] = target_user_type 
+                    match['user_type'] = target_user_type # Ensure AI profiles have the correct user_type
                     found_matches.append(match)
                     current_found_count += 1
                 else:
@@ -630,7 +649,7 @@ def find_roommate_matches_api(request):
             return JsonResponse({'status': 'error', 'message': 'AI service returned an unreadable response for matches.'}, status=500)
         except Exception as e:
             logger.exception("An unexpected error occurred during AI match generation")
-            return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred during AI matching: {e}'}, status=500)
+            return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred: {e}'}, status=500)
 
     if not found_matches:
         return JsonResponse({'status': 'info', 'message': 'No compatible roommates found at this time. Try updating your profile preferences.'}, status=200)
@@ -675,7 +694,20 @@ def save_liked_profile(request):
 
         liked_user_avatar_url = data.get('avatar_url', '')
         liked_user_uid = data.get('uid', '') # The UID of the liked profile (Django PK or AI UUID)
-        # liked_user_type = data.get('user_type', '') # If you add this to LikedProfile model
+        liked_user_type = data.get('user_type', '') # NEW: Get user_type from the liked profile data
+
+        # NEW: Fields for 'offering_room' profiles
+        num_available_rooms = data.get('num_available_rooms', None)
+        rent_amount_offering = data.get('rent_amount_offering', None)
+        room_size = data.get('room_size', '')
+        house_rules = data.get('house_rules', '')
+        availability_date_str = data.get('availability_date', None)
+        availability_date = datetime.strptime(availability_date_str, '%Y-%m-%d').date() if availability_date_str else None
+        property_photos = data.get('property_photos', '')
+        furnished = data.get('furnished', '')
+        bills_included = data.get('bills_included', '')
+        contact = data.get('contact', '')
+        occupation = data.get('occupation', '')
 
         # Basic validation for required fields
         if not liked_user_name or not liked_user_uid:
@@ -698,7 +730,18 @@ def save_liked_profile(request):
                 liked_user_bio=liked_user_bio,
                 liked_user_compatibility_score=liked_user_compatibility_score,
                 liked_user_avatar_url=liked_user_avatar_url,
-                # liked_user_type=liked_user_type # Uncomment if you add this field to LikedProfile model
+                user_type=liked_user_type, # Save the user_type
+                # NEW: Save offering_room specific fields if applicable
+                num_available_rooms=num_available_rooms,
+                rent_amount_offering=rent_amount_offering,
+                room_size=room_size,
+                house_rules=house_rules,
+                availability_date=availability_date,
+                property_photos=property_photos,
+                furnished=furnished,
+                bills_included=bills_included,
+                contact=contact,
+                occupation=occupation,
             )
 
             # Create a notification for the liked user (if it's a real user)
@@ -711,7 +754,8 @@ def save_liked_profile(request):
                 # Ensure the user is not liking their own profile
                 if target_user != request.user:
                     notification_message = f"{request.user.username} liked your profile!"
-                    notification_link = f"/profile/#roommate-finder-section" # Link back to their profile/roommate finder
+                    # Link to their profile, potentially highlighting the sender
+                    notification_link = f"/profile/#roommate-finder-section" 
                     Notification.objects.create(
                         recipient=target_user,
                         sender=request.user, # The user who performed the like
@@ -722,7 +766,7 @@ def save_liked_profile(request):
                     logger.info(f"Notification created for {target_user.username}: {notification_message}")
                 else:
                     logger.info(f"User {request.user.username} liked their own profile. No notification generated.")
-            except User.DoesNotExist:
+            except (User.DoesNotExist, ValueError): # ValueError if liked_user_uid is not a valid int for PK
                 # If liked_user_uid does not correspond to a real User (e.g., it's an AI profile UUID)
                 logger.info(f"Liked profile with UID {liked_user_uid} is not a real user. No notification generated.")
             except Exception as e:
@@ -957,6 +1001,7 @@ def refine_text_api(request):
         if not original_text:
             return JsonResponse({'status': 'error', 'message': 'No text provided for refinement.'}, status=400)
 
+        # Corrected to use requests.post for OpenAI API
         response = requests.post(
             "https://api.openai.com/v1/chat/completions",
             headers={"Authorization": f"Bearer {openai_api_key}", "Content-Type": "application/json"},
@@ -1250,6 +1295,7 @@ def send_chat_message(request):
     API endpoint to send a chat message.
     Messages can be sent between two real users (using their Django PKs)
     or between a real user and an AI profile (using its UUID).
+    Requires an active Connection for real users.
     """
     try:
         data = json.loads(request.body)
@@ -1259,12 +1305,24 @@ def send_chat_message(request):
         if not receiver_uid or not message_text:
             return JsonResponse({'status': 'error', 'message': 'Receiver UID and message are required.'}, status=400)
         
-        # Determine sender and receiver to store in the database
         sender_uid = str(request.user.pk)
 
-        # For simplicity, we'll store messages as is.
-        # In a more complex system, you might want to differentiate
-        # between real user UIDs (Django PKs) and AI UIDs (UUID strings).
+        # Check if the receiver is a real user or an AI profile
+        is_ai_profile = receiver_uid.startswith('ai_profile_')
+
+        if not is_ai_profile:
+            # If it's a real user, check for an active connection
+            try:
+                receiver_user = User.objects.get(pk=receiver_uid)
+                # Check for a mutual connection (order doesn't matter for Connection model)
+                if not Connection.objects.filter(
+                    Q(user1=request.user, user2=receiver_user) |
+                    Q(user1=receiver_user, user2=request.user)
+                ).exists():
+                    return JsonResponse({'status': 'error', 'message': 'You can only chat with connected users.'}, status=403)
+            except User.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'Invalid receiver. User does not exist.'}, status=404)
+        
         ChatMessage.objects.create(
             sender_uid=sender_uid,
             receiver_uid=receiver_uid,
@@ -1272,20 +1330,21 @@ def send_chat_message(request):
         )
 
         # Optional: Create a notification for the receiver if they are a real user
-        try:
-            target_user = User.objects.get(pk=receiver_uid)
-            if target_user != request.user: # Don't notify self
-                Notification.objects.create(
-                    recipient=target_user,
-                    sender=request.user,
-                    type='message',
-                    message=f"New message from {request.user.username}: '{message_text[:50]}...'",
-                    link=f"/profile/#chat-modal" # Could link directly to chat with sender if possible
-                )
-        except User.DoesNotExist:
-            logger.info(f"Receiver {receiver_uid} is not a real user (or does not exist). No message notification created.")
-        except Exception as e:
-            logger.error(f"Error creating message notification for {receiver_uid}: {e}")
+        if not is_ai_profile:
+            try:
+                target_user = User.objects.get(pk=receiver_uid)
+                if target_user != request.user: # Don't notify self
+                    Notification.objects.create(
+                        recipient=target_user,
+                        sender=request.user,
+                        type='message',
+                        message=f"New message from {request.user.username}: '{message_text[:50]}...'",
+                        link=f"/profile/#chat-modal" # Could link directly to chat with sender if possible
+                    )
+            except User.DoesNotExist:
+                logger.info(f"Receiver {receiver_uid} is not a real user (or does not exist). No message notification created.")
+            except Exception as e:
+                logger.error(f"Error creating message notification for {receiver_uid}: {e}")
 
         return JsonResponse({'status': 'success', 'message': 'Message sent successfully!'})
     except json.JSONDecodeError:
@@ -1301,8 +1360,25 @@ def get_chat_messages(request, partner_uid):
     """
     API endpoint to retrieve chat messages between the current user and a specific partner (real user or AI).
     Messages are ordered by timestamp.
+    Requires an active Connection for real users.
     """
     current_user_uid = str(request.user.pk)
+
+    # Check if the partner is a real user or an AI profile
+    is_ai_profile = partner_uid.startswith('ai_profile_')
+
+    if not is_ai_profile:
+        # If it's a real user, check for an active connection
+        try:
+            partner_user = User.objects.get(pk=partner_uid)
+            # Check for a mutual connection (order doesn't matter for Connection model)
+            if not Connection.objects.filter(
+                Q(user1=request.user, user2=partner_user) |
+                Q(user1=partner_user, user2=request.user)
+            ).exists():
+                return JsonResponse({'status': 'error', 'message': 'You are not connected with this user to view chat history.'}, status=403)
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Invalid chat partner. User does not exist.'}, status=404)
 
     # Fetch messages where current user is sender AND partner is receiver
     messages = ChatMessage.objects.filter(
@@ -1337,7 +1413,7 @@ def get_notifications(request):
         notifications_query = notifications_query.filter(is_read=False)
     
     notifications = notifications_query.order_by('-created_at').values(
-        'id', 'type', 'message', 'link', 'created_at', 'is_read', 'sender__username'
+        'id', 'type', 'message', 'link', 'created_at', 'is_read', 'sender__username', 'status' # NEW: Include status
     )
 
     notification_list = []
@@ -1349,7 +1425,8 @@ def get_notifications(request):
             'link': notif['link'],
             'created_at': notif['created_at'].isoformat() if notif['created_at'] else None,
             'is_read': notif['is_read'],
-            'sender_username': notif['sender__username'] if notif['sender__username'] else 'System'
+            'sender_username': notif['sender__username'] if notif['sender__username'] else 'System',
+            'status': notif['status'] # NEW: Pass status
         })
     
     unread_count = Notification.objects.filter(recipient=request.user, is_read=False).count()
@@ -1394,3 +1471,130 @@ def mark_notification_read(request):
     except Exception as e:
         logger.exception("An unexpected error occurred in mark_notification_read")
         return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred: {e}'}, status=500)
+
+
+@csrf_exempt
+@login_required
+@require_http_methods(["POST"])
+def send_connection_request(request):
+    """
+    API endpoint to send a connection request to another user.
+    Creates a 'connection_request' notification for the recipient.
+    """
+    try:
+        data = json.loads(request.body)
+        recipient_uid = data.get('recipient_uid')
+
+        if not recipient_uid:
+            return JsonResponse({'status': 'error', 'message': 'Recipient UID is required.'}, status=400)
+
+        try:
+            recipient_user = User.objects.get(pk=recipient_uid)
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Recipient user not found.'}, status=404)
+        
+        if recipient_user == request.user:
+            return JsonResponse({'status': 'error', 'message': 'You cannot send a connection request to yourself.'}, status=400)
+        
+        # Check if a connection already exists
+        if Connection.objects.filter(
+            Q(user1=request.user, user2=recipient_user) |
+            Q(user1=recipient_user, user2=request.user)
+        ).exists():
+            return JsonResponse({'status': 'info', 'message': 'You are already connected with this user.'})
+
+        # Check if a pending request already exists from either side
+        if Notification.objects.filter(
+            Q(recipient=recipient_user, sender=request.user, type='connection_request', status='pending') |
+            Q(recipient=request.user, sender=recipient_user, type='connection_request', status='pending')
+        ).exists():
+            return JsonResponse({'status': 'info', 'message': 'A pending connection request already exists.'})
+
+        with transaction.atomic():
+            Notification.objects.create(
+                recipient=recipient_user,
+                sender=request.user,
+                type='connection_request',
+                status='pending',
+                message=f"{request.user.username} wants to connect with you!",
+                link=f"/profile/#my-services-section" # Link to notifications/services tab
+            )
+        
+        logger.info(f"Connection request sent from {request.user.username} to {recipient_user.username}")
+        return JsonResponse({'status': 'success', 'message': 'Connection request sent successfully!'})
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON format.'}, status=400)
+    except Exception as e:
+        logger.exception("Error sending connection request")
+        return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred: {e}'}, status=500)
+
+
+@csrf_exempt
+@login_required
+@require_http_methods(["POST"])
+def respond_to_connection_request(request):
+    """
+    API endpoint to respond to a connection request (accept or reject).
+    If accepted, creates a Connection object and notifies the sender.
+    """
+    try:
+        data = json.loads(request.body)
+        notification_id = data.get('notification_id')
+        action = data.get('action') # 'accept' or 'reject'
+
+        if not notification_id or action not in ['accept', 'reject']:
+            return JsonResponse({'status': 'error', 'message': 'Notification ID and a valid action (accept/reject) are required.'}, status=400)
+
+        notification = get_object_or_404(Notification, id=notification_id, recipient=request.user, type='connection_request', status='pending')
+
+        with transaction.atomic():
+            if action == 'accept':
+                # Create a Connection
+                # Ensure user1 is always the lower PK to prevent duplicate (user1, user2) and (user2, user1) entries
+                user1 = min(request.user, notification.sender, key=lambda u: u.pk)
+                user2 = max(request.user, notification.sender, key=lambda u: u.pk)
+
+                Connection.objects.get_or_create(user1=user1, user2=user2)
+                
+                notification.status = 'accepted'
+                notification.is_read = True
+                notification.save()
+
+                # Notify the sender that their request was accepted
+                Notification.objects.create(
+                    recipient=notification.sender,
+                    sender=request.user, # The user who accepted
+                    type='connection_request',
+                    status='accepted',
+                    message=f"{request.user.username} accepted your connection request! You can now chat.",
+                    link=f"/profile/#chat-modal" # Direct link to chat with the new connection
+                )
+                logger.info(f"Connection request from {notification.sender.username} to {request.user.username} accepted.")
+                return JsonResponse({'status': 'success', 'message': 'Connection request accepted. You can now chat!'})
+
+            elif action == 'reject':
+                notification.status = 'rejected'
+                notification.is_read = True
+                notification.save()
+
+                # Notify the sender that their request was rejected
+                Notification.objects.create(
+                    recipient=notification.sender,
+                    sender=request.user, # The user who rejected
+                    type='connection_request',
+                    status='rejected',
+                    message=f"{request.user.username} declined your connection request.",
+                    link=f"/profile/#my-services-section" # Link back to their activity
+                )
+                logger.info(f"Connection request from {notification.sender.username} to {request.user.username} rejected.")
+                return JsonResponse({'status': 'success', 'message': 'Connection request declined.'})
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON format.'}, status=400)
+    except Notification.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Connection request not found or already processed.'}, status=404)
+    except Exception as e:
+        logger.exception("Error responding to connection request")
+        return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred: {e}'}, status=500)
+

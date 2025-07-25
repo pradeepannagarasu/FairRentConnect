@@ -1130,7 +1130,7 @@
                                     "property_address": "{{ complaint.property_address|escapejs }}",
                                     "landlord_name": "{{ complaint.landlord_name|default:''|escapejs }}",
                                     "description": "{{ complaint.description|escapejs }}",
-                                    "status": "{{ complaint.get_status_display|escapejs }}", 
+                                    "status": "{{ complaint.get_status_display|escapejs }}",  
                                     "submitted_at": "{{ complaint.submitted_at|date:"Y-m-d H:i:s" }}"
                                 }
                             </script>
@@ -1186,7 +1186,17 @@
                                     "compatibility_score": {{ liked_profile.liked_user_compatibility_score|default:"null" }},
                                     "avatar_url": "{{ liked_profile.liked_user_avatar_url|escapejs }}",
                                     "uid": "{{ liked_profile.liked_user_uid|default:''|escapejs }}", {# IMPORTANT: Pass UID for chat #}
-                                    "user_type": "{{ liked_profile.user_type|default:''|escapejs }}" {# NEW: Pass user_type for correct modal display #}
+                                    "user_type": "{{ liked_profile.user_type|default:''|escapejs }}", {# NEW: Pass user_type for correct modal display #}
+                                    "num_available_rooms": {{ liked_profile.num_available_rooms|default:"null" }},
+                                    "rent_amount_offering": {{ liked_profile.rent_amount_offering|default:"null" }},
+                                    "room_size": "{{ liked_profile.room_size|default:''|escapejs }}",
+                                    "house_rules": "{{ liked_profile.house_rules|default:''|escapejs }}",
+                                    "availability_date": "{{ liked_profile.availability_date|date:'Y-m-d'|default:''|escapejs }}",
+                                    "property_photos": "{{ liked_profile.property_photos|default:''|escapejs }}",
+                                    "furnished": "{{ liked_profile.furnished|default:''|escapejs }}",
+                                    "bills_included": "{{ liked_profile.bills_included|default:''|escapejs }}",
+                                    "contact": "{{ liked_profile.contact|default:''|escapejs }}",
+                                    "occupation": "{{ liked_profile.occupation|default:''|escapejs }}"
                                 }
                             </script>
                         {% endfor %}
@@ -1428,8 +1438,8 @@
                 <div class="mt-4">
                     <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
                     <textarea id="bio" name="bio" rows="4"
-                            class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
-                            placeholder="Tell us about yourself and what you're looking for... (max 500 words)">{{ user_roommate_profile.bio|default:'' }}</textarea>
+                                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-3"
+                                placeholder="Tell us about yourself and what you're looking for... (max 500 words)">{{ user_roommate_profile.bio|default:'' }}</textarea>
                 </div>
                 <div class="mt-8 flex justify-end space-x-4">
                     <button type="button" id="profile-form-cancel-btn" class="btn-secondary btn-hover-effect">Cancel</button>
@@ -1480,8 +1490,8 @@
     <!-- NEW: Chat Request Confirmation Modal -->
     <div id="chat-request-confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="chat-request-confirm-title">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-8 relative text-center">
-            <h3 id="chat-request-confirm-title" class="text-xl font-bold text-gray-900 mb-4">Send Chat Request?</h3>
-            <p class="text-gray-700 mb-6">Would you like to send a chat request to <span id="confirm-chat-partner-name" class="font-semibold"></span>?</p>
+            <h3 id="chat-request-confirm-title" class="text-xl font-bold text-gray-900 mb-4">Send Connection Request?</h3>
+            <p class="text-gray-700 mb-6">Would you like to send a connection request to <span id="confirm-chat-partner-name" class="font-semibold"></span>?</p>
             <div class="flex justify-center space-x-4">
                 <button type="button" id="cancel-chat-request-btn" class="btn-secondary">Cancel</button>
                 <button type="button" id="send-chat-request-btn" class="btn-primary">Send Request</button>
@@ -1525,10 +1535,13 @@
         // For get_chat_messages, it takes a UID, so we need a base URL without the UID
         // A common trick is to pass a dummy value and then replace it
         const API_GET_CHAT_MESSAGES_BASE_URL = "{% url 'fairrent_app:api_get_chat_messages' 'DUMMY_UID' %}".replace('DUMMY_UID/', '');
+        // NEW: API for sending and responding to connection requests
+        const API_SEND_CONNECTION_REQUEST_URL = "{% url 'fairrent_app:api_send_connection_request' %}";
+        const API_RESPOND_TO_CONNECTION_REQUEST_URL = "{% url 'fairrent_app:api_respond_to_connection_request' %}";
 
 
         // Global variable for current user's UID (Django PK)
-        const currentUserId = "{{ request.user.pk|default:'null' }}"; 
+        const currentUserId = "{{ request.user.pk|default:'null' }}";  
         var chatPartnerUid = null;
         var chatPartnerName = '';
         var chatPollingInterval = null;
@@ -1596,8 +1609,8 @@
         headerNavButtons.forEach(button => {
             button.addEventListener('click', (e) => {
                 const targetId = button.dataset.contentTarget;
-                if (targetId) { 
-                    e.preventDefault(); 
+                if (targetId) {  
+                    e.preventDefault();  
                     window.location.hash = targetId;
                     switchContentSection(targetId);
                 }
@@ -1614,10 +1627,10 @@
                     switchContentSection(targetId);
                 } else if (button.id === 'bottom-nav-chat') { // Special handling for chat button
                     e.preventDefault();
-                    // For now, if no specific chat partner is selected, maybe open a "chat list" or a default chat
-                    // Or, if the user is on the matches page, this could lead to the last chatted person
-                    // For simplicity, let's just show a toast if no chat is active.
-                    showToast("Please select a match to start chatting!", "info");
+                    // For now, redirect to My Services section where connection requests are handled
+                    window.location.hash = 'my-services-section';
+                    switchContentSection('my-services-section');
+                    showToast("Check your notifications for chat requests or connect with a match to start chatting!", "info");
                 }
             });
         });
@@ -1904,7 +1917,7 @@
 
 
         // --- Roommate Match Finder Logic (Button UI) ---
-        const findMatchesBtn = document.getElementById('find-matches-btn');
+        const findMatchesBtn = document.getElementById('find-matches-btn'); // This ID doesn't exist in the provided HTML, assuming it's an old reference
         const roommateMatchesLoader = document.getElementById('roommate-matches-loader');
         const roommateMatchCardDisplay = document.getElementById('roommate-match-card-display');
         const roommatePrompt = document.getElementById('roommate-prompt');
@@ -2077,6 +2090,8 @@
                         property_photos: likedMatchData.property_photos || '',
                         furnished: likedMatchData.furnished || '',
                         bills_included: likedMatchData.bills_included || '',
+                        contact: likedMatchData.contact || '',
+                        occupation: likedMatchData.occupation || '',
                     };
 
                     try {
@@ -2096,11 +2111,12 @@
                                 currentCard.remove();
                                 currentMatchIndex++;
                                 displayCurrentMatch();
-                                if (likedMatchData.uid && !likedMatchData.uid.startsWith('ai_profile_')) {
+                                // NEW: If it's a real user and not already liked, prompt for connection request
+                                if (likedMatchData.uid && !likedMatchData.uid.startsWith('ai_profile_') && saveResult.status === 'success') {
                                     showChatRequestConfirmModal(likedMatchData.uid, likedMatchData.name);
                                 }
                             }, { once: true });
-                            fetchNotifications(); 
+                            fetchNotifications();  // Refresh notifications after liking
                         } else {
                             showToast(saveResult.message || 'Failed to save liked profile.', 'error');
                             console.error('Error saving liked profile:', saveResult.errors);
@@ -2156,7 +2172,12 @@
             const formatDate = (dateString) => {
                 if (!dateString) return 'N/A';
                 try {
-                    return new Date(dateString).toLocaleString();
+                    // Check if it's a full ISO string (from JS) or just a date (from Django)
+                    const date = new Date(dateString);
+                    if (isNaN(date.getTime())) { // Invalid date
+                         return dateString; // Return as is if it can't be parsed
+                    }
+                    return date.toLocaleString();
                 } catch (e) {
                     return dateString;
                 }
@@ -2193,13 +2214,12 @@
                         <div class="detail-item"><i class="fas fa-info-circle"></i><span class="font-semibold">Bio:</span> <p class="whitespace-pre-wrap">${details.bio || 'No bio provided for this user.'}</p></div>
                         <div class="detail-item"><i class="fas fa-couch"></i><span class="font-semibold">Furnished:</span> ${details.furnished || 'N/A'}</div>
                         <div class="detail-item"><i class="fas fa-file-invoice-dollar"></i><span class="font-semibold">Bills Included:</span> ${details.bills_included || 'N/A'}</div>
-                        {% comment %} Display property photos if available {% endcomment %}
-                        {% if details.property_photos %}
-                            <div class="detail-item"><i class="fas fa-images"></i><span class="font-semibold">Photos:</span></div>
-                            <div class="flex flex-wrap gap-2 mt-2">
-                                ${details.property_photos.split(',').map(url => `<img src="${url.trim()}" class="w-24 h-24 object-cover rounded-md shadow-sm" onerror="this.onerror=null;this.src='https://placehold.co/96x96/cccccc/ffffff?text=No+Image'">`).join('')}
-                            </div>
-                        {% endif %}
+                        {# Display property photos if available #}
+                        ${details.property_photos ? `
+                        <div class="detail-item"><i class="fas fa-images"></i><span class="font-semibold">Photos:</span></div>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            ${details.property_photos.split(',').map(url => `<img src="${url.trim()}" class="w-24 h-24 object-cover rounded-md shadow-sm" onerror="this.onerror=null;this.src='https://placehold.co/96x96/cccccc/ffffff?text=No+Image'">`).join('')}
+                        </div>` : ''}
                     `;
                 }
                 contentHtml += `</div>`;
@@ -2281,7 +2301,8 @@
                 modalRedirectBtn.classList.add('hidden');
             }
 
-            if (chatUid && currentUserId && chatUid !== 'null' && chatUid !== currentUserId && !chatUid.startsWith('ai_profile_')) { // Ensure chatUid is not null, not self, and not AI
+            // Only show "Start Chat" if it's a real user and not self
+            if (chatUid && currentUserId && chatUid !== 'null' && chatUid !== String(currentUserId) && !chatUid.startsWith('ai_profile_')) {
                 modalStartChatBtn.classList.remove('hidden');
             } else {
                 modalStartChatBtn.classList.add('hidden');
@@ -2410,7 +2431,7 @@
                     }
                     data.messages.forEach(msg => {
                         const messageElement = document.createElement('div');
-                        messageElement.className = `chat-message ${msg.sender_uid === currentUserId ? 'sent' : 'received'}`;
+                        messageElement.className = `chat-message ${msg.sender_uid === String(currentUserId) ? 'sent' : 'received'}`;
                         
                         const timestampSpan = document.createElement('span');
                         timestampSpan.className = 'text-xs text-gray-500 ml-2';
@@ -2430,6 +2451,10 @@
                     chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
                 } else {
                     showToast(data.message || 'Failed to load messages.', 'error');
+                    // If chat messages fail to load due to connection not existing, close chat
+                    if (data.status === 'error' && data.message.includes('not connected')) {
+                        closeChat();
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching messages:', error);
@@ -2500,7 +2525,7 @@
                 if (result.status === 'success') {
                     chatMessageInput.value = '';
                     fetchMessages();
-                    fetchNotifications();
+                    fetchNotifications(); // Refresh notifications in case a message triggers one
                 } else {
                     showToast(result.message || 'Failed to send message.', 'error');
                 }
@@ -2556,11 +2581,29 @@
             sendChatRequestBtn.addEventListener('click', async () => {
                 if (!currentLikedUserUidForChat) return;
 
-                // For demo purposes, immediately open chat if it's a real user.
-                // In a real app, this would only happen after the recipient accepts.
-                showToast(`Chat request sent to ${confirmChatPartnerNameSpan.textContent}!`, 'success');
-                closeChatRequestConfirmModal();
-                openChat(currentLikedUserUidForChat, confirmChatPartnerNameSpan.textContent);
+                try {
+                    const response = await fetch(API_SEND_CONNECTION_REQUEST_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ recipient_uid: currentLikedUserUidForChat })
+                    });
+                    const result = await response.json();
+
+                    if (result.status === 'success' || result.status === 'info') {
+                        showToast(result.message, result.status);
+                        fetchNotifications(); // Refresh notifications to update badge/list
+                    } else {
+                        showToast(result.message || 'Failed to send connection request.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error sending connection request:', error);
+                    showToast('Network error sending connection request. Please try again.', 'error');
+                } finally {
+                    closeChatRequestConfirmModal();
+                }
             });
         }
 
@@ -2620,7 +2663,7 @@
                 return;
             }
             try {
-                const response = await fetch(`${API_GET_NOTIFICATIONS_URL}?unread_only=false`); 
+                const response = await fetch(`${API_GET_NOTIFICATIONS_URL}?unread_only=false`);  
                 const data = await response.json();
 
                 if (data.status === 'success') {
@@ -2635,10 +2678,36 @@
                             const notifElement = document.createElement('div');
                             notifElement.className = `notification-item ${notif.is_read ? '' : 'unread'}`;
                             notifElement.dataset.notificationId = notif.id;
-                            notifElement.innerHTML = `
+                            
+                            let notificationContent = `
                                 <p class="notification-message">${notif.message}</p>
                                 <p class="notification-timestamp">${new Date(notif.created_at).toLocaleString()}</p>
                             `;
+
+                            // NEW: Add action buttons for pending connection requests
+                            if (notif.type === 'connection_request' && notif.status === 'pending') {
+                                notificationContent += `
+                                    <div class="flex justify-end space-x-2 mt-2">
+                                        <button class="btn-primary px-3 py-1 text-sm rounded-md" data-action="accept" data-notification-id="${notif.id}">Accept</button>
+                                        <button class="btn-secondary px-3 py-1 text-sm rounded-md" data-action="reject" data-notification-id="${notif.id}">Reject</button>
+                                    </div>
+                                `;
+                            }
+
+                            notifElement.innerHTML = notificationContent;
+
+                            // Add event listeners for action buttons
+                            if (notif.type === 'connection_request' && notif.status === 'pending') {
+                                notifElement.querySelector('[data-action="accept"]').addEventListener('click', (e) => {
+                                    e.stopPropagation(); // Prevent parent notification item click
+                                    respondToConnectionRequest(notif.id, 'accept');
+                                });
+                                notifElement.querySelector('[data-action="reject"]').addEventListener('click', (e) => {
+                                    e.stopPropagation(); // Prevent parent notification item click
+                                    respondToConnectionRequest(notif.id, 'reject');
+                                });
+                            }
+
                             notifElement.addEventListener('click', async () => {
                                 if (!notif.is_read) {
                                     await markNotificationAsRead(notif.id);
@@ -2649,8 +2718,9 @@
                                         const targetHash = notif.link.split('#')[1];
                                         switchContentSection(targetHash);
                                         // If the link is specifically to a chat, open the chat modal
-                                        if (targetHash === 'chat-modal' && notif.sender_uid && notif.sender_name) {
-                                            openChat(notif.sender_uid, notif.sender_name);
+                                        // Ensure sender_uid and sender_username are available in the notification object
+                                        if (targetHash === 'chat-modal' && notif.sender_uid && notif.sender_username) {
+                                            openChat(notif.sender_uid, notif.sender_username);
                                         }
                                     } else {
                                         window.location.href = notif.link;
@@ -2700,7 +2770,7 @@
                         markedNotifElement.classList.remove('bg-fef2f2');
                         markedNotifElement.classList.remove('font-semibold');
                     }
-                    fetchNotifications(); 
+                    fetchNotifications();  // Re-fetch to update counts and list
                 } else {
                     showToast(result.message || 'Failed to mark notification as read.', 'error');
                 }
@@ -2710,13 +2780,38 @@
             }
         }
 
+        // NEW: Function to respond to connection requests
+        async function respondToConnectionRequest(notificationId, action) {
+            try {
+                const response = await fetch(API_RESPOND_TO_CONNECTION_REQUEST_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ notification_id: notificationId, action: action })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showToast(result.message, 'success');
+                    fetchNotifications(); // Refresh notifications after action
+                } else {
+                    showToast(result.message || `Failed to ${action} connection request.`, 'error');
+                }
+            } catch (error) {
+                console.error(`Error responding to connection request (${action}):`, error);
+                showToast('Network error. Please try again.', 'error');
+            }
+        }
+
+
         document.addEventListener('DOMContentLoaded', () => {
             if (currentUserId && currentUserId !== 'null') {
                 fetchNotifications();
                 if (notificationPollingInterval) {
                     clearInterval(notificationPollingInterval);
                 }
-                notificationPollingInterval = setInterval(fetchNotifications, 10000);
+                notificationPollingInterval = setInterval(fetchNotifications, 10000); // Poll every 10 seconds
             }
         });
 

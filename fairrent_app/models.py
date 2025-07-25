@@ -226,28 +226,46 @@ class ChatMessage(models.Model):
     def __str__(self):
         return f"From {self.sender_uid} to {self.receiver_uid}: {self.message[:50]}..."
 
-# NEW: Notification Model
+# **MODIFIED**: Notification Model
 class Notification(models.Model):
-    # The user who receives the notification
     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
-    # The user who triggered the notification (e.g., liked a profile). Can be null for system notifications.
     sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sent_notifications')
     
     NOTIFICATION_TYPES = [
         ('like', 'Profile Like'),
         ('message', 'New Message'),
         ('update', 'System Update'),
-        ('match', 'New Match'), # For future use, if AI finds a new match for a user
+        ('match', 'New Match'),
+        ('connection_request', 'Connection Request'), # New type
     ]
     type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', null=True, blank=True)
+    
     message = models.TextField()
-    # Optional: A link related to the notification (e.g., to a profile, chat, or specific service result)
     link = models.URLField(max_length=500, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ['-created_at'] # Order by most recent first
+        ordering = ['-created_at']
 
     def __str__(self):
         return f"Notification for {self.recipient.username}: {self.message[:50]}..."
+
+# **NEW**: Connection Model
+class Connection(models.Model):
+    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='connections1')
+    user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='connections2')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user1', 'user2')
+
+    def __str__(self):
+        return f"Connection between {self.user1.username} and {self.user2.username}"
