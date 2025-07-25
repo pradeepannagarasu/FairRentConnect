@@ -613,7 +613,7 @@ def find_roommate_matches_api(request):
             prompt_parts.append("Provide a wide range of ages (18-40) and diverse UK locations (e.g., London, Manchester, Edinburgh, Bristol, Glasgow, Birmingham, Leeds, Cardiff, Belfast).")
             prompt_parts.append("Make sure the 'bio' for each match is concise (2-3 sentences) and highlights key personality traits or interests.")
             prompt_parts.append("Ensure 'avatar_url' uses different seed values from 'https://picsum.photos/seed/UNIQUE_NUMBER/160/160' for each match to guarantee visual variety.")
-            prompt_parts.append("Generate a JSON array of roommate objects. Do not include any text, comments, or markdown formatting outside of the single JSON array.")
+            prompt_parts.append("Generate a JSON object with a single key 'matches' which contains a JSON array of roommate objects. Do not include any text, comments, or markdown formatting outside of the single JSON object.")
 
             prompt = "\n".join(prompt_parts)
 
@@ -631,7 +631,8 @@ def find_roommate_matches_api(request):
             ai_content = response.json()['choices'][0]['message']['content']
             
             try:
-                ai_matches = json.loads(ai_content)
+                ai_matches_data = json.loads(ai_content)
+                ai_matches = ai_matches_data.get('matches', [])
                 if not isinstance(ai_matches, list):
                     ai_matches = [ai_matches]
             except json.JSONDecodeError:
