@@ -630,7 +630,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%); /* Center the card */
-            touch-action: pan-y; /* Allow vertical scrolling, but handle horizontal swipe */
+            touch-action: none; /* **MODIFIED**: Disable touch actions on cards */
 
             /* Variables for stacking effect */
             --card-offset-y: 0px;
@@ -1256,7 +1256,7 @@
             <button type="button" id="close-profile-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Close Profile Modal">
                 <i class="fas fa-times fa-lg"></i>
             </button>
-            <form id="roommate-profile-form" class="space-y-6">
+            <form id="roommate-profile-form" class="space-y-6 pb-16">
                 <h3 id="profile-modal-title" class="text-3xl font-bold mb-6 text-gray-900">Your Roommate Profile</h3>
                 
                 <!-- NEW: User Type Selection -->
@@ -1903,7 +1903,7 @@
         }
 
 
-        // --- Roommate Match Finder Logic (Swipe UI) ---
+        // --- Roommate Match Finder Logic (Button UI) ---
         const findMatchesBtn = document.getElementById('find-matches-btn');
         const roommateMatchesLoader = document.getElementById('roommate-matches-loader');
         const roommateMatchCardDisplay = document.getElementById('roommate-match-card-display');
@@ -1919,27 +1919,19 @@
         let currentMatchIndex = 0;
         const currentUserProfileType = "{{ user_roommate_profile.user_type|default:'' }}";
 
-        // Swipe variables
-        let startX = 0;
-        let currentX = 0;
-        let isSwiping = false;
-        const swipeThreshold = 75; // Pixels to swipe to trigger action
-
         function displayCurrentMatch() {
             if (!roommateMatchCardDisplay || !roommatePrompt || !noMoreMatchesPrompt || !swipeButtonsContainer) return;
 
-            // Clear previous content and reset styles
             roommateMatchCardDisplay.innerHTML = '';
             roommatePrompt.classList.add('hidden');
             noMoreMatchesPrompt.classList.add('hidden');
 
-            // **MODIFIED**: Display 5 to 8 profiles at a time
-            const profilesToShow = Math.min(currentMatches.length - currentMatchIndex, Math.floor(Math.random() * 4) + 5); // Randomly 5-8
+            const profilesToShow = Math.min(currentMatches.length - currentMatchIndex, 8);
             
             if (profilesToShow > 0) {
                 for (let i = 0; i < profilesToShow; i++) {
                     const match = currentMatches[currentMatchIndex + i];
-                    if (!match) break; // Ensure we don't go out of bounds
+                    if (!match) break;
 
                     const name = (match.name && match.name !== 'undefined') ? match.name : 'Unknown User';
                     const location = (match.location && match.location !== 'undefined') ? match.location : 'N/A';
@@ -1989,17 +1981,14 @@
                         </p>
                         <button class="match-details-btn btn-secondary mt-4 btn-hover-effect" data-match='${JSON.stringify(match)}' data-user-type='${match.user_type}'>View Details</button>
                     `;
-                    // Position cards in a stack, slightly offset
                     matchCard.style.setProperty('--card-offset-y', `${i * -10}px`);
                     matchCard.style.setProperty('--card-scale', `${1 - i * 0.02}`);
-                    matchCard.style.setProperty('--card-rotate-z', `${i * (Math.random() > 0.5 ? 1 : -1) * 2}deg`); /* Slight random rotation */
+                    matchCard.style.setProperty('--card-rotate-z', `${i * (Math.random() > 0.5 ? 1 : -1) * 2}deg`);
                     matchCard.style.zIndex = currentMatches.length - (currentMatchIndex + i);
 
                     roommateMatchCardDisplay.appendChild(matchCard);
 
-                    // Add swipe event listeners only to the top-most card
                     if (i === 0) {
-                        addSwipeListeners(matchCard);
                         swipeButtonsContainer.classList.remove('hidden');
                     }
 
@@ -2016,71 +2005,11 @@
             }
         }
 
-        // NEW: Swipe event listeners function (unified for mouse and touch)
-        function addSwipeListeners(cardElement) {
-            let initialX = 0;
-            let currentX = 0;
-            let isDragging = false;
-
-            const startDrag = (clientX) => {
-                initialX = clientX;
-                isDragging = true;
-                cardElement.style.transition = 'none'; // Disable transition during drag
-            };
-
-            const dragMove = (clientX) => {
-                if (!isDragging) return;
-                currentX = clientX;
-                const diffX = currentX - initialX;
-                // Apply the offset and scale from stacking, then add swipe transform
-                const offsetY = parseFloat(cardElement.style.getPropertyValue('--card-offset-y') || '0px');
-                const scale = parseFloat(cardElement.style.getPropertyValue('--card-scale') || '1');
-                const rotateZ = parseFloat(cardElement.style.getPropertyValue('--card-rotate-z') || '0deg');
-
-                cardElement.style.transform = `translate(-50%, -50%) translateY(${offsetY}px) scale(${scale}) translateX(${diffX}px) rotate(${rotateZ + (diffX / 20)}deg)`;
-            };
-
-            const endDrag = () => {
-                if (!isDragging) return;
-                isDragging = false;
-                const diffX = currentX - initialX;
-                cardElement.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out'; // Re-enable transition
-
-                if (diffX > swipeThreshold) {
-                    animateAndAdvance('like');
-                } else if (diffX < -swipeThreshold) {
-                    animateAndAdvance('skip');
-                } else {
-                    // Reset to original stacked position
-                    const offsetY = parseFloat(cardElement.style.getPropertyValue('--card-offset-y') || '0px');
-                    const scale = parseFloat(cardElement.style.getPropertyValue('--card-scale') || '1');
-                    const rotateZ = parseFloat(cardElement.style.getPropertyValue('--card-rotate-z') || '0deg');
-                    cardElement.style.transform = `translate(-50%, -50%) translateY(${offsetY}px) scale(${scale}) translateX(0) rotate(${rotateZ}deg)`;
-                }
-            };
-
-            // Mouse events
-            cardElement.addEventListener('mousedown', (e) => startDrag(e.clientX));
-            cardElement.addEventListener('mousemove', (e) => dragMove(e.clientX));
-            cardElement.addEventListener('mouseup', endDrag);
-            cardElement.addEventListener('mouseleave', () => { // End drag if mouse leaves card area
-                if (isDragging) endDrag();
-            });
-
-            // Touch events
-            cardElement.addEventListener('touchstart', (e) => startDrag(e.touches[0].clientX));
-            cardElement.addEventListener('touchmove', (e) => dragMove(e.touches[0].clientX));
-            cardElement.addEventListener('touchend', endDrag);
-        }
-
-
         async function fetchRoommateMatches() {
             if (!roommatePrompt || !noMoreMatchesPrompt || !roommateMatchesLoader || !roommateMatchCardDisplay || !swipeButtonsContainer) return;
 
-            // Ensure the user has a profile type selected before fetching matches
             if (!currentUserProfileType || currentUserProfileType === 'null') {
-                showToast("Please complete your profile and select your role (Looking for a Room / Offering a Room) to find matches.", "error");
-                // Show the initial prompt if no profile type is set
+                showToast("Please complete your profile and select your role to find matches.", "error");
                 roommatePrompt.classList.remove('hidden');
                 return;
             }
@@ -2120,14 +2049,14 @@
                 console.error('Network error fetching roommate matches:', error);
                 roommateMatchesLoader.classList.add('hidden');
                 showToast('Network error finding matches. Please check your internet connection or try again later.', 'error');
-                roommatePrompt.classList.remove('hidden'); // Show prompt again on network error
+                roommatePrompt.classList.remove('hidden');
             }
         }
 
         async function animateAndAdvance(direction) {
             const currentCard = roommateMatchCardDisplay.querySelector('.roommate-match-card');
             if (currentCard) {
-                currentCard.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out'; // Ensure animation
+                currentCard.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out';
                 if (direction === 'like') {
                     const likedMatchData = currentMatches[currentMatchIndex];
                     const dataToSend = {
@@ -2140,8 +2069,7 @@
                         compatibility_score: likedMatchData.compatibility_score !== undefined && likedMatchData.compatibility_score !== null ? parseInt(likedMatchData.compatibility_score) : null,
                         avatar_url: likedMatchData.avatar_url || '',
                         uid: likedMatchData.uid || '',
-                        user_type: likedMatchData.user_type || '', // Pass user_type
-                        // Include new fields for 'offering_room' profiles if present
+                        user_type: likedMatchData.user_type || '',
                         num_available_rooms: likedMatchData.num_available_rooms !== undefined && likedMatchData.num_available_rooms !== null ? parseInt(likedMatchData.num_available_rooms) : null,
                         rent_amount_offering: likedMatchData.rent_amount_offering !== undefined && likedMatchData.rent_amount_offering !== null ? parseFloat(likedMatchData.rent_amount_offering) : null,
                         room_size: likedMatchData.room_size || '',
@@ -2166,10 +2094,9 @@
                             showToast(saveResult.message, saveResult.status);
                             currentCard.classList.add('swiping-right');
                             currentCard.addEventListener('transitionend', () => {
-                                currentCard.remove(); // Remove the swiped card
+                                currentCard.remove();
                                 currentMatchIndex++;
-                                displayCurrentMatch(); // Display the next set of cards
-                                // After liking, if it's a real user, prompt for chat request
+                                displayCurrentMatch();
                                 if (likedMatchData.uid && !likedMatchData.uid.startsWith('ai_profile_')) {
                                     showChatRequestConfirmModal(likedMatchData.uid, likedMatchData.name);
                                 }
@@ -2178,34 +2105,22 @@
                         } else {
                             showToast(saveResult.message || 'Failed to save liked profile.', 'error');
                             console.error('Error saving liked profile:', saveResult.errors);
-                            // If saving fails, reset the card position
-                            // Re-apply original stacked position properties
-                            const offsetY = parseFloat(currentCard.style.getPropertyValue('--card-offset-y') || '0px');
-                            const scale = parseFloat(currentCard.style.getPropertyValue('--card-scale') || '1');
-                            const rotateZ = parseFloat(currentCard.style.getPropertyValue('--card-rotate-z') || '0deg');
-                            currentCard.style.transform = `translate(-50%, -50%) translateY(${offsetY}px) scale(${scale}) translateX(0) rotate(${rotateZ}deg)`;
                         }
                     } catch (error) {
                         console.error('Network error saving liked profile:', error);
                         showToast('Network error saving liked profile. Please try again.', 'error');
-                        // Reset on network error
-                        const offsetY = parseFloat(currentCard.style.getPropertyValue('--card-offset-y') || '0px');
-                        const scale = parseFloat(currentCard.style.getPropertyValue('--card-scale') || '1');
-                        const rotateZ = parseFloat(currentCard.style.getPropertyValue('--card-rotate-z') || '0deg');
-                        currentCard.style.transform = `translate(-50%, -50%) translateY(${offsetY}px) scale(${scale}) translateX(0) rotate(${rotateZ}deg)`;
                     }
                 } else { // If skipping
                     currentCard.classList.add('swiping-left');
                     currentCard.addEventListener('transitionend', () => {
-                        currentCard.remove(); // Remove the swiped card
+                        currentCard.remove();
                         currentMatchIndex++;
-                        displayCurrentMatch(); // Display the next set of cards
+                        displayCurrentMatch();
                     }, { once: true });
                 }
             }
         }
 
-        // Only add event listener if the button exists (it's inside a conditional Django block)
         if (findMatchesBtn) {
             findMatchesBtn.addEventListener('click', fetchRoommateMatches);
         }

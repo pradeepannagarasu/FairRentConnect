@@ -411,8 +411,8 @@ def find_roommate_matches_api(request):
         logger.error("OpenAI API key not configured. AI matching disabled.")
         return JsonResponse({'status': 'error', 'message': 'AI service is currently unavailable. OpenAI API key not configured.'}, status=503)
 
-    # **MODIFIED**: Increased target matches to provide a larger pool for the front-end feed.
-    target_matches_count = 30 
+    # **MODIFIED**: Adjusted target matches to a more reasonable number for performance.
+    target_matches_count = 15 
     found_matches = []
 
     # Determine the type of profiles to search for
@@ -446,8 +446,6 @@ def find_roommate_matches_api(request):
                     score += 1 # User can afford with some flexibility (20% above budget)
 
             # Room size preference (simple match)
-            # Assuming a 'desired_room_size' field might be added to RoommateProfile for 'looking_for_room'
-            # For now, a simple check if the offered room size is present
             if other_profile.room_size:
                 score += 0.5 
 
@@ -455,26 +453,26 @@ def find_roommate_matches_api(request):
             user_prefs = set(p.strip().lower() for p in (user_profile.lifestyle_preferences or '').split(',') if p.strip())
             other_rules = set(p.strip().lower() for p in (other_profile.house_rules or '').split(',') if p.strip())
             
-            # Penalize for direct conflicts (e.g., smoker vs. no smoking rule)
+            # Penalize for direct conflicts
             if 'non-smoker' in user_prefs and 'smoker' in other_rules:
                 score -= 2
-            if 'pet-friendly' in user_prefs and 'no pets' in other_rules: # User wants pets, but rule says no
+            if 'pet-friendly' in user_prefs and 'no pets' in other_rules:
                 score -= 1
-            if 'pet-friendly' not in user_prefs and 'pets allowed' in other_rules: # User doesn't care, rule allows
-                score += 0.5 # Small positive if not a conflict
+            if 'pet-friendly' not in user_prefs and 'pets allowed' in other_rules:
+                score += 0.5
 
-            # Reward for alignment (e.g., quiet preference and quiet hours rule)
+            # Reward for alignment
             if 'quiet' in user_prefs and 'quiet hours' in other_rules:
                 score += 1
-            if 'social' in user_prefs and 'no parties' not in other_rules: # Social user, and no strict party ban
+            if 'social' in user_prefs and 'no parties' not in other_rules:
                 score += 0.5
             
-            # Gender preference (if user has one)
+            # Gender preference
             if user_profile.gender and other_profile.gender:
                 if user_profile.gender == other_profile.gender:
                     score += 1.5
                 elif user_profile.gender == 'other' or other_profile.gender == 'other':
-                    score += 0.5 # Flexible gender preference
+                    score += 0.5
 
             # Age proximity
             if user_profile.age and other_profile.age:
@@ -566,9 +564,6 @@ def find_roommate_matches_api(request):
     else:
         # If above threshold, reduce AI profiles (e.g., no AI profiles)
         num_ai_to_generate = 0 
-        # You could implement a more gradual reduction here, e.g.,
-        # num_ai_to_generate = max(0, target_matches_count - len(potential_real_matches) - (total_real_users - AI_THRESHOLD) // 10)
-        # This would reduce AI by 1 for every 10 users over the threshold.
 
     # Ensure we don't try to generate negative number of AI profiles
     num_ai_to_generate = max(0, num_ai_to_generate)
@@ -581,40 +576,15 @@ def find_roommate_matches_api(request):
         try:
             prompt_parts = []
             if user_profile.user_type == 'looking_for_room':
-                # Generate profiles of people OFFERING rooms for a user LOOKING for a room
-                prompt_parts.append(f"Generate {num_ai_to_generate} fictional, highly diverse, and compatible roommate profiles for someone OFFERING a room, tailored for a user who is LOOKING for a room.")
-                prompt_parts.append(f"The user is looking for a room with preferences:")
-                prompt_parts.append(f"- Age: {user_profile.age or 'Not specified'}")
-                prompt_parts.append(f"- Gender: {user_profile.get_gender_display() or 'any gender'}")
-                prompt_parts.append(f"- Desired Location: {user_profile.location or 'any UK location'}")
-                prompt_parts.append(f"- Max Budget: £{user_profile.budget or 'any budget'}")
-                prompt_parts.append(f"- Sleep Schedule: {user_profile.get_sleep_schedule_display() or 'flexible sleep schedule'}")
-                prompt_parts.append(f"- Cleanliness: {user_profile.get_cleanliness_display() or 'average cleanliness'}")
-                prompt_parts.append(f"- Lifestyle Preferences: {user_profile.lifestyle_preferences or 'Not specified'}")
-                prompt_parts.append(f"- Bio: \"{user_profile.bio or 'Not specified'}\"")
-                prompt_parts.append("Each generated profile should represent a person offering a room, including: 'name', 'location', 'rent_amount_offering' (integer), 'num_available_rooms' (integer 1-3), 'room_size' (e.g., 'Double', 'Single', 'En-suite'), 'house_rules' (comma-separated), 'availability_date' (YYYY-MM-DD), 'bio', 'compatibility_score' (integer 70-95), 'avatar_url', and 'uid' (unique string 'ai_profile_UUID').")
-                prompt_parts.append("Ensure 'rent_amount_offering' is within a reasonable range of the user's budget.")
-
+                prompt_parts.append(f"Generate a JSON object with a single key 'matches' which contains a JSON array of {num_ai_to_generate} fictional roommate profiles OFFERING a room.")
+                prompt_parts.append(f"These profiles should be compatible with a user who is LOOKING for a room with these preferences: Location: {user_profile.location or 'any'}, Budget: £{user_profile.budget or 'any'}, Lifestyle: {user_profile.lifestyle_preferences or 'any'}.")
+                prompt_parts.append("Each generated profile must include: 'name', 'location', 'rent_amount_offering' (integer), 'num_available_rooms' (integer 1-3), 'room_size' (e.g., 'Double'), 'house_rules' (comma-separated), 'availability_date' (YYYY-MM-DD), 'bio' (2-3 sentences), 'compatibility_score' (integer 70-95), 'avatar_url' (using https://picsum.photos/seed/UNIQUE_NUMBER/160/160), and 'uid' (unique string 'ai_profile_UUID').")
             else: # user_profile.user_type == 'offering_room'
-                # Generate profiles of people LOOKING for rooms for a user OFFERING a room
-                prompt_parts.append(f"Generate {num_ai_to_generate} fictional, highly diverse, and compatible roommate profiles for someone LOOKING for a room, tailored for a user who is OFFERING a room.")
-                prompt_parts.append(f"The user is offering a room with details:")
-                prompt_parts.append(f"- Location: {user_profile.location or 'Not specified'}")
-                prompt_parts.append(f"- Rent Amount: £{user_profile.rent_amount_offering or 'Not specified'}")
-                prompt_parts.append(f"- Number of Rooms: {user_profile.num_available_rooms or 'Not specified'}")
-                prompt_parts.append(f"- Room Size: {user_profile.room_size or 'Not specified'}")
-                prompt_parts.append(f"- House Rules: {user_profile.house_rules or 'Not specified'}")
-                prompt_parts.append(f"- Availability Date: {user_profile.availability_date.isoformat() if user_profile.availability_date else 'Not specified'}")
-                prompt_parts.append(f"- Bio: \"{user_profile.bio or 'Not specified'}\"")
-                prompt_parts.append("Each generated profile should represent a person looking for a room, including: 'name', 'age' (integer 18-40), 'gender', 'location', 'budget' (integer), 'sleep_schedule', 'cleanliness', 'lifestyle_preferences' (comma-separated), 'bio', 'compatibility_score' (integer 70-95), 'avatar_url', and 'uid' (unique string 'ai_profile_UUID').")
-                prompt_parts.append("Ensure 'budget' is within a reasonable range of the offered rent.")
+                prompt_parts.append(f"Generate a JSON object with a single key 'matches' which contains a JSON array of {num_ai_to_generate} fictional roommate profiles LOOKING for a room.")
+                prompt_parts.append(f"These profiles should be compatible with a user who is OFFERING a room with these details: Location: {user_profile.location or 'any'}, Rent: £{user_profile.rent_amount_offering or 'any'}, House Rules: {user_profile.house_rules or 'any'}.")
+                prompt_parts.append("Each generated profile must include: 'name', 'age' (integer 18-40), 'gender', 'location', 'budget' (integer), 'sleep_schedule', 'cleanliness', 'lifestyle_preferences' (comma-separated), 'bio' (2-3 sentences), 'compatibility_score' (integer 70-95), 'avatar_url' (using https://picsum.photos/seed/UNIQUE_NUMBER/160/160), and 'uid' (unique string 'ai_profile_UUID').")
             
-            prompt_parts.append("Ensure each generated profile is unique, has a distinct personality, varied hobbies, and different daily routines while still aligning with the user's core preferences.")
-            prompt_parts.append("Provide a wide range of ages (18-40) and diverse UK locations (e.g., London, Manchester, Edinburgh, Bristol, Glasgow, Birmingham, Leeds, Cardiff, Belfast).")
-            prompt_parts.append("Make sure the 'bio' for each match is concise (2-3 sentences) and highlights key personality traits or interests.")
-            prompt_parts.append("Ensure 'avatar_url' uses different seed values from 'https://picsum.photos/seed/UNIQUE_NUMBER/160/160' for each match to guarantee visual variety.")
-            prompt_parts.append("Generate a JSON object with a single key 'matches' which contains a JSON array of roommate objects. Do not include any text, comments, or markdown formatting outside of the single JSON object.")
-
+            prompt_parts.append("Ensure the response is ONLY a JSON object. Do not include any text, comments, or markdown formatting outside of the single JSON object.")
             prompt = "\n".join(prompt_parts)
 
             response = requests.post(
@@ -623,7 +593,7 @@ def find_roommate_matches_api(request):
                 json={
                     "model": "gpt-3.5-turbo",
                     "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.9, # High temperature for diversity
+                    "temperature": 0.9,
                     "response_format": {"type": "json_object"}
                 }
             )
