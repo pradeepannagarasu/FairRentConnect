@@ -2011,9 +2011,6 @@
                         <img src="${avatarUrl}" alt="${name}" class="mx-auto mb-4 w-28 h-28 rounded-full object-cover border-4 border-blue-400" onerror="this.onerror=null;this.src='https://placehold.co/110x110/cccccc/ffffff?text=User'">
                         ${matchDetailsHtml}
                         <div class="compatibility-score">${compatibilityScore}% Match</div>
-                        <p class="text-gray-700 text-base italic leading-relaxed mt-2">
-                            ${bio}
-                        </p>
                         <button class="match-details-btn btn-secondary mt-4 btn-hover-effect" data-match='${JSON.stringify(match)}' data-user-type='${match.user_type}' ${isAIMatch ? 'disabled' : ''}>View Details</button>
                     `;
                     // Position cards in a stack, slightly offset
@@ -2039,7 +2036,7 @@
 
                     matchCard.querySelector('.match-details-btn').addEventListener('click', (e) => {
                         const matchData = JSON.parse(e.target.dataset.match);
-                        const profileUserType = e.target.dataset.userType;
+                        const profileUserType = matchData.user_type; // Use matchData.user_type
                         displayActivityDetails('Liked Profile', matchData, null, matchData.uid || null, profileUserType);
                     });
                 }
@@ -2797,8 +2794,8 @@
                                         switchContentSection(targetHash);
                                         // If the link is specifically to a chat, open the chat modal
                                         // Ensure sender_uid and sender_username are available in notification data
-                                        if (targetHash === 'chat-modal' && notif.sender_uid && notif.sender_name) {
-                                            openChat(notif.sender_uid, notif.sender_name);
+                                        if (notif.sender_uid && notif.sender_username) {
+                                            openChat(notif.sender_uid, notif.sender_username);
                                         }
                                     } else {
                                         window.location.href = notif.link;
