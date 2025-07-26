@@ -14,7 +14,7 @@
     <!-- Font Awesome for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* --- Root Variables for Refined Professional Theme (Reverted to original blues) --- */
+        /* --- Root Variables for Refined Professional Theme --- */
         :root {
             --primary-blue: #2563eb; /* Stronger, more vibrant blue */
             --primary-dark-blue: #1d4ed8; /* Darker primary for accents */
@@ -798,6 +798,47 @@
             font-weight: bold;
             color: var(--primary-blue);
         }
+
+        /* Service Result Card Specific Styling */
+        .service-result-card {
+            background-color: var(--bg-card);
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            padding: 1rem;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid var(--border-subtle);
+            display: flex; /* Ensure icon and text align */
+            align-items: center; /* Vertically center content */
+            gap: 0.75rem; /* Space between icon and text */
+        }
+
+        .service-result-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-3px);
+            background-color: var(--secondary-gray);
+        }
+
+        .service-result-card .icon-wrapper-small {
+            width: 2.5rem;
+            height: 2.5rem;
+            min-width: 2.5rem; /* Prevent shrinking */
+            min-height: 2.5rem; /* Prevent shrinking */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .service-result-card .details {
+            flex-grow: 1;
+        }
+
+        .service-result-card .details p {
+            margin: 0;
+            line-height: 1.4;
+        }
+
     </style>
 </head>
 <body>
@@ -941,34 +982,32 @@
                 </div>
             </div>
 
-            <!-- Recent Activity Card (Full Width) -->
+            <!-- My Latest Service Results Card (Full Width) -->
             <div class="dashboard-card glass-card animate-fade-in delay-300">
-                <h3 class="card-title"><i class="fas fa-history"></i> Recent Activity</h3>
-                <div id="recent-activity-list" class="space-y-3">
-                    {% if recent_activities %}
-                        {% for activity in recent_activities %}
-                            <div class="activity-item cursor-pointer"
-                                data-activity-type="{{ activity.type }}"
-                                data-activity-details-id="activity_details_tab_{{ forloop.counter }}"
-                                data-redirect-url="{% if activity.redirect_url %}{{ activity.redirect_url }}{% endif %}"
+                <h3 class="card-title"><i class="fas fa-file-invoice"></i> My Latest Service Results</h3>
+                <div id="latest-service-results-list" class="space-y-3">
+                    {% if latest_service_results %}
+                        {% for result in latest_service_results %}
+                            <div class="service-result-card cursor-pointer"
+                                data-service-type="{{ result.type }}"
+                                data-service-details-id="service_details_dashboard_{{ forloop.counter }}"
+                                data-redirect-url="{% if result.redirect_url %}{{ result.redirect_url }}{% endif %}"
                                 >
-                                <div class="content flex items-start">
-                                    <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
-                                        <i class="fas fa-{{ activity.icon }}"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-800 font-medium">{{ activity.description }}</p>
-                                        <p class="text-sm text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</p>
-                                    </div>
+                                <div class="icon-wrapper-small bg-{{ result.color }}-100 text-{{ result.color }}-600">
+                                    <i class="fas fa-{{ result.icon }}"></i>
                                 </div>
-                                {# Store activity details in a script tag for safe JSON parsing #}
-                                <script type="application/json" id="activity_details_tab_{{ forloop.counter }}">
-                                    {{ activity.details|json_script:"activity_details_data" }}
+                                <div class="details">
+                                    <p class="font-semibold text-gray-800">{{ result.description }}</p>
+                                    <p class="text-sm text-gray-500">{{ result.timestamp|date:"M d, Y H:i" }}</p>
+                                </div>
+                                {# Store service details in a script tag for safe JSON parsing #}
+                                <script type="application/json" id="service_details_dashboard_{{ forloop.counter }}">
+                                    {{ result.details|json_script:"service_details_data" }}
                                 </script>
                             </div>
                         {% endfor %}
                     {% else %}
-                        <p class="text-center text-gray-500 py-4">No recent activity to display.</p>
+                        <p class="text-center text-gray-500 py-4">No service results to display yet.</p>
                     {% endif %}
                 </div>
             </div>
@@ -1032,19 +1071,17 @@
                 <div id="my-recent-activity-tab" class="main-content-tab-content space-y-3">
                     {% if recent_activities %}
                         {% for activity in recent_activities %}
-                            <div class="activity-item cursor-pointer"
-                                data-activity-type="{{ activity.type }}"
-                                data-activity-details-id="activity_details_tab_{{ forloop.counter }}"
+                            <div class="activity-item service-result-card cursor-pointer"
+                                data-service-type="{{ activity.type }}"
+                                data-service-details-id="activity_details_tab_{{ forloop.counter }}"
                                 data-redirect-url="{% if activity.redirect_url %}{{ activity.redirect_url }}{% endif %}"
                                 >
-                                <div class="content flex items-start">
-                                    <div class="activity-icon bg-{{ activity.color }}-100 text-{{ activity.color }}-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
-                                        <i class="fas fa-{{ activity.icon }}"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-800 font-medium">{{ activity.description }}</p>
-                                        <p class="text-sm text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</p>
-                                    </div>
+                                <div class="icon-wrapper-small bg-{{ activity.color }}-100 text-{{ activity.color }}-600">
+                                    <i class="fas fa-{{ activity.icon }}"></i>
+                                </div>
+                                <div class="details">
+                                    <p class="font-semibold text-gray-800">{{ activity.description }}</p>
+                                    <p class="text-sm text-gray-500">{{ activity.timestamp|date:"M d, Y H:i" }}</p>
                                 </div>
                                 {# Store activity details in a script tag for safe JSON parsing #}
                                 <script type="application/json" id="activity_details_tab_{{ forloop.counter }}">
@@ -1060,11 +1097,11 @@
                 <div id="my-service-results-tab" class="main-content-tab-content hidden space-y-3"> {# Initially hidden #}
                     {% if user_rent_checks or user_reviews or user_complaints or user_forum_posts or user_liked_profiles or user_rental_contracts or user_rent_declaration_checks %}
                         {% for rent_result in user_rent_checks %}
-                            <div class="service-result-card cursor-pointer rent-checker-result-card glass-card p-4 flex items-center"
-                                data-activity-type="Rent Check"
+                            <div class="service-result-card cursor-pointer"
+                                data-service-type="Rent Check"
                                 data-service-details-id="service_details_rent_check_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper-small bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
+                                <div class="icon-wrapper-small bg-blue-100 text-blue-600">
                                     <i class="fas fa-gbp-sign"></i>
                                 </div>
                                 <div class="details">
@@ -1084,14 +1121,14 @@
                         {% endfor %}
 
                         {% for review in user_reviews %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Review"
+                            <div class="service-result-card cursor-pointer"
+                                data-service-type="Review"
                                 data-service-details-id="service_details_review_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper-small bg-green-100 text-green-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
+                                <div class="icon-wrapper-small bg-green-100 text-green-600">
                                     <i class="fas fa-star"></i>
                                 </div>
-                                <div>
+                                <div class="details">
                                     <p class="font-semibold text-gray-800">Your Review for <span class="font-bold">{{ review.landlord_name }}</span> ({{ review.property_address }})</p>
                                     <p class="text-gray-700">Rating: <span class="font-bold text-green-600">{{ review.rating }} Stars</span></p>
                                     <p class="text-sm text-gray-500">"{{ review.comments|truncatechars:100 }}"</p>
@@ -1111,14 +1148,14 @@
                         {% endfor %}
 
                         {% for complaint in user_complaints %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Complaint"
+                            <div class="service-result-card cursor-pointer"
+                                data-service-type="Complaint"
                                 data-service-details-id="service_details_complaint_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper-small bg-red-100 text-red-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
+                                <div class="icon-wrapper-small bg-red-100 text-red-600">
                                     <i class="fas fa-exclamation-triangle"></i>
                                 </div>
-                                <div>
+                                <div class="details">
                                     <p class="font-semibold text-gray-800">Complaint: <span class="font-bold">{{ complaint.get_issue_type_display }}</span> (<span class="font-bold">{{ complaint.property_address }}</span>)</p>
                                     <p class="text-gray-700">Status: <span class="text-orange-500 font-semibold">{{ complaint.get_status_display }}</span></p>
                                     <p class="text-sm text-gray-500">Submitted on {{ complaint.submitted_at|date:"M d, Y" }}</p>
@@ -1137,14 +1174,14 @@
                         {% endfor %}
 
                         {% for post in user_forum_posts %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Forum Post"
+                            <div class="service-result-card cursor-pointer"
+                                data-service-type="Forum Post"
                                 data-service-details-id="service_details_forum_post_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper-small bg-yellow-100 text-yellow-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
+                                <div class="icon-wrapper-small bg-yellow-100 text-yellow-600">
                                     <i class="fas fa-comments"></i>
                                 </div>
-                                <div>
+                                <div class="details">
                                     <p class="font-semibold text-gray-800">Forum Post: <span class="font-bold">"{{ post.title }}"</span></p>
                                     <p class="text-gray-700">Category: <span class="font-bold">{{ post.get_category_display }}</span></p>
                                     <p class="text-sm text-gray-500">Posted on {{ post.created_at|date:"M d, Y" }}</p>
@@ -1162,14 +1199,14 @@
                         {% endfor %}
 
                         {% for liked_profile in user_liked_profiles %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Liked Profile"
+                            <div class="service-result-card cursor-pointer"
+                                data-service-type="Liked Profile"
                                 data-service-details-id="service_details_liked_profile_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper-small bg-pink-100 text-pink-500 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
+                                <div class="icon-wrapper-small bg-pink-100 text-pink-500">
                                     <i class="fas fa-heart"></i>
                                 </div>
-                                <div>
+                                <div class="details">
                                     <p class="font-semibold text-gray-800">Liked Profile: <span class="font-bold">{{ liked_profile.liked_user_name }}</span></p>
                                     <p class="text-gray-700">Compatibility: <span class="font-bold text-blue-600">{{ liked_profile.liked_user_compatibility_score|default:'N/A' }}%</span></p>
                                     <p class="text-sm text-gray-500">Liked on {{ liked_profile.liked_at|date:"M d, Y" }}</p>
@@ -1202,14 +1239,14 @@
                         {% endfor %}
 
                         {% for contract in user_rental_contracts %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Contract Analysis"
+                            <div class="service-result-card cursor-pointer"
+                                data-service-type="Contract Analysis"
                                 data-service-details-id="service_details_contract_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper-small bg-teal-100 text-teal-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
+                                <div class="icon-wrapper-small bg-teal-100 text-teal-600">
                                     <i class="fas fa-file-contract"></i>
                                 </div>
-                                <div>
+                                <div class="details">
                                     <p class="font-semibold text-gray-800">Contract Analysis</p>
                                     <p class="text-gray-700">Analyzed on <span class="font-bold">{{ contract.analyzed_at|date:"M d, Y" }}</span></p>
                                     <p class="text-sm text-gray-500">Preview: "{{ contract.original_text|truncatechars:100 }}"</p>
@@ -1225,14 +1262,14 @@
                         {% endfor %}
 
                         {% for declaration_check in user_rent_declaration_checks %}
-                            <div class="service-result-card cursor-pointer glass-card p-4 flex items-center"
-                                data-activity-type="Rent Declaration Check"
+                            <div class="service-result-card cursor-pointer"
+                                data-service-type="Rent Declaration Check"
                                 data-service-details-id="service_details_declaration_check_{{ forloop.counter }}"
                                 >
-                                <div class="icon-wrapper-small bg-orange-100 text-orange-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-lg">
+                                <div class="icon-wrapper-small bg-orange-100 text-orange-600">
                                     <i class="fas fa-file-invoice-dollar"></i>
                                 </div>
-                                <div>
+                                <div class="details">
                                     <p class="font-semibold text-gray-800">Rent Declaration Check for <span class="font-bold">{{ declaration_check.postcode }}</span></p>
                                     <p class="text-gray-700">Discrepancy: <span class="font-bold {% if declaration_check.discrepancy_found %}text-red-600{% else %}text-green-600{% endif %}">{{ declaration_check.discrepancy_found|yesno:"Found,None" }}</span></p>
                                     <p class="text-sm text-gray-500">Checked on {{ declaration_check.checked_at|date:"M d, Y" }}</p>
@@ -2175,7 +2212,7 @@
                     // Check if it's a full ISO string (from JS) or just a date (from Django)
                     const date = new Date(dateString);
                     if (isNaN(date.getTime())) { // Invalid date
-                         return dateString; // Return as is if it can't be parsed
+                            return dateString; // Return as is if it can't be parsed
                     }
                     return date.toLocaleString();
                 } catch (e) {
@@ -2322,12 +2359,12 @@
         }
 
         document.addEventListener('click', (event) => {
-            const activityItem = event.target.closest('.activity-item[data-activity-details-id]');
+            const activityItem = event.target.closest('.activity-item[data-service-details-id]'); // Changed to data-service-details-id for consistency
             const serviceResultCard = event.target.closest('.service-result-card[data-service-details-id]');
 
-            if (activityItem) {
-                const activityType = activityItem.dataset.activityType;
-                const scriptId = activityItem.dataset.activityDetailsId;
+            if (activityItem) { // This handles items in the "Recent Activity" tab
+                const serviceType = activityItem.dataset.serviceType; // Changed to serviceType
+                const scriptId = activityItem.dataset.serviceDetailsId; // Changed to serviceDetailsId
                 const redirectUrl = activityItem.dataset.redirectUrl || null;
                 const scriptTag = document.getElementById(scriptId);
                 let details;
@@ -2336,9 +2373,9 @@
                     try {
                         // Correctly parse JSON from the script tag's text content
                         details = JSON.parse(scriptTag.textContent);
-                        const chatUid = (activityType === 'Liked Profile' && details.uid) ? details.uid : null;
-                        const profileUserType = (activityType === 'Liked Profile' && details.user_type) ? details.user_type : null;
-                        displayActivityDetails(activityType, details, redirectUrl, chatUid, profileUserType);
+                        const chatUid = (serviceType === 'Liked Profile' && details.uid) ? details.uid : null;
+                        const profileUserType = (serviceType === 'Liked Profile' && details.user_type) ? details.user_type : null;
+                        displayActivityDetails(serviceType, details, redirectUrl, chatUid, profileUserType);
                     } catch (e) {
                         console.error('Error parsing JSON from activity script tag:', e, scriptTag.textContent);
                         showToast('Error loading activity details (parse error).', 'error');
@@ -2349,8 +2386,8 @@
                     showToast('Error loading activity details (script tag missing).', 'error');
                     return;
                 }
-            } else if (serviceResultCard) {
-                const activityType = serviceResultCard.dataset.activityType;
+            } else if (serviceResultCard) { // This handles items in the "My Service Results" tab and dashboard home
+                const serviceType = serviceResultCard.dataset.serviceType;
                 const scriptId = serviceResultCard.dataset.serviceDetailsId;
                 const scriptTag = document.getElementById(scriptId);
                 let details;
@@ -2359,9 +2396,9 @@
                     try {
                         // Correctly parse JSON from the script tag's text content
                         details = JSON.parse(scriptTag.textContent);
-                        const chatUid = (activityType === 'Liked Profile' && details.uid) ? details.uid : null;
-                        const profileUserType = (activityType === 'Liked Profile' && details.user_type) ? details.user_type : null;
-                        displayActivityDetails(activityType, details, null, chatUid, profileUserType);
+                        const chatUid = (serviceType === 'Liked Profile' && details.uid) ? details.uid : null;
+                        const profileUserType = (serviceType === 'Liked Profile' && details.user_type) ? details.user_type : null;
+                        displayActivityDetails(serviceType, details, null, chatUid, profileUserType);
                     } catch (e) {
                         console.error('Error parsing JSON from service result script tag:', e, scriptTag.textContent);
                         showToast('Error loading service result details (parse error).', 'error');
