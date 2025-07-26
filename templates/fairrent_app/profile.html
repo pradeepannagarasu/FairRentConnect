@@ -2175,7 +2175,7 @@
                     // Check if it's a full ISO string (from JS) or just a date (from Django)
                     const date = new Date(dateString);
                     if (isNaN(date.getTime())) { // Invalid date
-                         return dateString; // Return as is if it can't be parsed
+                        return dateString; // Return as is if it can't be parsed
                     }
                     return date.toLocaleString();
                 } catch (e) {

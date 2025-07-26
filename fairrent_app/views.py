@@ -14,8 +14,8 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.conf import settings # Import settings to access API keys
 from django.db import transaction # For atomic operations
-from django.contrib.auth.models import User # Import User model
-from django.db.models import Q # Import Q for complex queries
+from django.contrib.auth.models import User  # Import User model
+from django.db.models import Q  # Import Q for complex queries
 
 import json
 import requests
@@ -29,7 +29,7 @@ from datetime import datetime # Import datetime for date parsing
 from .models import (
     Complaint, LandlordReview, RoommateProfile, ForumPost, ForumReply,
     RentCheck, LikedProfile, RentalContract, RentDeclarationCheck,
-    ChatMessage, Notification, Connection
+    ChatMessage, Notification, Connection # NEW: Import Connection
 )
 
 # Get an instance of a logger
@@ -51,8 +51,8 @@ def profile_view(request):
     complaints, reviews, roommate profile, rent checks, forum posts, and liked profiles.
     Handles cases where a RoommateProfile might not yet exist for the user.
     """
-    user_complaints = Complaint.objects.filter(user=request.user).order_by('-submitted_at')
-    user_reviews = LandlordReview.objects.filter(user=request.user).order_by('-reviewed_at')
+    user_complaints = Complaint.objects.filter(user=request.user).order_by('-submitted_at')[:5]
+    user_reviews = LandlordReview.objects.filter(user=request.user).order_by('-reviewed_at')[:5]
     
     # CRITICAL CHANGE: Fetch the roommate profile, and handle if it doesn't exist
     user_roommate_profile = RoommateProfile.objects.filter(user=request.user).first()
@@ -61,23 +61,53 @@ def profile_view(request):
     if not user_roommate_profile:
         messages.info(request, "Welcome! Please create your roommate profile to unlock all features and find matches.")
 
-    user_rent_checks = RentCheck.objects.filter(user=request.user).order_by('-checked_at')
-    user_forum_posts = ForumPost.objects.filter(user=request.user).order_by('-created_at')
+    user_rent_checks = RentCheck.objects.filter(user=request.user).order_by('-checked_at')[:5] # Fetch user's rent checks
+    user_forum_posts = ForumPost.objects.filter(user=request.user).order_by('-created_at')[:5]
     # IMPORTANT: Select related user for liked profiles to get their UID
-    user_liked_profiles = LikedProfile.objects.filter(user=request.user).order_by('-liked_at') 
-    user_rental_contracts = RentalContract.objects.filter(user=request.user).order_by('-analyzed_at')
-    user_rent_declaration_checks = RentDeclarationCheck.objects.filter(user=request.user).order_by('-checked_at')
+    user_liked_profiles = LikedProfile.objects.filter(user=request.user).order_by('-liked_at')[:5]  
+    user_rental_contracts = RentalContract.objects.filter(user=request.user).order_by('-analyzed_at')[:5] # Fetch user's analyzed contracts
+    user_rent_declaration_checks = RentDeclarationCheck.objects.filter(user=request.user).order_by('-checked_at')[:5] # Fetch user's rent declaration checks
 
     # Fetch unread notifications count
     unread_notifications_count = Notification.objects.filter(recipient=request.user, is_read=False).count()
 
-    # --- Prepare data for "My Latest Service Results" (for dashboard home) ---
-    # This list will contain only service-related activities for the main dashboard card.
-    dashboard_latest_service_results = []
 
-    # Add Rent Checks to dashboard results
+    # Combine all user activities for the 'Recent Activity' section, sort by timestamp
+    all_activities = []
+    for complaint in user_complaints:
+        all_activities.append({
+            'type': 'Complaint',
+            'description': f"Submitted complaint about {complaint.get_issue_type_display()}",
+            'timestamp': complaint.submitted_at,
+            'icon': 'exclamation-triangle',
+            'color': 'red',
+            'details': { # Include details for modal display
+                'issue_type': complaint.get_issue_type_display(),
+                'property_address': complaint.property_address,
+                'landlord_name': complaint.landlord_name,
+                'description': complaint.description,
+                'status': complaint.get_status_display(),
+                'submitted_at': complaint.submitted_at.isoformat() if complaint.submitted_at else None
+            }
+        })
+    for review in user_reviews:
+        all_activities.append({
+            'type': 'Review',
+            'description': f"Submitted review for {review.landlord_name}",
+            'timestamp': review.reviewed_at,
+            'icon': 'star',
+            'color': 'green',
+            'details': { # Include details for modal display
+                'landlord_name': review.landlord_name,
+                'property_address': review.property_address,
+                'rating': review.rating,
+                'comments': review.comments,
+                'reviewed_at': review.reviewed_at.isoformat() if review.reviewed_at else None,
+                'reviewer': review.user.username
+            }
+        })
     for rent_check in user_rent_checks:
-        dashboard_latest_service_results.append({
+        all_activities.append({
             'type': 'Rent Check',
             'description': f"Checked rent for {rent_check.postcode} ({rent_check.bedrooms} bed)",
             'timestamp': rent_check.checked_at,
@@ -90,138 +120,14 @@ def profile_view(request):
                 'checked_at': rent_check.checked_at.isoformat() if rent_check.checked_at else None
             }
         })
-    # Add Reviews to dashboard results
-    for review in user_reviews:
-        dashboard_latest_service_results.append({
-            'type': 'Review',
-            'description': f"Submitted review for {review.landlord_name}",
-            'timestamp': review.reviewed_at,
-            'icon': 'star',
-            'color': 'green',
-            'details': { # Include details for modal display
-                'landlord_name': review.landlord_name,
-                'property_address': review.property_address,
-                'rating': review.rating,
-                'comments': review.comments,
-                'reviewed_at': review.reviewed_at.isoformat() if review.reviewed_at else None,
-                'reviewer': review.user.username
-            }
-        })
-    # Add Complaints to dashboard results
-    for complaint in user_complaints:
-        dashboard_latest_service_results.append({
-            'type': 'Complaint',
-            'description': f"Submitted complaint about {complaint.get_issue_type_display()}",
-            'timestamp': complaint.submitted_at,
-            'icon': 'exclamation-triangle',
-            'color': 'red',
-            'details': { # Include details for modal display
-                'issue_type': complaint.get_issue_type_display(),
-                'property_address': complaint.property_address,
-                'landlord_name': complaint.landlord_name,
-                'description': complaint.description,
-                'status': complaint.get_status_display(),
-                'submitted_at': complaint.submitted_at.isoformat() if complaint.submitted_at else None
-            }
-        })
-    # Add Rental Contracts to dashboard results
-    for contract in user_rental_contracts:
-        dashboard_latest_service_results.append({
-            'type': 'Contract Analysis',
-            'description': f"Analyzed a rental contract",
-            'timestamp': contract.analyzed_at,
-            'icon': 'file-contract',
-            'color': 'indigo',
-            'details': {
-                'original_text': contract.original_text,
-                'analysis_result': contract.analysis_result,
-                'analyzed_at': contract.analyzed_at.isoformat() if contract.analyzed_at else None
-            }
-        })
-    # Add Rent Declaration Checks to dashboard results
-    for declaration_check in user_rent_declaration_checks:
-        dashboard_latest_service_results.append({
-            'type': 'Rent Declaration Check',
-            'description': f"Checked rent declaration for {declaration_check.postcode}",
-            'timestamp': declaration_check.checked_at,
-            'icon': 'file-invoice-dollar',
-            'color': 'orange',
-            'details': {
-                'postcode': declaration_check.postcode,
-                'bedrooms': declaration_check.bedrooms,
-                'actual_rent_paid': str(declaration_check.actual_rent_paid),
-                'council_tax_band': declaration_check.council_tax_band,
-                'estimated_council_tax': str(declaration_check.estimated_council_tax) if declaration_check.estimated_council_tax else 'N/A',
-                'discrepancy_found': declaration_check.discrepancy_found,
-                'analysis_result': declaration_check.analysis_result,
-                'checked_at': declaration_check.checked_at.isoformat() if declaration_check.checked_at else None
-            }
-        })
-
-    # Sort dashboard service results by timestamp in descending order and limit to 5
-    dashboard_latest_service_results.sort(key=lambda x: x['timestamp'], reverse=True)
-    dashboard_latest_service_results = dashboard_latest_service_results[:5]
-
-
-    # --- Prepare data for "Recent Activity" tab (all activities) ---
-    # This list will contain all types of user activities for the dedicated tab.
-    tab_recent_activities = []
-
-    # Add all activities including forum posts and liked profiles
-    for complaint in user_complaints:
-        tab_recent_activities.append({
-            'type': 'Complaint',
-            'description': f"Submitted complaint about {complaint.get_issue_type_display()}",
-            'timestamp': complaint.submitted_at,
-            'icon': 'exclamation-triangle',
-            'color': 'red',
-            'details': {
-                'issue_type': complaint.get_issue_type_display(),
-                'property_address': complaint.property_address,
-                'landlord_name': complaint.landlord_name,
-                'description': complaint.description,
-                'status': complaint.get_status_display(),
-                'submitted_at': complaint.submitted_at.isoformat() if complaint.submitted_at else None
-            }
-        })
-    for review in user_reviews:
-        tab_recent_activities.append({
-            'type': 'Review',
-            'description': f"Submitted review for {review.landlord_name}",
-            'timestamp': review.reviewed_at,
-            'icon': 'star',
-            'color': 'green',
-            'details': {
-                'landlord_name': review.landlord_name,
-                'property_address': review.property_address,
-                'rating': review.rating,
-                'comments': review.comments,
-                'reviewed_at': review.reviewed_at.isoformat() if review.reviewed_at else None,
-                'reviewer': review.user.username
-            }
-        })
-    for rent_check in user_rent_checks:
-        tab_recent_activities.append({
-            'type': 'Rent Check',
-            'description': f"Checked rent for {rent_check.postcode} ({rent_check.bedrooms} bed)",
-            'timestamp': rent_check.checked_at,
-            'icon': 'gbp-sign',
-            'color': 'blue',
-            'details': {
-                'postcode': rent_check.postcode,
-                'bedrooms': rent_check.bedrooms,
-                'estimated_rent': str(rent_check.estimated_rent) if rent_check.estimated_rent else None,
-                'checked_at': rent_check.checked_at.isoformat() if rent_check.checked_at else None
-            }
-        })
     for post in user_forum_posts:
-        tab_recent_activities.append({
+        all_activities.append({
             'type': 'Forum Post',
             'description': f"Posted in Community Forums: '{post.title}'",
             'timestamp': post.created_at,
             'icon': 'comments',
             'color': 'yellow',
-            'details': {
+            'details': { # Include details for modal display
                 'title': post.title,
                 'content': post.content,
                 'category': post.get_category_display(),
@@ -230,13 +136,13 @@ def profile_view(request):
             }
         })
     for liked_profile in user_liked_profiles:
-        tab_recent_activities.append({
+        all_activities.append({
             'type': 'Liked Profile',
             'description': f"Liked profile: {liked_profile.liked_user_name}",
             'timestamp': liked_profile.liked_at,
-            'icon': 'heart',
-            'color': 'pink',
-            'details': {
+            'icon': 'heart', # Using a heart icon for liked profiles
+            'color': 'pink', # Using pink for liked profiles
+            'details': { # Store full details to reopen modal
                 'name': liked_profile.liked_user_name,
                 'age': liked_profile.liked_user_age,
                 'gender': liked_profile.liked_user_gender,
@@ -245,22 +151,12 @@ def profile_view(request):
                 'bio': liked_profile.liked_user_bio,
                 'compatibility_score': liked_profile.liked_user_compatibility_score,
                 'avatar_url': liked_profile.liked_user_avatar_url,
-                'uid': liked_profile.liked_user_uid,
-                'user_type': liked_profile.user_type,
-                'num_available_rooms': liked_profile.num_available_rooms,
-                'rent_amount_offering': liked_profile.rent_amount_offering,
-                'room_size': liked_profile.room_size,
-                'house_rules': liked_profile.house_rules,
-                'availability_date': liked_profile.availability_date.isoformat() if liked_profile.availability_date else None,
-                'property_photos': liked_profile.property_photos,
-                'furnished': liked_profile.furnished,
-                'bills_included': liked_profile.bills_included,
-                'contact': liked_profile.contact,
-                'occupation': liked_profile.occupation,
+                'uid': liked_profile.liked_user_uid, # NEW: Pass the liked user's UID for chat
+                'user_type': liked_profile.user_type # NEW: Pass the liked user's profile type
             }
         })
-    for contract in user_rental_contracts:
-        tab_recent_activities.append({
+    for contract in user_rental_contracts: # Add rental contracts to activities
+        all_activities.append({
             'type': 'Contract Analysis',
             'description': f"Analyzed a rental contract",
             'timestamp': contract.analyzed_at,
@@ -272,13 +168,13 @@ def profile_view(request):
                 'analyzed_at': contract.analyzed_at.isoformat() if contract.analyzed_at else None
             }
         })
-    for declaration_check in user_rent_declaration_checks:
-        tab_recent_activities.append({
+    for declaration_check in user_rent_declaration_checks: # Add rent declaration checks to activities
+        all_activities.append({
             'type': 'Rent Declaration Check',
             'description': f"Checked rent declaration for {declaration_check.postcode}",
             'timestamp': declaration_check.checked_at,
-            'icon': 'file-invoice-dollar',
-            'color': 'orange',
+            'icon': 'file-invoice-dollar', # Icon for financial documents/invoices
+            'color': 'orange', # A distinct color
             'details': {
                 'postcode': declaration_check.postcode,
                 'bedrooms': declaration_check.bedrooms,
@@ -291,23 +187,22 @@ def profile_view(request):
             }
         })
 
-    # Sort all activities for the tab by timestamp in descending order
-    tab_recent_activities.sort(key=lambda x: x['timestamp'], reverse=True)
 
+    # Sort all activities by timestamp in descending order
+    all_activities.sort(key=lambda x: x['timestamp'], reverse=True)
 
     context = {
         'user_complaints': user_complaints,
         'user_reviews': user_reviews,
-        'user_roommate_profile': user_roommate_profile,
+        'user_roommate_profile': user_roommate_profile, # Pass the fetched profile (could be None)
         'user_rent_checks': user_rent_checks,
         'user_forum_posts': user_forum_posts,
         'user_liked_profiles': user_liked_profiles,
         'user_rental_contracts': user_rental_contracts,
         'user_rent_declaration_checks': user_rent_declaration_checks,
-        'latest_service_results': dashboard_latest_service_results, # New context for dashboard home
-        'recent_activities': tab_recent_activities, # Context for the "Recent Activity" tab
+        'recent_activities': all_activities[:5],
         'current_date': timezone.now(),
-        'unread_notifications_count': unread_notifications_count,
+        'unread_notifications_count': unread_notifications_count, # Pass count to template
     }
     return render(request, 'fairrent_app/profile.html', context)
 
@@ -754,7 +649,7 @@ def find_roommate_matches_api(request):
             return JsonResponse({'status': 'error', 'message': 'AI service returned an unreadable response for matches.'}, status=500)
         except Exception as e:
             logger.exception("An unexpected error occurred during AI match generation")
-            return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred: {e}'}, status=500)
+            return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred during AI matching: {e}'}, status=500)
 
     if not found_matches:
         return JsonResponse({'status': 'info', 'message': 'No compatible roommates found at this time. Try updating your profile preferences.'}, status=200)
@@ -1702,3 +1597,4 @@ def respond_to_connection_request(request):
     except Exception as e:
         logger.exception("Error responding to connection request")
         return JsonResponse({'status': 'error', 'message': f'An unexpected server error occurred: {e}'}, status=500)
+
